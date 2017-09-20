@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package tracklets;
+
+message Snapshot {
+  
+  //enum ObjectType {
+  //    Car = 0;
+  //    Person = 1;
+  //    Unknown = 15;
+  //  }
+
+  message Object {
+    int32 ObjID = 1;
+    string ThumbnailPath = 2;
+    string CldPath = 3;
+    string ObjType = 4;
+    string status = 5;
+    string view = 6;
+    double direction = 7;
+    double displacement = 8;
+    string GrabcutPath = 9;
+  }
+
+  repeated Object object = 1;
+
+  int32 FrameID = 2;
+  int64 TimeStamp = 3;
+}
+
+message TrackletBook {
+  repeated Snapshot snapshot = 1;
+  string CamID = 2;
+  double Lat = 3;
+  double Lon = 4;
+  string VideoPath = 5;
+}
