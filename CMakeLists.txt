@@ -1,4 +1,4 @@
-SET(execName ZED_Multi_Input)
+SET(execName AugmentedVR)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
@@ -9,39 +9,14 @@ endif(COMMAND cmake_policy)
 
 SET(EXECUTABLE_OUTPUT_PATH ".")
 
-#IF(WIN32) # Windows
-##    message(FATAL_ERROR "Multi ZED not available on Windows")
-##    EXIT()
-#ELSE() # Linux
-#    find_package(ZED 1.0 REQUIRED)
-#    find_package(GLUT)
-#    find_package(GLEW)
-#    find_package(OpenGL)
-
-#    SET(Eigen_INCLUDE_DIRS "/usr/include/eigen3") ##depends if installed by packet or by own build install
-#    SET(Eigen_INCLUDE_DIRS_2 "/usr/local/include/eigen3") ##depends if installed by packet or by own build install
-#    include_directories(${Eigen_INCLUDE_DIRS_2})
-
-##For Jetson, OpenCV4Tegra is based on OpenCV2.4
-#     exec_program(uname ARGS -p OUTPUT_VARIABLE CMAKE_SYSTEM_NAME2)
-#     if ( CMAKE_SYSTEM_NAME2 MATCHES "aarch64" OR CMAKE_SYSTEM_NAME2 MATCHES "armv7l" )
-#        find_package(OpenCV 2.4)
-#     else()
-#      find_package(OpenCV 3.1)
-#     endif()
-
-
-#ENDIF(WIN32)
-
-
 #set(OpenCV_DIR /home/nsl/opencv-3.1.0/release)
 find_package(OpenCV REQUIRED)
-find_package(ZED 1.0 REQUIRED)
+find_package(ZED REQUIRED)
 find_package(GLUT)
 find_package(GLEW)
 find_package(OpenGL)
 
-LIST(APPEND CMAKE_MODULE_PATH /home/hang/AugmentedVR/src/ORB_SLAM2/cmake_modules/)
+#LIST(APPEND CMAKE_MODULE_PATH /home/hang/AugmentedVR/src/ORB_SLAM2/cmake_modules/)
 #message(${CMAKE_MODULE_PATH})
 
 find_package(Eigen3 REQUIRED)
@@ -68,6 +43,7 @@ include_directories(${Pangolin_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 include_directories(src/ORB_SLAM2/include)
+include_directories(Thirdparty/DBoW2/DBoW2)
 
 
 link_directories(${ZED_LIBRARY_DIR})
@@ -78,22 +54,23 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 link_directories(${CUDA_LIBRARY_DIRS})
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 link_directories(${PCL_LIBRARY_DIRS})
+link_directories(Thirdparty/DBoW2/lib)
+link_directories(Thirdparty/g2o/lib)
+
 
 message(${PCL_LIBRARY_DIRS})
-
 #message(${CUDA_INCLUDE_DIRS})
 
 SET(SRC_FOLDER src)
-#FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/*.cpp")
+#FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB_SLAM2/src/*.cc" "${SRC_FOLDER}/*.cpp")
 FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB_SLAM2/src/*.cc" "${SRC_FOLDER}/*.cpp")
 
 #message(${SRC_FILES})
 
 SET(HEADER_FOLDER include)
-#FILE(GLOB_RECURSE HEADER_FILES "${HEADER_FOLDER}/*.hpp" "${HEADER_FOLDER}/*.h")
 FILE(GLOB_RECURSE HEADER_FILES "${HEADER_FOLDER}/*.hpp" "${HEADER_FOLDER}/*.h" "${HEADER_FOLDER}/../src/ORB_SLAM2/include/*.h")
 
-#message(${HEADER_FILES})
+message(${HEADER_FILES})
 #set_property(TARGET ${execName} PROPERTY OUTPUT_NAME "ZED Multi Input")
 
 #add_definitions(-std=c++0x)
@@ -128,36 +105,7 @@ TARGET_LINK_LIBRARIES(${execName}
 		/usr/lib/x86_64-linux-gnu/libcuda.so.1
 		)
 
-#ADD_EXECUTABLE(AVR_Receiver ${SRC_FILES} ./app/Receiver.cpp)
-#ADD_EXECUTABLE(AVR_Sender ${SRC_FILES} ./app/Sender.cpp)
-#
-#TARGET_LINK_LIBRARIES(AVR_Receiver
-#		${ZED_LIBRARIES}
-#		${OPENGL_LIBRARIES}
-#		${GLUT_LIBRARY}
-#		${GLEW_LIBRARY}
-#		${OpenCV_LIBRARIES}
-#		${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY} ${CUDA_npp_LIBRARY}
-#		${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY} ${CUDA_nppi_LIBRARY}
-#		${Pangolin_LIBRARIES}
-#		#		src/ORB_SLAM2/lib/libORB_SLAM2.so
-#		${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-#		${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
-#		${Boost_LIBRARIES}
-#		)
-#TARGET_LINK_LIBRARIES(AVR_Sender
-#		${ZED_LIBRARIES}
-#		${OPENGL_LIBRARIES}
-#		${GLUT_LIBRARY}
-#		${GLEW_LIBRARY}
-#		${OpenCV_LIBRARIES}
-#		${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY} ${CUDA_npp_LIBRARY}
-#		${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY} ${CUDA_nppi_LIBRARY}
-#		${Pangolin_LIBRARIES}
-#		#		src/ORB_SLAM2/lib/libORB_SLAM2.so
-#		${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-#		${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
-#		${Boost_LIBRARIES}
-#		)
+
+message("${PROJECT_SOURCE_DIR}")
 
 

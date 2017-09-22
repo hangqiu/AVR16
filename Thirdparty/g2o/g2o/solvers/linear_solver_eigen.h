@@ -30,11 +30,11 @@
 #include <Eigen/Sparse>
 #include <Eigen/SparseCholesky>
 
-#include "Thirdparty/g2o/g2o/core/linear_solver.h"
-#include "Thirdparty/g2o/g2o/core/batch_stats.h"
-#include "Thirdparty/g2o/g2o/stuff/timeutil.h"
+#include "../core/linear_solver.h"
+#include "../core/batch_stats.h"
+#include "../stuff/timeutil.h"
 
-#include "Thirdparty/g2o/g2o/core/eigen_types.h"
+#include "../core/eigen_types.h"
 
 #include <iostream>
 #include <vector>
@@ -53,7 +53,7 @@ class LinearSolverEigen: public LinearSolver<MatrixType>
   public:
     typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SparseMatrix;
     typedef Eigen::Triplet<double> Triplet;
-    typedef Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, SparseMatrix::Index> PermutationMatrix;
+    typedef Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> PermutationMatrix;
     /**
      * \brief Sub-classing Eigen's SimplicialLDLT to perform ordering with a given ordering
      */

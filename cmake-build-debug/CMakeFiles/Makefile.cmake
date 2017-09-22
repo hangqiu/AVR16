@@ -335,5 +335,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/ZED_Multi_Input.dir/DependInfo.cmake"
+  "CMakeFiles/AugmentedVR.dir/DependInfo.cmake"
   )

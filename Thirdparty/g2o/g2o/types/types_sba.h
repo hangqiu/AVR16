@@ -27,7 +27,7 @@
 #ifndef G2O_SBA_TYPES
 #define G2O_SBA_TYPES
 
-#include "Thirdparty/g2o/g2o/core/base_vertex.h"
+#include "../core/base_vertex.h"
 
 #include <Eigen/Geometry>
 #include <iostream>

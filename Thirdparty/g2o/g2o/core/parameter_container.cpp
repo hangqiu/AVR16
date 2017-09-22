@@ -31,9 +31,9 @@
 #include "factory.h"
 #include "parameter.h"
 
-#include "Thirdparty/g2o/g2o/stuff/macros.h"
-#include "Thirdparty/g2o/g2o/stuff/color_macros.h"
-#include "Thirdparty/g2o/g2o/stuff/string_tools.h"
+#include "../stuff/macros.h"
+#include "../stuff/color_macros.h"
+#include "../stuff/string_tools.h"
 
 namespace g2o {
 

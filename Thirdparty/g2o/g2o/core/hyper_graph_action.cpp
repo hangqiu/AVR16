@@ -26,7 +26,7 @@
 
 #include "hyper_graph_action.h"
 #include "optimizable_graph.h"
-#include "Thirdparty/g2o/g2o/stuff/macros.h"
+#include "../stuff/macros.h"
 
 
 #include <iostream>

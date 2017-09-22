@@ -60,39 +60,39 @@ CMAKE_SOURCE_DIR = /home/hang/research/AugmentedVR
 CMAKE_BINARY_DIR = /home/hang/research/AugmentedVR/cmake-build-debug
 
 #=============================================================================
-# Target rules for target CMakeFiles/ZED_Multi_Input.dir
+# Target rules for target CMakeFiles/AugmentedVR.dir
 
 # All Build rule for target.
-CMakeFiles/ZED_Multi_Input.dir/all:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/depend
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35 "Built target ZED_Multi_Input"
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/all
+CMakeFiles/AugmentedVR.dir/all:
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/depend
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32 "Built target AugmentedVR"
+.PHONY : CMakeFiles/AugmentedVR.dir/all
 
 # Include target in all.
-all: CMakeFiles/ZED_Multi_Input.dir/all
+all: CMakeFiles/AugmentedVR.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/ZED_Multi_Input.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles 35
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ZED_Multi_Input.dir/all
+CMakeFiles/AugmentedVR.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles 32
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/AugmentedVR.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/rule
+.PHONY : CMakeFiles/AugmentedVR.dir/rule
 
 # Convenience name for target.
-ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/rule
+AugmentedVR: CMakeFiles/AugmentedVR.dir/rule
 
-.PHONY : ZED_Multi_Input
-
-# clean rule for target.
-CMakeFiles/ZED_Multi_Input.dir/clean:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/clean
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/clean
+.PHONY : AugmentedVR
 
 # clean rule for target.
-clean: CMakeFiles/ZED_Multi_Input.dir/clean
+CMakeFiles/AugmentedVR.dir/clean:
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/clean
+.PHONY : CMakeFiles/AugmentedVR.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/AugmentedVR.dir/clean
 
 .PHONY : clean
 

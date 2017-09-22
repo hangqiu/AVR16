@@ -118,12 +118,14 @@ but not all the files it references.
 -- Found the following Boost libraries:
 --   serialization
 /usr/local/lib
+/home/hang/research/AugmentedVR/include/AugmentedVR.hpp/home/hang/research/AugmentedVR/include/Displayer.hpp/home/hang/research/AugmentedVR/include/GLViewer.hpp/home/hang/research/AugmentedVR/include/IO.hpp/home/hang/research/AugmentedVR/include/ObjReceiver.hpp/home/hang/research/AugmentedVR/include/ObjSender.hpp/home/hang/research/AugmentedVR/include/VCluster.hpp/home/hang/research/AugmentedVR/include/globals.hpp/home/hang/research/AugmentedVR/include/landmark.hpp/home/hang/research/AugmentedVR/include/landmark_matchinfo.hpp/home/hang/research/AugmentedVR/include/pcCodec.hpp/home/hang/research/AugmentedVR/include/GL/freeglut.h/home/hang/research/AugmentedVR/include/GL/freeglut_ext.h/home/hang/research/AugmentedVR/include/GL/freeglut_std.h/home/hang/research/AugmentedVR/include/GL/glut.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Converter.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Frame.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/FrameDrawer.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Initializer.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/KeyFrame.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/KeyFrameDatabase.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/LocalMapping.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/LoopClosing.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Map.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/MapDrawer.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/MapPoint.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/ORBVocabulary.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/ORBextractor.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/ORBmatcher.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Optimizer.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/PnPsolver.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Sim3Solver.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/System.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Tracking.h/home/hang/research/AugmentedVR/include/../src/ORB_SLAM2/include/Viewer.h
 /usr/local/cuda/lib64/libcudart_static.a;-lpthread;dl;/usr/lib/x86_64-linux-gnu/librt.so
 /usr/local/cuda/lib64/libnppi.so
 /usr/local/cuda/lib64/libnpps.so
 
 /usr/local/cuda/lib64/libnppc.so;/usr/local/cuda/lib64/libnppi.so;/usr/local/cuda/lib64/libnpps.so
 /usr/local/cuda/lib64/libcudart.so
+/home/hang/research/AugmentedVR
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/hang/research/AugmentedVR/cmake-build-debug

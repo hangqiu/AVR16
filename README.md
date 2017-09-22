@@ -17,8 +17,11 @@ AVR extends vehicular vision to see beyond obstruction by sharing views through 
 - sudo apt-get install libopenexr-dev libeigen3-dev libboost-all-dev libgtk2.0-dev libqt4-dev libopenni-dev libopenni2-dev libvtk5-dev libxmu-dev libxi-dev
 - [OpenCV 3.1](http://opencv.org/downloads.html) with [OpenCV_Contrib](https://github.com/opencv/opencv_contrib), get a releaser version from both
 
+
+
 ## Build the program
 
+    sh pre-build.sh  //build 3rd party libraries and untar vocabulary
     mkdir build
     cd build
     cmake ..

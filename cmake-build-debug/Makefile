@@ -111,526 +111,481 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ZED_Multi_Input
+# Target rules for targets named AugmentedVR
 
 # Build rule for target.
-ZED_Multi_Input: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ZED_Multi_Input
-.PHONY : ZED_Multi_Input
+AugmentedVR: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 AugmentedVR
+.PHONY : AugmentedVR
 
 # fast build rule for target.
-ZED_Multi_Input/fast:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/build
-.PHONY : ZED_Multi_Input/fast
+AugmentedVR/fast:
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/build
+.PHONY : AugmentedVR/fast
 
 # target to build an object file
 app/main.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/app/main.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/app/main.o
 .PHONY : app/main.o
 
 # target to preprocess a source file
 app/main.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/app/main.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/app/main.i
 .PHONY : app/main.i
 
 # target to generate assembly for a file
 app/main.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/app/main.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/app/main.s
 .PHONY : app/main.s
 
 # target to build an object file
 src/AugmentedVR/AugmentedVR.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/AugmentedVR.o
 .PHONY : src/AugmentedVR/AugmentedVR.o
 
 # target to preprocess a source file
 src/AugmentedVR/AugmentedVR.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/AugmentedVR.i
 .PHONY : src/AugmentedVR/AugmentedVR.i
 
 # target to generate assembly for a file
 src/AugmentedVR/AugmentedVR.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/AugmentedVR.s
 .PHONY : src/AugmentedVR/AugmentedVR.s
 
 # target to build an object file
-src/AugmentedVR/CameraGL.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.o
-.PHONY : src/AugmentedVR/CameraGL.o
-
-# target to preprocess a source file
-src/AugmentedVR/CameraGL.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.i
-.PHONY : src/AugmentedVR/CameraGL.i
-
-# target to generate assembly for a file
-src/AugmentedVR/CameraGL.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.s
-.PHONY : src/AugmentedVR/CameraGL.s
-
-# target to build an object file
 src/AugmentedVR/Displayer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/Displayer.o
 .PHONY : src/AugmentedVR/Displayer.o
 
 # target to preprocess a source file
 src/AugmentedVR/Displayer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/Displayer.i
 .PHONY : src/AugmentedVR/Displayer.i
 
 # target to generate assembly for a file
 src/AugmentedVR/Displayer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/Displayer.s
 .PHONY : src/AugmentedVR/Displayer.s
 
 # target to build an object file
 src/AugmentedVR/GLViewer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/GLViewer.o
 .PHONY : src/AugmentedVR/GLViewer.o
 
 # target to preprocess a source file
 src/AugmentedVR/GLViewer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/GLViewer.i
 .PHONY : src/AugmentedVR/GLViewer.i
 
 # target to generate assembly for a file
 src/AugmentedVR/GLViewer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/GLViewer.s
 .PHONY : src/AugmentedVR/GLViewer.s
 
 # target to build an object file
 src/AugmentedVR/IO.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/IO.o
 .PHONY : src/AugmentedVR/IO.o
 
 # target to preprocess a source file
 src/AugmentedVR/IO.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/IO.i
 .PHONY : src/AugmentedVR/IO.i
 
 # target to generate assembly for a file
 src/AugmentedVR/IO.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/IO.s
 .PHONY : src/AugmentedVR/IO.s
 
 # target to build an object file
 src/AugmentedVR/ObjReceiver.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjReceiver.o
 .PHONY : src/AugmentedVR/ObjReceiver.o
 
 # target to preprocess a source file
 src/AugmentedVR/ObjReceiver.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjReceiver.i
 .PHONY : src/AugmentedVR/ObjReceiver.i
 
 # target to generate assembly for a file
 src/AugmentedVR/ObjReceiver.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjReceiver.s
 .PHONY : src/AugmentedVR/ObjReceiver.s
 
 # target to build an object file
 src/AugmentedVR/ObjSender.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjSender.o
 .PHONY : src/AugmentedVR/ObjSender.o
 
 # target to preprocess a source file
 src/AugmentedVR/ObjSender.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjSender.i
 .PHONY : src/AugmentedVR/ObjSender.i
 
 # target to generate assembly for a file
 src/AugmentedVR/ObjSender.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/ObjSender.s
 .PHONY : src/AugmentedVR/ObjSender.s
 
 # target to build an object file
-src/AugmentedVR/Shader.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o
-.PHONY : src/AugmentedVR/Shader.o
-
-# target to preprocess a source file
-src/AugmentedVR/Shader.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.i
-.PHONY : src/AugmentedVR/Shader.i
-
-# target to generate assembly for a file
-src/AugmentedVR/Shader.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.s
-.PHONY : src/AugmentedVR/Shader.s
-
-# target to build an object file
-src/AugmentedVR/Simple3DObject.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o
-.PHONY : src/AugmentedVR/Simple3DObject.o
-
-# target to preprocess a source file
-src/AugmentedVR/Simple3DObject.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.i
-.PHONY : src/AugmentedVR/Simple3DObject.i
-
-# target to generate assembly for a file
-src/AugmentedVR/Simple3DObject.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.s
-.PHONY : src/AugmentedVR/Simple3DObject.s
-
-# target to build an object file
 src/AugmentedVR/globals.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/globals.o
 .PHONY : src/AugmentedVR/globals.o
 
 # target to preprocess a source file
 src/AugmentedVR/globals.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/globals.i
 .PHONY : src/AugmentedVR/globals.i
 
 # target to generate assembly for a file
 src/AugmentedVR/globals.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/globals.s
 .PHONY : src/AugmentedVR/globals.s
 
 # target to build an object file
 src/AugmentedVR/landmark.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark.o
 .PHONY : src/AugmentedVR/landmark.o
 
 # target to preprocess a source file
 src/AugmentedVR/landmark.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark.i
 .PHONY : src/AugmentedVR/landmark.i
 
 # target to generate assembly for a file
 src/AugmentedVR/landmark.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark.s
 .PHONY : src/AugmentedVR/landmark.s
 
 # target to build an object file
 src/AugmentedVR/landmark_matchinfo.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark_matchinfo.o
 .PHONY : src/AugmentedVR/landmark_matchinfo.o
 
 # target to preprocess a source file
 src/AugmentedVR/landmark_matchinfo.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark_matchinfo.i
 .PHONY : src/AugmentedVR/landmark_matchinfo.i
 
 # target to generate assembly for a file
 src/AugmentedVR/landmark_matchinfo.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/landmark_matchinfo.s
 .PHONY : src/AugmentedVR/landmark_matchinfo.s
 
 # target to build an object file
 src/AugmentedVR/pcCodec.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/pcCodec.o
 .PHONY : src/AugmentedVR/pcCodec.o
 
 # target to preprocess a source file
 src/AugmentedVR/pcCodec.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/pcCodec.i
 .PHONY : src/AugmentedVR/pcCodec.i
 
 # target to generate assembly for a file
 src/AugmentedVR/pcCodec.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/AugmentedVR/pcCodec.s
 .PHONY : src/AugmentedVR/pcCodec.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Converter.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Converter.o
 .PHONY : src/ORB_SLAM2/src/Converter.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Converter.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Converter.i
 .PHONY : src/ORB_SLAM2/src/Converter.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Converter.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Converter.s
 .PHONY : src/ORB_SLAM2/src/Converter.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Frame.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Frame.o
 .PHONY : src/ORB_SLAM2/src/Frame.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Frame.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Frame.i
 .PHONY : src/ORB_SLAM2/src/Frame.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Frame.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Frame.s
 .PHONY : src/ORB_SLAM2/src/Frame.s
 
 # target to build an object file
 src/ORB_SLAM2/src/FrameDrawer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/FrameDrawer.o
 .PHONY : src/ORB_SLAM2/src/FrameDrawer.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/FrameDrawer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/FrameDrawer.i
 .PHONY : src/ORB_SLAM2/src/FrameDrawer.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/FrameDrawer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/FrameDrawer.s
 .PHONY : src/ORB_SLAM2/src/FrameDrawer.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Initializer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Initializer.o
 .PHONY : src/ORB_SLAM2/src/Initializer.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Initializer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Initializer.i
 .PHONY : src/ORB_SLAM2/src/Initializer.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Initializer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Initializer.s
 .PHONY : src/ORB_SLAM2/src/Initializer.s
 
 # target to build an object file
 src/ORB_SLAM2/src/KeyFrame.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrame.o
 .PHONY : src/ORB_SLAM2/src/KeyFrame.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/KeyFrame.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrame.i
 .PHONY : src/ORB_SLAM2/src/KeyFrame.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/KeyFrame.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrame.s
 .PHONY : src/ORB_SLAM2/src/KeyFrame.s
 
 # target to build an object file
 src/ORB_SLAM2/src/KeyFrameDatabase.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o
 .PHONY : src/ORB_SLAM2/src/KeyFrameDatabase.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/KeyFrameDatabase.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrameDatabase.i
 .PHONY : src/ORB_SLAM2/src/KeyFrameDatabase.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/KeyFrameDatabase.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/KeyFrameDatabase.s
 .PHONY : src/ORB_SLAM2/src/KeyFrameDatabase.s
 
 # target to build an object file
 src/ORB_SLAM2/src/LocalMapping.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LocalMapping.o
 .PHONY : src/ORB_SLAM2/src/LocalMapping.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/LocalMapping.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LocalMapping.i
 .PHONY : src/ORB_SLAM2/src/LocalMapping.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/LocalMapping.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LocalMapping.s
 .PHONY : src/ORB_SLAM2/src/LocalMapping.s
 
 # target to build an object file
 src/ORB_SLAM2/src/LoopClosing.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LoopClosing.o
 .PHONY : src/ORB_SLAM2/src/LoopClosing.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/LoopClosing.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LoopClosing.i
 .PHONY : src/ORB_SLAM2/src/LoopClosing.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/LoopClosing.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/LoopClosing.s
 .PHONY : src/ORB_SLAM2/src/LoopClosing.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Map.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Map.o
 .PHONY : src/ORB_SLAM2/src/Map.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Map.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Map.i
 .PHONY : src/ORB_SLAM2/src/Map.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Map.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Map.s
 .PHONY : src/ORB_SLAM2/src/Map.s
 
 # target to build an object file
 src/ORB_SLAM2/src/MapDrawer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapDrawer.o
 .PHONY : src/ORB_SLAM2/src/MapDrawer.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/MapDrawer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapDrawer.i
 .PHONY : src/ORB_SLAM2/src/MapDrawer.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/MapDrawer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapDrawer.s
 .PHONY : src/ORB_SLAM2/src/MapDrawer.s
 
 # target to build an object file
 src/ORB_SLAM2/src/MapPoint.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapPoint.o
 .PHONY : src/ORB_SLAM2/src/MapPoint.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/MapPoint.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapPoint.i
 .PHONY : src/ORB_SLAM2/src/MapPoint.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/MapPoint.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/MapPoint.s
 .PHONY : src/ORB_SLAM2/src/MapPoint.s
 
 # target to build an object file
 src/ORB_SLAM2/src/ORBextractor.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBextractor.o
 .PHONY : src/ORB_SLAM2/src/ORBextractor.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/ORBextractor.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBextractor.i
 .PHONY : src/ORB_SLAM2/src/ORBextractor.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/ORBextractor.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBextractor.s
 .PHONY : src/ORB_SLAM2/src/ORBextractor.s
 
 # target to build an object file
 src/ORB_SLAM2/src/ORBmatcher.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBmatcher.o
 .PHONY : src/ORB_SLAM2/src/ORBmatcher.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/ORBmatcher.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBmatcher.i
 .PHONY : src/ORB_SLAM2/src/ORBmatcher.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/ORBmatcher.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/ORBmatcher.s
 .PHONY : src/ORB_SLAM2/src/ORBmatcher.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Optimizer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Optimizer.o
 .PHONY : src/ORB_SLAM2/src/Optimizer.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Optimizer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Optimizer.i
 .PHONY : src/ORB_SLAM2/src/Optimizer.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Optimizer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Optimizer.s
 .PHONY : src/ORB_SLAM2/src/Optimizer.s
 
 # target to build an object file
 src/ORB_SLAM2/src/PnPsolver.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/PnPsolver.o
 .PHONY : src/ORB_SLAM2/src/PnPsolver.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/PnPsolver.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/PnPsolver.i
 .PHONY : src/ORB_SLAM2/src/PnPsolver.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/PnPsolver.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/PnPsolver.s
 .PHONY : src/ORB_SLAM2/src/PnPsolver.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Sim3Solver.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Sim3Solver.o
 .PHONY : src/ORB_SLAM2/src/Sim3Solver.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Sim3Solver.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Sim3Solver.i
 .PHONY : src/ORB_SLAM2/src/Sim3Solver.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Sim3Solver.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Sim3Solver.s
 .PHONY : src/ORB_SLAM2/src/Sim3Solver.s
 
 # target to build an object file
 src/ORB_SLAM2/src/System.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/System.o
 .PHONY : src/ORB_SLAM2/src/System.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/System.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/System.i
 .PHONY : src/ORB_SLAM2/src/System.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/System.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/System.s
 .PHONY : src/ORB_SLAM2/src/System.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Tracking.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Tracking.o
 .PHONY : src/ORB_SLAM2/src/Tracking.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Tracking.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Tracking.i
 .PHONY : src/ORB_SLAM2/src/Tracking.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Tracking.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Tracking.s
 .PHONY : src/ORB_SLAM2/src/Tracking.s
 
 # target to build an object file
 src/ORB_SLAM2/src/Viewer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Viewer.o
 .PHONY : src/ORB_SLAM2/src/Viewer.o
 
 # target to preprocess a source file
 src/ORB_SLAM2/src/Viewer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Viewer.i
 .PHONY : src/ORB_SLAM2/src/Viewer.i
 
 # target to generate assembly for a file
 src/ORB_SLAM2/src/Viewer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/ORB_SLAM2/src/Viewer.s
 .PHONY : src/ORB_SLAM2/src/Viewer.s
 
 # target to build an object file
 src/VCluster.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/VCluster.o
 .PHONY : src/VCluster.o
 
 # target to preprocess a source file
 src/VCluster.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/VCluster.i
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/VCluster.i
 .PHONY : src/VCluster.i
 
 # target to generate assembly for a file
 src/VCluster.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/VCluster.s
+	$(MAKE) -f CMakeFiles/AugmentedVR.dir/build.make CMakeFiles/AugmentedVR.dir/src/VCluster.s
 .PHONY : src/VCluster.s
 
 # Help Target
@@ -641,16 +596,13 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... ZED_Multi_Input"
+	@echo "... AugmentedVR"
 	@echo "... app/main.o"
 	@echo "... app/main.i"
 	@echo "... app/main.s"
 	@echo "... src/AugmentedVR/AugmentedVR.o"
 	@echo "... src/AugmentedVR/AugmentedVR.i"
 	@echo "... src/AugmentedVR/AugmentedVR.s"
-	@echo "... src/AugmentedVR/CameraGL.o"
-	@echo "... src/AugmentedVR/CameraGL.i"
-	@echo "... src/AugmentedVR/CameraGL.s"
 	@echo "... src/AugmentedVR/Displayer.o"
 	@echo "... src/AugmentedVR/Displayer.i"
 	@echo "... src/AugmentedVR/Displayer.s"
@@ -666,12 +618,6 @@ help:
 	@echo "... src/AugmentedVR/ObjSender.o"
 	@echo "... src/AugmentedVR/ObjSender.i"
 	@echo "... src/AugmentedVR/ObjSender.s"
-	@echo "... src/AugmentedVR/Shader.o"
-	@echo "... src/AugmentedVR/Shader.i"
-	@echo "... src/AugmentedVR/Shader.s"
-	@echo "... src/AugmentedVR/Simple3DObject.o"
-	@echo "... src/AugmentedVR/Simple3DObject.i"
-	@echo "... src/AugmentedVR/Simple3DObject.s"
 	@echo "... src/AugmentedVR/globals.o"
 	@echo "... src/AugmentedVR/globals.i"
 	@echo "... src/AugmentedVR/globals.s"

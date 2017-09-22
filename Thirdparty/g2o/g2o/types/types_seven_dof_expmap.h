@@ -31,8 +31,8 @@
 #ifndef G2O_SEVEN_DOF_EXPMAP_TYPES
 #define G2O_SEVEN_DOF_EXPMAP_TYPES
 
-#include "Thirdparty/g2o/g2o/core/base_vertex.h"
-#include "Thirdparty/g2o/g2o/core/base_binary_edge.h"
+#include "../core/base_vertex.h"
+#include "../core/base_binary_edge.h"
 #include "types_six_dof_expmap.h"
 #include "sim3.h"
 

@@ -37,8 +37,8 @@
 					<DistClean command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="ZED_Multi_Input">
-				<Option output="/home/hang/research/AugmentedVR/cmake-build-debug/ZED_Multi_Input" prefix_auto="0" extension_auto="0"/>
+			<Target title="AugmentedVR">
+				<Option output="/home/hang/research/AugmentedVR/cmake-build-debug/AugmentedVR" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="."/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -83,6 +83,7 @@
 					<Add directory="/home/hang/software/Pangolin-0.5/include"/>
 					<Add directory="/home/hang/software/Pangolin-0.5/build/src/include"/>
 					<Add directory="/home/hang/research/AugmentedVR/src/ORB_SLAM2/include"/>
+					<Add directory="/home/hang/research/AugmentedVR/Thirdparty/DBoW2/DBoW2"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -91,14 +92,14 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 ZED_Multi_Input"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 AugmentedVR"/>
 					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="ZED_Multi_Input/fast">
-				<Option output="/home/hang/research/AugmentedVR/cmake-build-debug/ZED_Multi_Input" prefix_auto="0" extension_auto="0"/>
+			<Target title="AugmentedVR/fast">
+				<Option output="/home/hang/research/AugmentedVR/cmake-build-debug/AugmentedVR" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="."/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -143,6 +144,7 @@
 					<Add directory="/home/hang/software/Pangolin-0.5/include"/>
 					<Add directory="/home/hang/software/Pangolin-0.5/build/src/include"/>
 					<Add directory="/home/hang/research/AugmentedVR/src/ORB_SLAM2/include"/>
+					<Add directory="/home/hang/research/AugmentedVR/Thirdparty/DBoW2/DBoW2"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -151,7 +153,7 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 ZED_Multi_Input/fast"/>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 AugmentedVR/fast"/>
 					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j8 -f &quot;/home/hang/research/AugmentedVR/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -159,106 +161,97 @@
 			</Target>
 		</Build>
 		<Unit filename="/home/hang/research/AugmentedVR/app/main.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/AugmentedVR.cpp">
-			<Option target="ZED_Multi_Input"/>
-		</Unit>
-		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/CameraGL.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Displayer.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/GLViewer.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/IO.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/ObjReceiver.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/ObjSender.cpp">
-			<Option target="ZED_Multi_Input"/>
-		</Unit>
-		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Shader.cpp">
-			<Option target="ZED_Multi_Input"/>
-		</Unit>
-		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Simple3DObject.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/globals.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/landmark.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/landmark_matchinfo.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/pcCodec.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Converter.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Frame.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/FrameDrawer.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Initializer.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/KeyFrame.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/KeyFrameDatabase.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/LocalMapping.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/LoopClosing.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Map.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/MapDrawer.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/MapPoint.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/ORBextractor.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/ORBmatcher.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Optimizer.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/PnPsolver.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Sim3Solver.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/System.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Tracking.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Viewer.cc">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/VCluster.cpp">
-			<Option target="ZED_Multi_Input"/>
+			<Option target="AugmentedVR"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>

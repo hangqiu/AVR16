@@ -31,7 +31,7 @@
 #include <utility>
 #include <iosfwd>
 
-#include "Thirdparty/g2o/g2o/stuff/property.h"
+#include "../stuff/property.h"
 
 #include "hyper_graph.h"
 #include "sparse_block_matrix.h"

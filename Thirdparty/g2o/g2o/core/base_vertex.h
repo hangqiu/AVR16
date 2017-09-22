@@ -29,7 +29,7 @@
 
 #include "optimizable_graph.h"
 #include "creators.h"
-#include "Thirdparty/g2o/g2o/stuff/macros.h"
+#include "../stuff/macros.h"
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -59,7 +59,7 @@ namespace g2o {
 
     static const int Dimension = D;           ///< dimension of the estimate (minimal) in the manifold space
 
-    typedef Eigen::Map<Matrix<double, D, D>, Matrix<double,D,D>::Flags & AlignedBit ? Aligned : Unaligned >  HessianBlockType;
+    typedef Eigen::Map<Matrix<double, D, D>, Matrix<double,D,D>::Flags & PacketAccessBit ? Aligned : Unaligned >  HessianBlockType;
 
   public:
     BaseVertex();

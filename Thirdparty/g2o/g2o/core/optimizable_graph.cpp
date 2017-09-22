@@ -41,10 +41,10 @@
 #include "cache.h"
 #include "robust_kernel.h"
 
-#include "Thirdparty/g2o/g2o/stuff/macros.h"
-#include "Thirdparty/g2o/g2o/stuff/color_macros.h"
-#include "Thirdparty/g2o/g2o/stuff/string_tools.h"
-#include "Thirdparty/g2o/g2o/stuff/misc.h"
+#include "../stuff/macros.h"
+#include "../stuff/color_macros.h"
+#include "../stuff/string_tools.h"
+#include "../stuff/misc.h"
 
 namespace g2o {
 
