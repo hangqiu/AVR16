@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
     string VocFile = "./ORB_SLAM2/Vocabulary/ORBvoc.txt";
     string CalibrationFile = "./CamCalib.yaml";
 
-    InitParams parameters;
+    InitParameters parameters;
     // parameters.mode = PERFORMANCE;
     // parameters.unit = MILLIMETER;
     parameters.mode = MODE::QUALITY; //need quite a powerful graphic card in QUALITY

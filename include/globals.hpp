@@ -5,9 +5,10 @@
 #ifndef PROJECT_GLOBALS_H
 #define PROJECT_GLOBALS_H
 //ZED Includes
-#include <zed/Mat.hpp>
-#include <zed/Camera.hpp>
-#include <zed/utils/GlobalDefine.hpp>
+//#include <zed/Mat.hpp>
+//#include <zed/Camera.hpp>
+//#include <zed/utils/GlobalDefine.hpp>
+#include <sl/Camera.hpp>
 
 //opencv includes
 #include "opencv2/core/core.hpp"
@@ -30,8 +31,8 @@ using namespace std;
 //extern const int NUM_CAMERAS;
 extern const int FPS;
 extern int ZEDCACHESIZE;
-extern const sl::zed::ZEDResolution_mode ZED_RES;
-extern const sl::zed::SENSING_MODE senseMode;
+//extern const sl::zed::ZEDResolution_mode ZED_RES;
+//extern const sl::zed::SENSING_MODE senseMode;
 
 // Toggles;
 extern bool COOP;
@@ -96,3 +97,6 @@ extern int lengthInFrame;
 
 extern timeval tInit;
 #endif //PROJECT_GLOBALS_H
+
+cv::Mat slMat2cvMat(sl::Mat& input);
+sl::Mat cvMat2slMat(cv::Mat& input);

@@ -7,8 +7,9 @@
 
 
 #include "AugmentedVR.hpp"
-#include "PointCloud.hpp"
-#include "Viewer.hpp"
+//#include "PointCloud.hpp"
+//#include "Viewer.hpp"
+#include "GLViewer.hpp"
 #include <include/globals.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
@@ -17,10 +18,13 @@
 class Displayer {
 
     AugmentedVR** VNode;
-    PointCloud* mPC;
-    Viewer* mPCViewer;
+//    PointCloud* mPC;
+//    Viewer* mPCViewer;
 
-    sl::zed::Mat PC_gpu;
+// SDK 2.0 Point cloud viewer
+    GLViewer mGLViewer;
+
+    sl::Mat PC_gpu;
 
     int PCwidth, PCheight; //
     CUcontext context;

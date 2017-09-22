@@ -72,9 +72,9 @@ string CalibrationFile = "./CamCalib.yaml";
 
 const int NUM_CAMERAS = 1;
 
-const sl::zed::ZEDResolution_mode ZED_RES = sl::zed::ZEDResolution_mode::HD720;
-const sl::zed::SENSING_MODE senseMode = sl::zed::SENSING_MODE::FILL;
-string commPath = "/home/nsl/comm/";
+//const sl::zed::ZEDResolution_mode ZED_RES = sl::zed::ZEDResolution_mode::HD720;
+//const sl::zed::SENSING_MODE senseMode = sl::zed::SENSING_MODE::FILL;
+string commPath = "~/AVRComm/";
 // store video or webcam
 bool OFFLINE = true;
 
@@ -101,3 +101,50 @@ int startFrameId = 1;
 int lengthInFrame = 100;
 
 timeval tInit;
+
+
+cv::Mat slMat2cvMat(sl::Mat& input) {
+    // Mapping between MAT_TYPE and CV_TYPE
+    int cv_type = -1;
+    switch (input.getDataType()) {
+        case sl::MAT_TYPE_32F_C1: cv_type = CV_32FC1; break;
+        case sl::MAT_TYPE_32F_C2: cv_type = CV_32FC2; break;
+        case sl::MAT_TYPE_32F_C3: cv_type = CV_32FC3; break;
+        case sl::MAT_TYPE_32F_C4: cv_type = CV_32FC4; break;
+        case sl::MAT_TYPE_8U_C1: cv_type = CV_8UC1; break;
+        case sl::MAT_TYPE_8U_C2: cv_type = CV_8UC2; break;
+        case sl::MAT_TYPE_8U_C3: cv_type = CV_8UC3; break;
+        case sl::MAT_TYPE_8U_C4: cv_type = CV_8UC4; break;
+        default: break;
+    }
+
+    // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
+    // cv::Mat and sl::Mat will share a single memory structure
+    return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(sl::MEM_CPU));
+}
+
+
+sl::Mat cvMat2slMat(cv::Mat& input) {
+    // Mapping between MAT_TYPE and CV_TYPE
+    sl::MAT_TYPE sl_type;
+    switch (input.type()) {
+        case CV_32FC1: sl_type = sl::MAT_TYPE_32F_C1; break;
+        case CV_32FC2: sl_type = sl::MAT_TYPE_32F_C2; break;
+        case CV_32FC3: sl_type = sl::MAT_TYPE_32F_C3; break;
+        case CV_32FC4: sl_type = sl::MAT_TYPE_32F_C4; break;
+        case CV_8UC1: sl_type = sl::MAT_TYPE_8U_C1; break;
+        case CV_8UC2: sl_type = sl::MAT_TYPE_8U_C2; break;
+        case CV_8UC3: sl_type = sl::MAT_TYPE_8U_C3; break;
+        case CV_8UC4: sl_type = sl::MAT_TYPE_8U_C4; break;
+        default: break;
+    }
+
+    // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
+    // cv::Mat and sl::Mat will share a single memory structure
+    sl::uchar1* ptr = (sl::uchar1*)(void*)(input.data);
+    size_t step = (size_t)(input.step);
+    size_t width = (size_t)(input.size().width);
+    size_t height = (size_t)(input.size().height);
+    return sl::Mat(width, height, sl_type, ptr, step, sl::MEM_CPU);
+}
+

@@ -170,6 +170,9 @@
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Displayer.cpp">
 			<Option target="ZED_Multi_Input"/>
 		</Unit>
+		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/GLViewer.cpp">
+			<Option target="ZED_Multi_Input"/>
+		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/IO.cpp">
 			<Option target="ZED_Multi_Input"/>
 		</Unit>
@@ -179,16 +182,10 @@
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/ObjSender.cpp">
 			<Option target="ZED_Multi_Input"/>
 		</Unit>
-		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/PointCloud.cpp">
-			<Option target="ZED_Multi_Input"/>
-		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Shader.cpp">
 			<Option target="ZED_Multi_Input"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Simple3DObject.cpp">
-			<Option target="ZED_Multi_Input"/>
-		</Unit>
-		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/Viewer.cpp">
 			<Option target="ZED_Multi_Input"/>
 		</Unit>
 		<Unit filename="/home/hang/research/AugmentedVR/src/AugmentedVR/globals.cpp">

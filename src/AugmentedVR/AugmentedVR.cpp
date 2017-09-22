@@ -9,16 +9,20 @@
 #include <ctime>
 #include <sys/time.h>
 
-//#include "opencv2/cuda.hpp"
-#include <thread>
+using namespace sl;
 
 //#define EVAL
 
 
-AugmentedVR::AugmentedVR(sl::zed::SENSING_MODE senseMode, int CamId) {
+AugmentedVR::AugmentedVR(int CamId, sl::InitParameters initParam, sl::RuntimeParameters runtimeParam, int ZEDConfidence) {
     ZED_LRes = cv::Mat(DisplaySize, CV_8UC4);
-
-    AugmentedVR::senseMode = senseMode;
+//
+//    AugmentedVR::senseMode = senseMode;
+    mZEDCam = new sl::Camera();
+    initParameters = initParam;
+    runtimeParameters = runtimeParam;
+    // remove the not to be trusted data
+    AugmentedVR::ZEDConfidence = ZEDConfidence;
     AugmentedVR::CamId = CamId;
     frameTS = 0;
     ZEDTS =0;
@@ -37,25 +41,25 @@ AugmentedVR::AugmentedVR(sl::zed::SENSING_MODE senseMode, int CamId) {
 AugmentedVR::~AugmentedVR(){
     mSLAM->SaveTrajectoryKITTI("CameraTrajectory.txt");
     mSLAM->Shutdown();
+    mZEDCam->close();
     delete(mZEDCam);
     delete(mSLAM);
     cout << "AVR shuts down" << endl;
 }
 
-int AugmentedVR::initZEDCam(const string& videoPath, int startFrameID, InitParams parameters, int ZEDConfidence){
+int AugmentedVR::initZEDCam(int startFrameID){
 
-    mZEDCam = new sl::zed::Camera(videoPath);
-    sl::zed::ERRCODE err = mZEDCam->init(parameters);
-    cout << "ZED N°" << CamId << " -> Result : " << errcode2str(err) << endl;
-    if (err != sl::zed::SUCCESS) {
+
+    sl::ERROR_CODE err = mZEDCam->open(initParameters);
+    cout << "ZED N°" << CamId << " -> Result : " << errorCode2str(err).c_str() << endl;
+    if (err != sl::SUCCESS) {
         delete mZEDCam;
         return 1;
     }
-
-    width = mZEDCam->getImageSize().width;
-    height = mZEDCam->getImageSize().height;
+    Resolution image_size = mZEDCam->getResolution();
+    width = image_size.width;
+    height = image_size.height;
     SbSResult = cv::Mat(height, width * 2, CV_8UC4, 1);
-    // remove the not to be trusted data
     mZEDCam->setConfidenceThreshold(ZEDConfidence);
 
 
@@ -97,25 +101,25 @@ int AugmentedVR::initZEDCam(const string& videoPath, int startFrameID, InitParam
     return 0;
 }
 
-
-int AugmentedVR::initZEDCamLive(const sl::zed::ZEDResolution_mode ZED_RES, const int FPS, InitParams parameters,
-                                int ZEDConfidence){
-    mZEDCam = new sl::zed::Camera(ZED_RES,FPS,CamId);
-    sl::zed::ERRCODE err = mZEDCam->init(parameters);
-    cout << "ZED N°" << CamId << " -> Result : " << errcode2str(err) << endl;
-    if (err != sl::zed::SUCCESS) {
-        delete mZEDCam;
-        return 1;
-    }
-
-    width = mZEDCam->getImageSize().width;
-    height = mZEDCam->getImageSize().height;
-    SbSResult = cv::Mat(height, width * 2, CV_8UC4, 1);
-
-    // remove the not to be trusted data
-    mZEDCam->setConfidenceThreshold(ZEDConfidence);
-    return 0;
-}
+// SDK 2.0: difference config are abstracted in params.
+//int AugmentedVR::initZEDCamLive(const sl::zed::ZEDResolution_mode ZED_RES, const int FPS, InitParameters parameters,
+//                                int ZEDConfidence){
+//
+//    sl::ERROR_CODE err = mZEDCam->open(parameters);
+//    cout << "ZED N°" << CamId << " -> Result : " << errcode2str(err) << endl;
+//    if (err != sl::zed::SUCCESS) {
+//        delete mZEDCam;
+//        return 1;
+//    }
+//
+//    width = mZEDCam->getImageSize().width;
+//    height = mZEDCam->getImageSize().height;
+//    SbSResult = cv::Mat(height, width * 2, CV_8UC4, 1);
+//
+//    // remove the not to be trusted data
+//    mZEDCam->setConfidenceThreshold(ZEDConfidence);
+//    return 0;
+//}
 
 void AugmentedVR::initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap, string mapFile){
 
@@ -230,23 +234,21 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
     gettimeofday(&start, NULL);
 //    cout << "grabZEDFrameOffline >>>>>>> PC thread starting at: " << double(start.tv_sec)*1000 + double(start.tv_usec) / 1000<< "ms" << endl;
 #endif
-    bool err = mZEDCam->grab(senseMode, 1, 1, 1);
-
-    if (err) {
+    if  (mZEDCam->grab(runtimeParameters) != SUCCESS){
         cerr << "can't grab image" << endl;
         return false;
     }
-    if (!err) {
-        frameSeq++;
-        NextFrame.ZEDTS = mZEDCam->getCameraTimestamp();
-        NextFrame.frameTS = NextFrame.ZEDTS - startTS;
+
+    frameSeq++;
+    NextFrame.ZEDTS = mZEDCam->getCameraTimestamp();
+    NextFrame.frameTS = NextFrame.ZEDTS - startTS;
 #ifdef EVAL
-        gettimeofday(&end, NULL);
-        cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "grabZEDFrameOffline >>>>>>>  Grab: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-        gettimeofday(&start, NULL);
+    gettimeofday(&end, NULL);
+    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+    cout << "grabZEDFrameOffline >>>>>>>  Grab: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+    gettimeofday(&start, NULL);
 #endif
-        //sl::zed::Mat depthMM = zed[x]->retrieveMeasure(MEASURE::DEPTH);
+    //sl::zed::Mat depthMM = zed[x]->retrieveMeasure(MEASURE::DEPTH);
 //        slMat2cvMat(mZEDCam->retrieveImage(SIDE::LEFT)).copyTo(SbSResult(cv::Rect(0, 0, width, height)));
 //        slMat2cvMat(mZEDCam->normalizeMeasure(MEASURE::DEPTH)).copyTo(SbSResult(cv::Rect(width, 0, width, height)));
 //        sl::zed::Mat slmat =  mZEDCam->retrieveMeasure(XYZ);
@@ -257,46 +259,58 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
 //        cout << "   PC in GPU: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 //        gettimeofday(&start, NULL);
 //#endif
-        slMat2cvMat(mZEDCam->retrieveMeasure(XYZRGBA)).copyTo(NextFrame.pointcloud);
 
-        if (!INIT_FLAG) {
-            NextFrame.pointcloud.copyTo(initPC);
-            INIT_FLAG = true;
-        }
-        cv::Mat PCChannels[3];
+//        slMat2cvMat(mZEDCam->retrieveMeasure(XYZRGBA)).copyTo(NextFrame.pointcloud);
+    // SDK2.0
+    sl::Mat pc;
+    mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA, sl::MEM_CPU);
+    slMat2cvMat(pc).copyTo(NextFrame.pointcloud); //just to be safe
 
-        for (int i=0;i<3;i++){
-            cv::extractChannel(NextFrame.pointcloud,PCChannels[i],i);
-        }
+    if (!INIT_FLAG) {
+        NextFrame.pointcloud.copyTo(initPC);
+        INIT_FLAG = true;
+    }
+    cv::Mat PCChannels[3];
 
-        merge(PCChannels,3,NextFrame.PC_noColor);
+    for (int i=0;i<3;i++){
+        cv::extractChannel(NextFrame.pointcloud,PCChannels[i],i);
+    }
+
+    merge(PCChannels,3,NextFrame.PC_noColor);
 //
 //
 #ifdef EVAL
-        gettimeofday(&end, NULL);
-        cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "grabZEDFrameOffline >>>>>>>   PC in CPU: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-        gettimeofday(&start, NULL);
+    gettimeofday(&end, NULL);
+    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+    cout << "grabZEDFrameOffline >>>>>>>   PC in CPU: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+    gettimeofday(&start, NULL);
 #endif
 
 //        depth_mat = slMat2cvMat(mZEDCam->retrieveMeasure(MEASURE::DEPTH));
-        NextFrame.FrameLeft = slMat2cvMat(mZEDCam->retrieveImage(SIDE::LEFT));
-        NextFrame.FrameRight = slMat2cvMat(mZEDCam->retrieveImage(SIDE::RIGHT));
+//        NextFrame.FrameLeft = slMat2cvMat(mZEDCam->retrieveImage(SIDE::LEFT));
+//        NextFrame.FrameRight = slMat2cvMat(mZEDCam->retrieveImage(SIDE::RIGHT));
+    // SDK 2.0
+    sl::Mat frameLeft_cpu, frameRight_cpu;
+    mZEDCam->retrieveImage(frameLeft_cpu, sl::VIEW_LEFT,sl::MEM_CPU);
+    mZEDCam->retrieveImage(frameRight_cpu, sl::VIEW_RIGHT,sl::MEM_CPU);
+    NextFrame.FrameLeft = slMat2cvMat(frameLeft_cpu);
+    NextFrame.FrameRight = slMat2cvMat(frameRight_cpu);
 
-        cv::cvtColor(NextFrame.FrameLeft, NextFrame.FrameLeftGray, CV_BGR2GRAY);
-        cv::cvtColor(NextFrame.FrameRight, NextFrame.FrameRightGray, CV_BGR2GRAY);
+
+    cv::cvtColor(NextFrame.FrameLeft, NextFrame.FrameLeftGray, CV_BGR2GRAY);
+    cv::cvtColor(NextFrame.FrameRight, NextFrame.FrameRightGray, CV_BGR2GRAY);
 #ifdef EVAL
-        gettimeofday(&end, NULL);
-        cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "grabZEDFrameOffline >>>>>>> Frame: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+    gettimeofday(&end, NULL);
+    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+    cout << "grabZEDFrameOffline >>>>>>> Frame: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 //        cout << ">>>>>>> PC thread ending at: " << double(end.tv_sec)*1000 + double(end.tv_usec) / 1000<< "ms"<< endl;
 #endif
 //        BufferXYZRGBA_gpu = mZEDCam->retrieveMeasure_gpu(XYZRGBA);
 
-        // cout << BufferXYZRGBA[x](cv::Rect(0,0,2,2));
+    // cout << BufferXYZRGBA[x](cv::Rect(0,0,2,2));
 
 //        cv::resize(SbSResult, ZED_LRes, DisplaySize);
-    }
+
 
 
     return true;

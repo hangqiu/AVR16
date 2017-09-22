@@ -45,9 +45,11 @@
 //#include "opencv2/xfeatures2d.hpp"
 
 //ZED Includes
-#include <zed/Mat.hpp>
-#include <zed/Camera.hpp>
-#include <zed/utils/GlobalDefine.hpp>
+//#include <zed/Mat.hpp>
+//#include <zed/Camera.hpp>
+//#include <zed/utils/GlobalDefine.hpp>
+
+#include <sl/Camera.hpp>
 
 #include <landmark.hpp>
 #include <landmark_matchinfo.hpp>
@@ -59,8 +61,8 @@
 
 
 //our point cloud generator and viewer.
-#include "Viewer.hpp"
-#include "PointCloud.hpp"
+//#include "Viewer.hpp"
+//#include "PointCloud.hpp"
 
 //#include "../ORB_SLAM2/include/System.h"
 #include "System.h"
@@ -70,7 +72,7 @@
 
 //#define EVAL;
 
-using namespace sl::zed;
+using namespace sl;
 using namespace std;
 using namespace cv;
 //using namespace cv::xfeatures2d;

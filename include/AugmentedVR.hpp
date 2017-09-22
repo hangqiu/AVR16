@@ -14,9 +14,10 @@
 //#include "opencv2/xfeatures2d.hpp"
 
 //ZED Includes
-#include <zed/Mat.hpp>
-#include <zed/Camera.hpp>
-#include <zed/utils/GlobalDefine.hpp>
+//#include <zed/Mat.hpp>
+//#include <zed/Camera.hpp>
+//#include <zed/utils/GlobalDefine.hpp>
+#include <sl/Camera.hpp>
 
 //ORB_SLAM Includes
 #include "../src/ORB_SLAM2/include/System.h"
@@ -27,7 +28,7 @@
 
 #include <queue>
 
-using namespace sl::zed;
+using namespace sl;
 using namespace std;
 //using namespace cv;
 //using namespace cv::xfeatures2d;
@@ -92,8 +93,13 @@ public: //TODO change to private and add agetter seter
     int frameSeq;
 
     // ZED data
-    sl::zed::SENSING_MODE senseMode;
+    // params
+//    sl::zed::SENSING_MODE senseMode;
+    sl::InitParameters initParameters;
+    sl::RuntimeParameters runtimeParameters;
+
     int width, height;// video input size
+    int ZEDConfidence;
     cv::Mat SbSResult;
     cv::Mat FrameLeft;
     cv::Mat FrameRight;
@@ -114,7 +120,7 @@ public: //TODO change to private and add agetter seter
 //    vector<cv::Mat> lastpointcloud;
     vector<STEREO_DATA> lastStereoData;
 //    vector<cv::Mat> PCMotionVec;
-    sl::zed::Mat BufferXYZRGBA_gpu;
+    sl::Mat BufferXYZRGBA_gpu;
     cv::Mat depth_mat;
 
 
@@ -146,7 +152,7 @@ public: //TODO change to private and add agetter seter
     vector<uchar> status_cache;
     vector<float> err_cache;
 
-    Camera* mZEDCam;
+    sl::Camera* mZEDCam;
     ORB_SLAM2::System* mSLAM;
     IO* mIo;
 
@@ -160,11 +166,11 @@ public: //TODO change to private and add agetter seter
 
 
 public:
-    AugmentedVR(sl::zed::SENSING_MODE senseMode, int CamId);
+//    AugmentedVR(int CamId);
+    AugmentedVR(int CamId, sl::InitParameters initParam, sl::RuntimeParameters runtimeParam, int ZEDConfidence);
     ~AugmentedVR();
-    int initZEDCam(const string& videoPath,  int startFrameID, InitParams parameters, int ZEDConfidence);
-    int initZEDCamLive(const sl::zed::ZEDResolution_mode ZED_RES, const int FPS, InitParams parameters,
-                       int ZEDConfidence);
+    int initZEDCam(int startFrameID);
+
     void initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap = false, string mapFile = "default.txt");
     void PrepareNextFrame();
     bool grabNextZEDFrameOffline();

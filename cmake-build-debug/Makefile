@@ -184,6 +184,21 @@ src/AugmentedVR/Displayer.s:
 .PHONY : src/AugmentedVR/Displayer.s
 
 # target to build an object file
+src/AugmentedVR/GLViewer.o:
+	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o
+.PHONY : src/AugmentedVR/GLViewer.o
+
+# target to preprocess a source file
+src/AugmentedVR/GLViewer.i:
+	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.i
+.PHONY : src/AugmentedVR/GLViewer.i
+
+# target to generate assembly for a file
+src/AugmentedVR/GLViewer.s:
+	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.s
+.PHONY : src/AugmentedVR/GLViewer.s
+
+# target to build an object file
 src/AugmentedVR/IO.o:
 	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o
 .PHONY : src/AugmentedVR/IO.o
@@ -229,21 +244,6 @@ src/AugmentedVR/ObjSender.s:
 .PHONY : src/AugmentedVR/ObjSender.s
 
 # target to build an object file
-src/AugmentedVR/PointCloud.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o
-.PHONY : src/AugmentedVR/PointCloud.o
-
-# target to preprocess a source file
-src/AugmentedVR/PointCloud.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.i
-.PHONY : src/AugmentedVR/PointCloud.i
-
-# target to generate assembly for a file
-src/AugmentedVR/PointCloud.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.s
-.PHONY : src/AugmentedVR/PointCloud.s
-
-# target to build an object file
 src/AugmentedVR/Shader.o:
 	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o
 .PHONY : src/AugmentedVR/Shader.o
@@ -272,21 +272,6 @@ src/AugmentedVR/Simple3DObject.i:
 src/AugmentedVR/Simple3DObject.s:
 	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.s
 .PHONY : src/AugmentedVR/Simple3DObject.s
-
-# target to build an object file
-src/AugmentedVR/Viewer.o:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o
-.PHONY : src/AugmentedVR/Viewer.o
-
-# target to preprocess a source file
-src/AugmentedVR/Viewer.i:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.i
-.PHONY : src/AugmentedVR/Viewer.i
-
-# target to generate assembly for a file
-src/AugmentedVR/Viewer.s:
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.s
-.PHONY : src/AugmentedVR/Viewer.s
 
 # target to build an object file
 src/AugmentedVR/globals.o:
@@ -669,6 +654,9 @@ help:
 	@echo "... src/AugmentedVR/Displayer.o"
 	@echo "... src/AugmentedVR/Displayer.i"
 	@echo "... src/AugmentedVR/Displayer.s"
+	@echo "... src/AugmentedVR/GLViewer.o"
+	@echo "... src/AugmentedVR/GLViewer.i"
+	@echo "... src/AugmentedVR/GLViewer.s"
 	@echo "... src/AugmentedVR/IO.o"
 	@echo "... src/AugmentedVR/IO.i"
 	@echo "... src/AugmentedVR/IO.s"
@@ -678,18 +666,12 @@ help:
 	@echo "... src/AugmentedVR/ObjSender.o"
 	@echo "... src/AugmentedVR/ObjSender.i"
 	@echo "... src/AugmentedVR/ObjSender.s"
-	@echo "... src/AugmentedVR/PointCloud.o"
-	@echo "... src/AugmentedVR/PointCloud.i"
-	@echo "... src/AugmentedVR/PointCloud.s"
 	@echo "... src/AugmentedVR/Shader.o"
 	@echo "... src/AugmentedVR/Shader.i"
 	@echo "... src/AugmentedVR/Shader.s"
 	@echo "... src/AugmentedVR/Simple3DObject.o"
 	@echo "... src/AugmentedVR/Simple3DObject.i"
 	@echo "... src/AugmentedVR/Simple3DObject.s"
-	@echo "... src/AugmentedVR/Viewer.o"
-	@echo "... src/AugmentedVR/Viewer.i"
-	@echo "... src/AugmentedVR/Viewer.s"
 	@echo "... src/AugmentedVR/globals.o"
 	@echo "... src/AugmentedVR/globals.i"
 	@echo "... src/AugmentedVR/globals.s"

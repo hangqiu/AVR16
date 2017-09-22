@@ -4,18 +4,28 @@
 
 #include <sys/time.h>
 #include "VCluster.hpp"
+using namespace sl;
 
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
     frameSeqRx =0;
     timeRx=0;
 
-    InitParams parameters;
+    InitParameters init_parameters;
     // parameters.mode = PERFORMANCE;
     // parameters.unit = MILLIMETER;
-    parameters.mode = MODE::QUALITY; //need quite a powerful graphic card in QUALITY
-    parameters.unit = UNIT::METER; // set meter as the OpenGL world will be in meters
-    parameters.verbose = 1;
-    parameters.coordinate = COORDINATE_SYSTEM::RIGHT_HANDED; // OpenGL's coordinate system is right_handed
+    init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
+    init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY
+    init_parameters.coordinate_units = UNIT_METER; // set meter as the OpenGL world will be in meters
+    init_parameters.sdk_verbose = 1;
+    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
+    init_parameters.svo_input_filename = VPath.c_str();
+//    if (live){
+//        init_parameters.camera_fps = sl::
+//    }
+
+    RuntimeParameters runtime_parameters;
+//    runtime_parameters.sensing_mode = SENSING_MODE_FILL;
+    runtime_parameters.sensing_mode = SENSING_MODE_STANDARD;
 
     int ZEDConfidence = 85;
 
@@ -26,14 +36,8 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
     int i=0;
     // Initialization
 //    for (int i = 0; i < NUM_CAMERAS; i++) {
-    VNode[i] = new AugmentedVR(senseMode,CamId);
-    if (live){
-        VNode[i]->initZEDCamLive(ZED_RES, FPS, parameters, ZEDConfidence);
-        OFFLINE = false;
-    }
-    else {
-        VNode[i]->initZEDCam(VPath, startFrameId, parameters, ZEDConfidence);
-    }
+    VNode[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
+    VNode[i]->initZEDCam(startFrameId);
 
     // TODO: SLAM can only have one instance. running on different machine for each car would automatically address the issue,
     // For now, just instantiate one SLAM and point other pointers to the same slam.

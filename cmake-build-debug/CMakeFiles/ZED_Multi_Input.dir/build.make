@@ -129,9 +129,33 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o.provides: CMakeFiles/
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o
 
 
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o: ../src/AugmentedVR/GLViewer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/GLViewer.cpp
+
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hang/research/AugmentedVR/src/AugmentedVR/GLViewer.cpp > CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.i
+
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hang/research/AugmentedVR/src/AugmentedVR/GLViewer.cpp -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.s
+
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.requires:
+
+.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.requires
+
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.provides: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.requires
+	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.provides.build
+.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.provides
+
+CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o
+
+
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o: ../src/AugmentedVR/IO.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/IO.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.i: cmake_force
@@ -155,7 +179,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o.provides.build: CMakeFiles/Z
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o: ../src/AugmentedVR/ObjReceiver.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/ObjReceiver.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.i: cmake_force
@@ -179,7 +203,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o.provides.build: CMa
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o: ../src/AugmentedVR/ObjSender.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/ObjSender.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.i: cmake_force
@@ -199,30 +223,6 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o.provides: CMakeFiles/
 .PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o.provides
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o
-
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o: ../src/AugmentedVR/PointCloud.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/PointCloud.cpp
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hang/research/AugmentedVR/src/AugmentedVR/PointCloud.cpp > CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.i
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hang/research/AugmentedVR/src/AugmentedVR/PointCloud.cpp -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.s
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.requires:
-
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.requires
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.provides: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.requires
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.provides.build
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.provides
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o
 
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
@@ -273,33 +273,9 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o.provides: CMakeF
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o
 
 
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o: ../src/AugmentedVR/Viewer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/Viewer.cpp
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hang/research/AugmentedVR/src/AugmentedVR/Viewer.cpp > CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.i
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hang/research/AugmentedVR/src/AugmentedVR/Viewer.cpp -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.s
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.requires:
-
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.requires
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.provides: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.requires
-	$(MAKE) -f CMakeFiles/ZED_Multi_Input.dir/build.make CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.provides.build
-.PHONY : CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.provides
-
-CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.provides.build: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o
-
-
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o: ../src/AugmentedVR/globals.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/globals.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.i: cmake_force
@@ -323,7 +299,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o.provides.build: CMakeFi
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o: ../src/AugmentedVR/landmark.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/landmark.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.i: cmake_force
@@ -347,7 +323,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o.provides.build: CMakeF
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o: ../src/AugmentedVR/landmark_matchinfo.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/landmark_matchinfo.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.i: cmake_force
@@ -371,7 +347,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o.provides.bui
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o: ../src/AugmentedVR/pcCodec.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o -c /home/hang/research/AugmentedVR/src/AugmentedVR/pcCodec.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.i: cmake_force
@@ -395,7 +371,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/pcCodec.o.provides.build: CMakeFi
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o: ../src/ORB_SLAM2/src/Converter.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Converter.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.i: cmake_force
@@ -419,7 +395,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Converter.o.provides.build: CMa
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o: ../src/ORB_SLAM2/src/Frame.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Frame.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.i: cmake_force
@@ -443,7 +419,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Frame.o.provides.build: CMakeFi
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o: ../src/ORB_SLAM2/src/FrameDrawer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/FrameDrawer.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.i: cmake_force
@@ -467,7 +443,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/FrameDrawer.o.provides.build: C
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o: ../src/ORB_SLAM2/src/Initializer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Initializer.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.i: cmake_force
@@ -491,7 +467,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Initializer.o.provides.build: C
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o: ../src/ORB_SLAM2/src/KeyFrame.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/KeyFrame.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.i: cmake_force
@@ -515,7 +491,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrame.o.provides.build: CMak
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o: ../src/ORB_SLAM2/src/KeyFrameDatabase.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/KeyFrameDatabase.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.i: cmake_force
@@ -539,7 +515,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/KeyFrameDatabase.o.provides.bui
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o: ../src/ORB_SLAM2/src/LocalMapping.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/LocalMapping.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.i: cmake_force
@@ -563,7 +539,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LocalMapping.o.provides.build: 
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o: ../src/ORB_SLAM2/src/LoopClosing.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/LoopClosing.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.i: cmake_force
@@ -587,7 +563,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/LoopClosing.o.provides.build: C
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o: ../src/ORB_SLAM2/src/Map.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Map.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.i: cmake_force
@@ -611,7 +587,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Map.o.provides.build: CMakeFile
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o: ../src/ORB_SLAM2/src/MapDrawer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/MapDrawer.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.i: cmake_force
@@ -635,7 +611,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapDrawer.o.provides.build: CMa
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o: ../src/ORB_SLAM2/src/MapPoint.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/MapPoint.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.i: cmake_force
@@ -659,7 +635,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/MapPoint.o.provides.build: CMak
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o: ../src/ORB_SLAM2/src/ORBextractor.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/ORBextractor.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.i: cmake_force
@@ -683,7 +659,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBextractor.o.provides.build: 
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o: ../src/ORB_SLAM2/src/ORBmatcher.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/ORBmatcher.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.i: cmake_force
@@ -707,7 +683,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/ORBmatcher.o.provides.build: CM
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o: ../src/ORB_SLAM2/src/Optimizer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Optimizer.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.i: cmake_force
@@ -731,7 +707,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Optimizer.o.provides.build: CMa
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o: ../src/ORB_SLAM2/src/PnPsolver.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/PnPsolver.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.i: cmake_force
@@ -755,7 +731,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/PnPsolver.o.provides.build: CMa
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o: ../src/ORB_SLAM2/src/Sim3Solver.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Sim3Solver.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.i: cmake_force
@@ -779,7 +755,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Sim3Solver.o.provides.build: CM
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o: ../src/ORB_SLAM2/src/System.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/System.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.i: cmake_force
@@ -803,7 +779,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/System.o.provides.build: CMakeF
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o: ../src/ORB_SLAM2/src/Tracking.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Tracking.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.i: cmake_force
@@ -827,7 +803,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Tracking.o.provides.build: CMak
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o: ../src/ORB_SLAM2/src/Viewer.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o -c /home/hang/research/AugmentedVR/src/ORB_SLAM2/src/Viewer.cc
 
 CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.i: cmake_force
@@ -851,7 +827,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/ORB_SLAM2/src/Viewer.o.provides.build: CMakeF
 
 CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o: ../src/VCluster.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o -c /home/hang/research/AugmentedVR/src/VCluster.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/src/VCluster.i: cmake_force
@@ -875,7 +851,7 @@ CMakeFiles/ZED_Multi_Input.dir/src/VCluster.o.provides.build: CMakeFiles/ZED_Mul
 
 CMakeFiles/ZED_Multi_Input.dir/app/main.o: CMakeFiles/ZED_Multi_Input.dir/flags.make
 CMakeFiles/ZED_Multi_Input.dir/app/main.o: ../app/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/app/main.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/ZED_Multi_Input.dir/app/main.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ZED_Multi_Input.dir/app/main.o -c /home/hang/research/AugmentedVR/app/main.cpp
 
 CMakeFiles/ZED_Multi_Input.dir/app/main.i: cmake_force
@@ -902,13 +878,12 @@ ZED_Multi_Input_OBJECTS = \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o" \
+"CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o" \
-"CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o" \
-"CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o" \
 "CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o" \
@@ -941,13 +916,12 @@ ZED_Multi_Input_EXTERNAL_OBJECTS =
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o
+ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o
-ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o
-ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o
@@ -1321,7 +1295,7 @@ ZED_Multi_Input: /usr/lib/x86_64-linux-gnu/libjpeg.so
 ZED_Multi_Input: /usr/lib/x86_64-linux-gnu/libtiff.so
 ZED_Multi_Input: /usr/lib/x86_64-linux-gnu/libIlmImf.so
 ZED_Multi_Input: CMakeFiles/ZED_Multi_Input.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Linking CXX executable ZED_Multi_Input"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hang/research/AugmentedVR/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Linking CXX executable ZED_Multi_Input"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ZED_Multi_Input.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -1332,13 +1306,12 @@ CMakeFiles/ZED_Multi_Input.dir/build: ZED_Multi_Input
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/AugmentedVR.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/CameraGL.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Displayer.o.requires
+CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/GLViewer.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/IO.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjReceiver.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/ObjSender.o.requires
-CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/PointCloud.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Shader.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Simple3DObject.o.requires
-CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/Viewer.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/globals.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark.o.requires
 CMakeFiles/ZED_Multi_Input.dir/requires: CMakeFiles/ZED_Multi_Input.dir/src/AugmentedVR/landmark_matchinfo.o.requires

@@ -13,8 +13,9 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <zed/Camera.hpp>
-#include <zed/utils/GlobalDefine.hpp>
+//#include <zed/Camera.hpp>
+//#include <zed/utils/GlobalDefine.hpp>
+#include <sl/Camera.hpp>
 
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -33,7 +34,7 @@
 //#include <pcl/segmentation/sac_segmentation.h>
 //#include <pcl/segmentation/extract_clusters.h>
 
-using namespace sl::zed;
+using namespace sl;
 using namespace std;
 using namespace pcl;
 

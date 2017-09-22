@@ -4,6 +4,7 @@
 
 
 #include "Displayer.hpp"
+#include "globals.hpp"
 //opencv includes
 
 
@@ -19,16 +20,18 @@ Displayer::Displayer(AugmentedVR** VNode) : VNode(VNode) {
 void Displayer::init(int argc, char **argv){
     PCwidth = VNode[0]->width;
     PCheight = VNode[0]->height;
-    context = VNode[0]->mZEDCam->getCUDAContext();
-    // CREATING POINT CLOUD
-//    mPC = new PointCloud( PCwidth*3, PCheight, context);// it's 2X the size to work around the reallocate bug
-    mPC = new PointCloud( PCwidth, PCheight, context);// it's 2X the size to work around the reallocate bug
-    // the receiver's GPU context
+//    context = VNode[0]->mZEDCam->getCUDAContext();
+//    // CREATING POINT CLOUD
+////    mPC = new PointCloud( PCwidth*3, PCheight, context);// it's 2X the size to work around the reallocate bug
+//    mPC = new PointCloud( PCwidth, PCheight, context);// it's 2X the size to work around the reallocate bug
+//    // the receiver's GPU context
+//
+//    //Create windows for viewing results with OpenCV
+//    mPCViewer = new Viewer(*mPC, argc, argv);
 
-    //Create windows for viewing results with OpenCV
-    mPCViewer = new Viewer(*mPC, argc, argv);
+    mGLViewer.init(PCwidth,PCheight);
     //wait for OpenGL stuff to be initialized
-    if (VISUAL || SHOW_PC) while (!mPCViewer->isInitialized() ); //&& !single_viewer.isInitialized()
+//    if (VISUAL || SHOW_PC) while (!mPCViewer->isInitialized() ); //&& !single_viewer.isInitialized()
 }
 
 //void Displayer::checkResetPCViewer(int width, int height){
@@ -168,15 +171,17 @@ void Displayer::showDynamicPC(){
 void Displayer::pushPC_Mat(cv::Mat mat){
     if (DEBUG>1) debugPC(mat);
     PC_gpu = cvMat2slMat(mat);
+    PC_gpu.updateGPUfromCPU();
     // show the point cloud
-    if (mPC->mutexData.try_lock()) {
-        mPC->pushNewPC_HostToDevice(PC_gpu);
-        mPC->mutexData.unlock();
-    }
+//    if (mPC->mutexData.try_lock()) {
+//        mPC->pushNewPC_HostToDevice(PC_gpu);
+//        mPC->mutexData.unlock();
+//    }
 }
 Displayer::~Displayer() {
-    delete mPC;
-    delete mPCViewer;
+    mGLViewer.exit();
+//    delete mPC;
+//    delete mPCViewer;
 
 }
 
