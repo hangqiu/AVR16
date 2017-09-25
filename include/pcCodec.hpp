@@ -39,7 +39,7 @@ using namespace std;
 using namespace pcl;
 
 class pcCodec {
-    float* data_cloud;
+//    float* data_cloud;
     std::mutex mutex_input;
     int width, height;
 

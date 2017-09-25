@@ -5,6 +5,7 @@
 
 #include "Displayer.hpp"
 #include "globals.hpp"
+#include "sl/Camera.hpp"
 //opencv includes
 
 
@@ -12,49 +13,45 @@ using namespace cv;
 using namespace std;
 
 Displayer::Displayer(AugmentedVR** VNode) : VNode(VNode) {
-    PCwidth = 0;
-    PCheight = 0;
+    mGLViewer = new GLViewer();
+    PCwidth = Displayer::VNode[0]->width;
+    PCheight = Displayer::VNode[0]->height;
+    cout << "Initializing viewer: width, " << PCwidth << ", height, " << PCheight << endl;
+    mGLViewer->init(PCwidth,PCheight);
+//    glutMainLoop();
+//    display_callback = std::thread(glutMainLoop);
 }
 
-
-void Displayer::init(int argc, char **argv){
-    PCwidth = VNode[0]->width;
-    PCheight = VNode[0]->height;
-//    context = VNode[0]->mZEDCam->getCUDAContext();
-//    // CREATING POINT CLOUD
-////    mPC = new PointCloud( PCwidth*3, PCheight, context);// it's 2X the size to work around the reallocate bug
-//    mPC = new PointCloud( PCwidth, PCheight, context);// it's 2X the size to work around the reallocate bug
-//    // the receiver's GPU context
-//
-//    //Create windows for viewing results with OpenCV
-//    mPCViewer = new Viewer(*mPC, argc, argv);
-
-    mGLViewer.init(PCwidth,PCheight);
-    //wait for OpenGL stuff to be initialized
-//    if (VISUAL || SHOW_PC) while (!mPCViewer->isInitialized() ); //&& !single_viewer.isInitialized()
+Displayer::~Displayer() {
+    delete mGLViewer;
+//    delete mPC;
+//    delete mPCViewer;
 }
 
-//void Displayer::checkResetPCViewer(int width, int height){
-//    if (PCwidth == width && PCheight == height) return;
-//    else {
-//        //TDOD delete has a bug.... check and reenable this function later
-//        delete mPC, mPCViewer;
-//        PCwidth = width;
-//        PCheight = height;
-//        mPC = new PointCloud( PCwidth, PCheight, context);
-//        mPCViewer = new Viewer(*mPC);
-//    }
-//}
+void Displayer::exit(){
+    mGLViewer->exit();
+}
 
-
-
-//void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t flag, void* param) {
+//void Displayer::init(int argc, char **argv){
+//    PCwidth = VNode[0]->width;
+//    PCheight = VNode[0]->height;
+//    cout << "Initializing viewer: width, " << PCwidth << ", height, " << PCheight << endl;
+////    context = VNode[0]->mZEDCam->getCUDAContext();
+////    // CREATING POINT CLOUD
+//////    mPC = new PointCloud( PCwidth*3, PCheight, context);// it's 2X the size to work around the reallocate bug
+////    mPC = new PointCloud( PCwidth, PCheight, context);// it's 2X the size to work around the reallocate bug
+////    // the receiver's GPU context
+////
+////    //Create windows for viewing results with OpenCV
+////    mPCViewer = new Viewer(*mPC, argc, argv);
 //
-//    AugmentedVR* Node =(AugmentedVR*)param;
-//    if (event == cv::EVENT_LBUTTONDOWN) {
-//        cout << "Point: (" << x << "," << y << "), PC: " << Node->pointcloud(Rect(x,y,1,1)) << Node->PC_noColor(Rect(x,y,1,1)) << endl;
-//    }
+//    mGLViewer->init(PCwidth/2,PCheight/2);
+//
+//    std::thread display_callback = std::thread(glutMainLoop);
+//    //wait for OpenGL stuff to be initialized
+////    if (VISUAL || SHOW_PC) while (!mPCViewer->isInitialized() ); //&& !single_viewer.isInitialized()
 //}
+
 
 void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t flag, void* param) {
 
@@ -124,18 +121,14 @@ void Displayer::pauseStopResume(){
 
 void Displayer::saveFrame(){
     char tmp_str[50];
-//    int x=0;
-
     cout << "press the number of camera you want to save, a for all\n";
     char new_key;
     while(new_key = cv::waitKey(20)){
         if (new_key == '0' || new_key == 'a'){
-//            x = 0;
             VNode[0]->saveCurFrame();
             cout << "saved cam 0 as " << tmp_str << endl;
         }
         if (new_key == '1' || new_key == 'a'){
-//            x = 1;
             VNode[1]->saveCurFrame();
             cout << "saved cam 1 as " << tmp_str << endl;
         }
@@ -144,7 +137,7 @@ void Displayer::saveFrame(){
         }
     }
 }
-
+/////////////////////////////////////// PC Display ///////////////////////////////////////////////
 void Displayer::debugPC(cv::Mat DebugPC){
 //    cv::Mat DebugPC = VNode[0]->DynamicPC;
     cout 	<< "PC dims:" << DebugPC.rows
@@ -161,40 +154,47 @@ void Displayer::debugPC(cv::Mat DebugPC){
 
 void Displayer::showPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
-    pushPC_Mat(VNode[0]->pointcloud);
+    pushPC_Mat(VNode[0]->pointcloud_cv);
 }
 
 void Displayer::showDynamicPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
     pushPC_Mat(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
 }
-void Displayer::pushPC_Mat(cv::Mat mat){
+void Displayer::pushPC_Mat(cv::Mat& mat){
     if (DEBUG>1) debugPC(mat);
-    PC_gpu = cvMat2slMat(mat);
-    PC_gpu.updateGPUfromCPU();
+    sl::Mat PC_gpu;
+    cvMat2slMat(mat,PC_gpu);
+
+    PC_gpu.alloc(mat.size().width, mat.size().height, sl::MAT_TYPE_8U_C4, sl::MEM_GPU);
+
+    ERROR_CODE  err= PC_gpu.updateGPUfromCPU();
+    if (err!=SUCCESS){
+        cerr << err << endl;
+    }
+    mGLViewer->updatePointCloud(PC_gpu);
+    PC_gpu.free(MEM_GPU);
+    PC_gpu.free(MEM_GPU);
     // show the point cloud
 //    if (mPC->mutexData.try_lock()) {
 //        mPC->pushNewPC_HostToDevice(PC_gpu);
 //        mPC->mutexData.unlock();
 //    }
 }
-Displayer::~Displayer() {
-    mGLViewer.exit();
-//    delete mPC;
-//    delete mPCViewer;
-
-}
 
 void Displayer::showPC(cv::Mat mat) {
-//    checkResetPCViewer(mat.cols,mat.rows);
     pushPC_Mat(mat);
+}
+
+void Displayer::showPC(sl::Mat& mat) {
+    mGLViewer->updatePointCloud(mat);
 }
 
 void Displayer::showMergedPC(cv::Mat mat) {
     //TODO check dimension, mat should be the same dimension as my default VNode[0]->pointcloud
 //    checkResetPCViewer(mat.cols*2,mat.rows*2);
     cv::Mat totalPC;
-    hconcat(VNode[0]->pointcloud, mat,totalPC);
+    hconcat(VNode[0]->pointcloud_cv, mat,totalPC);
     pushPC_Mat(totalPC);
 //        VNode[0]->shiftPC(VNode[0]->transformedPointcloud,Scalar(0,-5,0,0));
 //        VNode[0]->shiftPC(VNode[0]->DynamicPC,Scalar(0,5,0,0));

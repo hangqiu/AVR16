@@ -6,58 +6,46 @@
 #include "VCluster.hpp"
 using namespace sl;
 
+//void VCluster::initDisplay(){
+//    if (VISUAL) mDisplayer = new Displayer(VNode);
+//}
+
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
     frameSeqRx =0;
     timeRx=0;
 
     InitParameters init_parameters;
-    // parameters.mode = PERFORMANCE;
-    // parameters.unit = MILLIMETER;
     init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
     init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY
     init_parameters.coordinate_units = UNIT_METER; // set meter as the OpenGL world will be in meters
     init_parameters.sdk_verbose = 1;
     init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
     init_parameters.svo_input_filename = VPath.c_str();
-//    if (live){
-//        init_parameters.camera_fps = sl::
-//    }
 
     RuntimeParameters runtime_parameters;
 //    runtime_parameters.sensing_mode = SENSING_MODE_FILL;
     runtime_parameters.sensing_mode = SENSING_MODE_STANDARD;
 
     int ZEDConfidence = 85;
-
-
     VNode = new AugmentedVR* [NUM_CAMERAS];
-
 
     int i=0;
     // Initialization
-//    for (int i = 0; i < NUM_CAMERAS; i++) {
     VNode[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
     VNode[i]->initZEDCam(startFrameId);
 
-    // TODO: SLAM can only have one instance. running on different machine for each car would automatically address the issue,
-    // For now, just instantiate one SLAM and point other pointers to the same slam.
-    // Alternatively calling SLAM from diferent cam instance will yeild bad result presumably.
-//        if (i==0)
-    if (ReuseMap)
+    if (ReuseMap){
+        cout << "Reusing Map\n";
         VNode[i]->initSLAMStereo(VocFile, CalibrationFile,true, mapFile);
+    }
     else{
         VNode[i]->initSLAMStereo(VocFile, CalibrationFile,false);
     }
-    // TODO share the vocabulaty, load and share the map
-//        else VNode[i]->setMSLAM(VNode[0]->getMSLAM());
-//    }
+
     if (VISUAL) mDisplayer = new Displayer(VNode);
-    if (VISUAL) mDisplayer->init(argc, argv);
-    // TODO: integrate sender rx into AugmentedVR, each may have multiple instances, consider the architeture and abstraction....
-//    ObjSender* mSender = new ObjSender(VNode[0], commPath);
-//    ObjReceiver* mReceiver;
-//    if (RX)
-//        mReceiver = new ObjReceiver(VNode[0], RxCamId, commPath);
+
+
+
 
     if (TX) mSender = new ObjSender(VNode[0], commPath);
     if (RX) mReceiver = new ObjReceiver(VNode[0], RxCamId, commPath);
@@ -84,12 +72,25 @@ void VCluster::run(){
 #endif
     //loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
-    while (key != 'q' && VNode[0]->getFrameSeq() < lengthInFrame) {
+    while (key != 'q' && !quit && VNode[0]->getFrameSeq() < lengthInFrame) {
 //        key = waitKey(20);
         FRAME_ID++;
         count++;
         //Resize and imshow
         cout << endl << "FrameID: " << FRAME_ID << endl;
+
+
+//        if (VNode[0]->mZEDCam->grab(VNode[0]->runtimeParameters) == SUCCESS) {
+//            // Retrieve a colored RGBA point cloud in GPU memory and update GL viewing window
+//            // width and height specify the total number of columns and rows for the point cloud dataset
+//            // In this example, we retrieve and display a half size point cloud using width and height parameters
+//            cout << "Displaying point cloud: " << VNode[0]->width << " by " << VNode[0]->height << endl;
+//            VNode[0]->mZEDCam->retrieveMeasure(VNode[0]->pointcloud_sl_gpu, MEASURE_XYZRGBA, MEM_GPU, VNode[0]->width, VNode[0]->height);
+//            mDisplayer->mGLViewer->updatePointCloud(VNode[0]->pointcloud_sl_gpu);
+//
+//        } else sl::sleep_ms(1);
+
+
 #ifdef EVAL
         gettimeofday(&tFetchStart, NULL);
         gettimeofday(&tTotalStart, NULL);
@@ -98,9 +99,10 @@ void VCluster::run(){
         timeval tTotalStart, tTotalEnd;
         gettimeofday(&tTotalStart, NULL);
 #endif
-        if (!VNode[0]->load_NextFrame()) break;
-
-//        if (!VNode[0]->fetchNUpdateFrameNPointcloud()) break;
+        if (!VNode[0]->loadSlamFrameAsCurrentFrame()) {
+            cerr<< "SLamFrame to Current Frame Failure\n";
+            break;
+        }
 #ifdef PIPELINE
         thread CPU_download(&VCluster::PreProcess, this);
 #else
@@ -114,16 +116,6 @@ void VCluster::run(){
 
         prepFrameTime += double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000;
 #endif
-        //compare Timestamp between both camera (uncomment following line)
-        // for (int i = 0; i < NUM_CAMERAS; i++) std::cout << " Timestamp " << i << ": " << ZED_Timestamp[i] << std::endl;
-//        if (DEBUG) std::cout << " Timestamp: " << frame_ts[0] << " - " << frame_ts[1] <<  " = "<<  frame_ts[0] - frame_ts[1] << std::endl;
-
-//        mDisplayer->processKey('p');
-
-//        if (VISUAL) mDisplayer->showCurFrame();
-//        mDisplayer->showCurDynamicFrame(0);
-
-
         VNode[0]->trackCam();
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
@@ -174,13 +166,17 @@ void VCluster::run(){
 #endif
     }
 
-    VNode[0]->mSLAM->SaveMap("Slam_latest_Map.bin");
+    if (!quit){
+
+        VNode[0]->mSLAM->SaveMap("Slam_latest_Map.bin");
+    }
+#ifdef PIPELINE
     analyze.join();
+#endif
 }
 
 
 VCluster::~VCluster(){
-
     for (int i=0;i<NUM_CAMERAS;i++){
         delete VNode[i];
     }
@@ -189,7 +185,12 @@ VCluster::~VCluster(){
     if (RX)    delete mReceiver;
 }
 
-
+void VCluster::exit(){
+    if (VISUAL)  mDisplayer->exit();
+    for (int i=0;i<NUM_CAMERAS;i++){
+        VNode[i]->exit();
+    }
+}
 
 void VCluster::PreProcess(){
 
@@ -211,7 +212,7 @@ void VCluster::PreProcess(){
 void VCluster::compressDynamic(){
 //    cout << "compressing \n ";
     cv::Mat tmp;
-    VNode[0]->pointcloud.copyTo(tmp);
+    VNode[0]->pointcloud_cv.copyTo(tmp);
     mCodec->encode(tmp);
 }
 
@@ -232,7 +233,7 @@ void VCluster::postProcess(){
     cout << "postProcess starts" << endl;
 #endif
     VNode[0]->analyze();
-    compressDynamic();
+//    compressDynamic();
 //    segmentation();
     TXRX();
     visualize();
@@ -247,12 +248,13 @@ void VCluster::visualize(){
     // need to show PC from Last Frame, cause buffer are freed for pre-fetching
     // Point Cloud Stiching
     if (SHOW_PC && VISUAL) {
-//            if (TX) mDisplayer->showDynamicPC();
+
+
         if (TX) {
 //                mDisplayer->showPC(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
             mDisplayer->showPC(VNode[0]->LastFrame.pointcloud);
         }
-        if (RX) {
+        else if (RX) {
 //                mDisplayer->showMergedPC(transRxPC);
             cv::Mat totalPC, totalDynamicPC;
 //                hconcat(VNode[0]->pointcloud, transRxPC, totalPC);
@@ -270,8 +272,10 @@ void VCluster::visualize(){
                 mDisplayer->showPC(nonOverlapingPC);
 //                    mDisplayer->showPC(VNode[0]->transRxPC);
             }
-
-
+        }
+        else{
+//            mDisplayer->showPC(VNode[0]->NextFrame.pointcloud);
+            mDisplayer->showPC(VNode[0]->pointcloud_sl_gpu);
         }
     }
 }

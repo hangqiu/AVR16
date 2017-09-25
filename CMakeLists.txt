@@ -63,7 +63,7 @@ message(${PCL_LIBRARY_DIRS})
 
 SET(SRC_FOLDER src)
 #FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB_SLAM2/src/*.cc" "${SRC_FOLDER}/*.cpp")
-FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB_SLAM2/src/*.cc" "${SRC_FOLDER}/*.cpp")
+FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB_SLAM2/src/*.cc")
 
 #message(${SRC_FILES})
 

@@ -23,7 +23,7 @@ class ObjReceiver {
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
-
+    ~ObjReceiver();
 
     cv::Mat readFrame(int frameSeq);
     cv::Mat readTcw(int frameSeq);
@@ -34,7 +34,7 @@ public:
     cv::Mat readLowPassObjectMotionVec(int frameSeq);
 
 
-    virtual ~ObjReceiver();
+
 };
 
 

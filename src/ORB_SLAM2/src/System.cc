@@ -70,15 +70,14 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     bool bVocLoad = false; // chose loading method based on file extension
     if (has_suffix(strVocFile, ".txt"))
         bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    else if(has_suffix(strVocFile, ".bin"))
+        bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
     else
-//        bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
-
-    
-    //bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+        bVocLoad = false;
     if(!bVocLoad)
     {
         cerr << "Wrong path to vocabulary. " << endl;
-        cerr << "Falied to open at: " << strVocFile << endl;
+        cerr << "Failed to open at: " << strVocFile << endl;
         exit(-1);
     }
     cout << "Vocabulary loaded!" << endl << endl;

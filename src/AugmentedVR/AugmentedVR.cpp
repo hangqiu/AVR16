@@ -39,11 +39,18 @@ AugmentedVR::AugmentedVR(int CamId, sl::InitParameters initParam, sl::RuntimePar
 }
 
 AugmentedVR::~AugmentedVR(){
-    mSLAM->SaveTrajectoryKITTI("CameraTrajectory.txt");
-    mSLAM->Shutdown();
-    mZEDCam->close();
+
     delete(mZEDCam);
     delete(mSLAM);
+}
+
+void AugmentedVR::exit(){
+    if (!quit)mSLAM->SaveTrajectoryKITTI("CameraTrajectory.txt");
+    mSLAM->Shutdown();
+
+    pointcloud_sl_gpu.free(MEM_GPU);
+
+    mZEDCam->close();
     cout << "AVR shuts down" << endl;
 }
 
@@ -57,9 +64,10 @@ int AugmentedVR::initZEDCam(int startFrameID){
         return 1;
     }
     Resolution image_size = mZEDCam->getResolution();
-    width = image_size.width;
-    height = image_size.height;
+    width = (int)image_size.width;
+    height = (int)image_size.height;
     SbSResult = cv::Mat(height, width * 2, CV_8UC4, 1);
+
     mZEDCam->setConfidenceThreshold(ZEDConfidence);
 
 
@@ -67,15 +75,6 @@ int AugmentedVR::initZEDCam(int startFrameID){
     int tmp_id = 0;
     while (tmp_id++ < startFrameID){
         grabNextZEDFrameOffline();
-
-//        if (DEBUG){ // TODO change this using ULogger from rtapmap
-//            cout << "skipping " << ZEDTS <<  endl;
-//        }
-        // 	char wnd_name[21];
-        //        sprintf(wnd_name, "ZED N° %d", i);
-        //        cv::resize(SbSResult[i], ZED_LRes[i], DisplaySize);
-        //        cv::imshow(wnd_name, ZED_LRes[i]);
-        //    }
     }
 
     SlamFrame = NextFrame;
@@ -101,34 +100,13 @@ int AugmentedVR::initZEDCam(int startFrameID){
     return 0;
 }
 
-// SDK 2.0: difference config are abstracted in params.
-//int AugmentedVR::initZEDCamLive(const sl::zed::ZEDResolution_mode ZED_RES, const int FPS, InitParameters parameters,
-//                                int ZEDConfidence){
-//
-//    sl::ERROR_CODE err = mZEDCam->open(parameters);
-//    cout << "ZED N°" << CamId << " -> Result : " << errcode2str(err) << endl;
-//    if (err != sl::zed::SUCCESS) {
-//        delete mZEDCam;
-//        return 1;
-//    }
-//
-//    width = mZEDCam->getImageSize().width;
-//    height = mZEDCam->getImageSize().height;
-//    SbSResult = cv::Mat(height, width * 2, CV_8UC4, 1);
-//
-//    // remove the not to be trusted data
-//    mZEDCam->setConfidenceThreshold(ZEDConfidence);
-//    return 0;
-//}
 
 void AugmentedVR::initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap, string mapFile){
 
     if (bReuseMap == true){
-//        SLAM = new ORB_SLAM2::System(argv[1],argv[2],ORB_SLAM2::System::STEREO, true, bReuseMap,  argv[5]);
         mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap, mapFile);
     }else{
         mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap);
-//        SLAM = new ORB_SLAM2::System(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, bReuseMap);
     }
     FeedSlamNextFrame();
 }
@@ -146,54 +124,12 @@ void AugmentedVR::FeedSlamNextFrame(){
 #endif
 }
 
-//void AugmentedVR::grab_run() {
-//    while (!stop_signal) {
-//        bool res = zed[x]->grab(SENSING_MODE::FILL, 1, 1, 1);
-//        if (!res) {
-//            frame_seq[x]++;
-//            ZED_Timestamp[x] = zed[x]->getCameraTimestamp();
-//            //sl::zed::Mat depthMM = zed[x]->retrieveMeasure(MEASURE::DEPTH);
-//            slMat2cvMat(zed[x]->retrieveImage(SIDE::LEFT)).copyTo(SbSResult[x](cv::Rect(0, 0, width, height)));
-//            slMat2cvMat(zed[x]->normalizeMeasure(MEASURE::DISPARITY)).copyTo(SbSResult[x](cv::Rect(width, 0, width, height)));
-//            // slMat2cvMat(zed[x]->retrieveMeasure_gpu(XYZRGBA)).copyTo(BufferXYZRGBA[x]);
-//            slMat2cvMat(zed[x]->retrieveMeasure(XYZRGBA)).copyTo(BufferXYZRGBA[x]);
-//        }
-//        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//    }
-//    delete zed[x];
-//}
-
-//void AugmentedVR::retrieve_ZED_PC_CPU(){
-//#ifdef EVAL
-//    timeval start,end;
-//    gettimeofday(&start, NULL);
-//    cout << ">>>>>>> PC thread starting at: " << double(start.tv_sec)*1000 + double(start.tv_usec) / 1000<< "ms" << endl;
-//#endif
-//    slMat2cvMat(mZEDCam->retrieveMeasure(XYZRGBA)).copyTo(pointcloud);
-//
-//    if (!INIT_FLAG) {
-//        pointcloud.copyTo(initPC);
-//        INIT_FLAG = true;
-//    }
-//    cv::Mat PCChannels[3];
-//
-//    for (int i=0;i<3;i++){
-//        cv::extractChannel(pointcloud,PCChannels[i],i);
-//    }
-//
-//    merge(PCChannels,3,PC_noColor);
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << ">>>>>>> PC thread ending at: " << double(end.tv_sec)*1000 + double(end.tv_usec) / 1000<< "ms";
-//    cout << "(" << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms)" << endl;
-//#endif
-//    return;
-//}
 
 
-bool AugmentedVR::load_NextFrame() {
+bool AugmentedVR::loadSlamFrameAsCurrentFrame() {
     if (SlamFrame.FrameLeft.empty()) return false;
-    SlamFrame.pointcloud.copyTo(pointcloud);
+    SlamFrame.pointcloud.copyTo(pointcloud_cv);
+//    pointcloud_sl.setFrom(SlamFrame.pointcloud_sl_gpu,COPY_TYPE_GPU_GPU);
     SlamFrame.PC_noColor.copyTo(PC_noColor);
     SlamFrame.FrameLeft.copyTo(FrameLeft);
     SlamFrame.FrameRight.copyTo(FrameRight);
@@ -201,6 +137,7 @@ bool AugmentedVR::load_NextFrame() {
     SlamFrame.FrameRightGray.copyTo(FrameRightGray);
     ZEDTS = SlamFrame.ZEDTS;
     frameTS = SlamFrame.frameTS;
+//    SlamFrame.pointcloud_sl.free(MEM_GPU);
     SlamFrame = ZED_DATA{};
     return true;
 }
@@ -248,23 +185,20 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
     cout << "grabZEDFrameOffline >>>>>>>  Grab: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
     gettimeofday(&start, NULL);
 #endif
-    //sl::zed::Mat depthMM = zed[x]->retrieveMeasure(MEASURE::DEPTH);
-//        slMat2cvMat(mZEDCam->retrieveImage(SIDE::LEFT)).copyTo(SbSResult(cv::Rect(0, 0, width, height)));
-//        slMat2cvMat(mZEDCam->normalizeMeasure(MEASURE::DEPTH)).copyTo(SbSResult(cv::Rect(width, 0, width, height)));
-//        sl::zed::Mat slmat =  mZEDCam->retrieveMeasure(XYZ);
 
-//        sl::zed::Mat slmat =  mZEDCam->retrieveMeasure_gpu(XYZRGBA);
-//#ifdef EVAL
-//        gettimeofday(&end, NULL);
-//        cout << "   PC in GPU: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//        gettimeofday(&start, NULL);
-//#endif
 
 //        slMat2cvMat(mZEDCam->retrieveMeasure(XYZRGBA)).copyTo(NextFrame.pointcloud);
     // SDK2.0
     sl::Mat pc;
-    mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA, sl::MEM_CPU);
+    ERROR_CODE err = mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA, sl::MEM_CPU, width, height);
+    if (err!=SUCCESS){
+        cerr << "Can't retrieve point cloud! error code:" << err << endl;
+    }
     slMat2cvMat(pc).copyTo(NextFrame.pointcloud); //just to be safe
+    ERROR_CODE err2 = mZEDCam->retrieveMeasure(pointcloud_sl_gpu, sl::MEASURE_XYZRGBA, sl::MEM_GPU, width, height);
+    if (err2!=SUCCESS){
+        cerr << "Can't retrieve point cloud gpu! error code:" << err2 << endl;
+    }
 
     if (!INIT_FLAG) {
         NextFrame.pointcloud.copyTo(initPC);
@@ -305,14 +239,6 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
     cout << "grabZEDFrameOffline >>>>>>> Frame: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 //        cout << ">>>>>>> PC thread ending at: " << double(end.tv_sec)*1000 + double(end.tv_usec) / 1000<< "ms"<< endl;
 #endif
-//        BufferXYZRGBA_gpu = mZEDCam->retrieveMeasure_gpu(XYZRGBA);
-
-    // cout << BufferXYZRGBA[x](cv::Rect(0,0,2,2));
-
-//        cv::resize(SbSResult, ZED_LRes, DisplaySize);
-
-
-
     return true;
 }
 
@@ -454,53 +380,6 @@ bool AugmentedVR::calcOpticalFlow(){
     return true;
 }
 
-
-//void AugmentedVR::fetchNUpdateFrameNPointcloud(){
-//
-//    if (frameSeq%5==0) // TODO: to be removed, only for debug now
-////        for (int i = 0; i < NUM_CAMERAS; i++) {
-//            FrameLeft.copyTo(lastFrameLeft);
-//            FrameRight.copyTo(lastFrameRight);
-//            pointcloud.copyTo(lastpointcloud);
-//            CamMotionMat.copyTo(lastCamMotionMat);
-////        }
-//    grabZEDFrameOffline();
-//
-//    for (int i = 0; i < NUM_CAMERAS; i++) {
-//        if (OFFLINE){
-//            while(frame_ts[i] - frame_ts[1-i] < 0){
-//                grab_offline(i);
-//                frame_ts[i] = ZED_Timestamp[i] - start_timestamp[i];
-//            }
-//            // cout << "skipping camera 1 frame ts: " << ZED_Timestamp[0] << endl;
-//        }
-//
-//        char wnd_name[21];
-//        sprintf(wnd_name, "ZED N° %d", i);
-//        cv::resize(SbSResult[i], ZED_LRes[i], DisplaySize);
-//
-//        if (SHOW_IMG) cv::imshow(wnd_name, ZED_LRes[i]);
-//        // cout << "copying pont cloud\n";
-////            if (SHOW_PC)
-////                for (int i = 0; i < NUM_CAMERAS; i++)
-////                    BufferXYZRGBA[i].copyTo(pointcloud[i]);
-//    }
-//}
-
-//void AugmentedVR::updateLastPointCloud(){
-//    cv::Mat tmpPC;
-//    pointcloud.copyTo(tmpPC);
-//    lastpointcloud.push_back(tmpPC);
-//    lastpointcloud.erase(lastpointcloud.begin());
-//    //    pointcloud.copyTo(lastpointcloud);
-//}
-
-
-//bool AugmentedVR::DutyCycling(){
-//    if (FRAME_ID%DUTYCYCLE==0) return true;
-//    return false;
-//}
-
 void AugmentedVR::updateLastStereoData(){
     LastFrame = STEREO_DATA{};
 
@@ -516,7 +395,9 @@ void AugmentedVR::updateLastStereoData(){
     CamMotionMat.copyTo(LastFrame.CamMotionMat);
 
 
-    pointcloud.copyTo(LastFrame.pointcloud);
+    pointcloud_cv.copyTo(LastFrame.pointcloud);
+//    LastFrame.pointcloud_sl.setFrom(pointcloud_sl,COPY_TYPE_GPU_GPU);
+
     PC_noColor.copyTo(LastFrame.PC_noColor);
     sceneTransformMat.copyTo(LastFrame.sceneTransformMat);
 //    stereoTmp.keypoints = keypoints;//TODO: probably don't need this
@@ -610,35 +491,6 @@ void AugmentedVR::calcPCMotionVec() {
         }
 //    }
 }
-
-
-
-//
-//// matching keypoints from last frame, update perspective transformation matrix to get PC one by one corespondance
-//void AugmentedVR::calcSceneTransformMat(int idx) {
-//    int margin = 50;
-//    cv::Mat img_cur_scene = getGrayBBox(FrameLeft, 0, 0, width - 2 * margin,
-//                                        height - 2 * margin); //find homography func cannot find the full scene.
-//    cv::Mat img_last_scene = getGrayBBox(lastStereoData[idx].FrameLeft, 0, 0, width, height);
-////    landmark_matchinfo matched_scene = find_obj_in_second_scene(img_cur_scene,
-////                                                                img_last_scene); // current scene in last scene, because last scene is larger
-//    lastStereoData[idx].matched_scene = find_obj_in_second_scene(img_cur_scene,
-//                                                                img_last_scene); // current scene in last scene, because last scene is larger
-//
-//    lastStereoData[idx].matched_scene.perspectiveTransformMatrix.copyTo(sceneTransformMat);
-//
-//    if (DEBUG > 1) {
-//        cv::Size outputSize(width, height);
-////            imwrite("current scene.jpg",img_cur_scene);
-////            imwrite("last scene.jpg", img_last_scene);
-//        imshow("current scene.jpg", img_cur_scene);
-//        imshow("last scene.jpg", img_last_scene);
-//        cv::Mat transformFrame;
-//        cv::warpPerspective(FrameLeft, transformFrame, sceneTransformMat, outputSize);
-//        imshow("transformed current scene", transformFrame);
-//    }
-//
-//}
 
 
 

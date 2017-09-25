@@ -24,7 +24,7 @@ private:
 public:
     ObjSender(AugmentedVR *myAVR, string commPath);
 
-    virtual ~ObjSender();
+    ~ObjSender();
 
     void writeFrame();
     void writeTcw();

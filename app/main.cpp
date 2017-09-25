@@ -80,8 +80,21 @@ using namespace cv;
 
 
 
+VCluster* mV;
+std::thread* mvThread;
+
+void run(){
+
+    mV->run();
+}
 
 
+void close() {
+    quit = true;
+    mvThread->join();
+    mV->exit();
+    cout << "System shuts down" << endl;
+}
 ///////////////////////////////////////////////////////////main  function////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
@@ -121,15 +134,18 @@ int main(int argc, char **argv) {
         cout << "Map File: " << mapFile << endl;
     }
 
-    VCluster* mV = new VCluster(false, mapFile, argc, argv, VPath[0]);
+    mV = new VCluster(false, mapFile, argc, argv, VPath[0]);
 
 #ifdef EVAL
     gettimeofday(&tInit, NULL);
 #endif
 
-    mV->run();
-
-    delete mV;
-    cout << "AVR shuts down" << endl;
+//    mV->run();
+    mvThread = new std::thread(run);
+//    while(mV->VNode[0]->getFrameSeq()<5);
+    glutCloseFunc(close);
+    glutMainLoop();
     return 0;
 }
+
+

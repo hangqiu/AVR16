@@ -1,3 +1,12 @@
 build/
 cmake-build-debug/
-.idea/
+
+
+Slam_latest_Map.bin
+Thirdparty/DBoW2/lib/
+Thirdparty/g2o/lib/
+Thirdparty/g2o/config.h
+src/ORB_SLAM2/Vocabulary/ORBvoc.bin
+src/ORB_SLAM2/Vocabulary/ORBvoc.txt
+CameraTrajectory.txt
+FrameInfo.txt

@@ -5,7 +5,7 @@
 #include "pcCodec.hpp"
 
 pcCodec::pcCodec(int width, int height) : width(width), height(height) {
-    data_cloud = new float[height * width * 4];
+//    data_cloud = new float[height * width * 4];
     compressionProfile = pcl::io::MED_RES_ONLINE_COMPRESSION_WITH_COLOR;
 
     PointCloudEncoder = new pcl::io::OctreePointCloudCompression<pcl::PointXYZRGBA> (compressionProfile, false);
@@ -20,7 +20,7 @@ pcCodec::pcCodec(int width, int height) : width(width), height(height) {
 }
 
 pcCodec::~pcCodec() {
-    delete[] data_cloud;
+//    delete[] data_cloud;
     delete (PointCloudEncoder);
     delete (PointCloudDecoder);
 //    delete (point_cloud_rgba_ptr);
@@ -62,15 +62,16 @@ bool pcCodec::cv2pcl_xyz(cv::Mat &pc){
     }
 
     float* p_cloud;
-    sl::Mat slpc = cvMat2slMat(pc);
-    p_cloud = (float*)(slpc.getPtr<float>(sl::MEM_CPU)); // Get the pointer
+    sl::Mat slpc;
+    cvMat2slMat(pc,slpc);
+    p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
     // Fill the buffer
-    mutex_input.lock(); // To prevent from data corruption
-    memcpy(data_cloud, p_cloud, width * height * sizeof (float) * 4);
-    mutex_input.unlock();
+//    mutex_input.lock(); // To prevent from data corruption
+//    memcpy(data_cloud, p_cloud, width * height * sizeof (float) * 4);
+//    mutex_input.unlock();
 
-    int index4 = height*width/2;
-//    int index4 = 0;
+//    int index4 = height*width/2;
+    int index4 = 0;
 
 #ifdef EVAL
     timeval start,end;
@@ -78,13 +79,13 @@ bool pcCodec::cv2pcl_xyz(cv::Mat &pc){
 #endif
     // for rbga
     for (auto &it : point_cloud_xyz_ptr->points) {
-        float X = data_cloud[index4 * 4];
+        float X = p_cloud[index4 * 4];
         if (!isValidMeasure(X)) // Checking if it's a valid point
             it.x = it.y = it.z = 0;
         else {
             it.x = X;
-            it.y = data_cloud[index4 * 4 + 1];
-            it.z = data_cloud[index4 * 4 + 2];
+            it.y = p_cloud[index4 * 4 + 1];
+            it.z = p_cloud[index4 * 4 + 2];
 //            it.rgb = data_cloud[index4 * 4 + 3];
         }
         index4++;
@@ -94,6 +95,7 @@ bool pcCodec::cv2pcl_xyz(cv::Mat &pc){
     cout << "Total conversion time: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000 << "ms" << endl;
 #endif
 //    cout << "finished conversion\n";
+    slpc.free(MEM_CPU);
     return true;
 }
 
@@ -110,15 +112,16 @@ bool pcCodec::cv2pcl_xyzrgba(cv::Mat &pc){
     }
 
     float* p_cloud;
-    sl::Mat slpc = cvMat2slMat(pc);
+    sl::Mat slpc;
+    cvMat2slMat(pc,slpc);
     p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
     // Fill the buffer
-    mutex_input.lock(); // To prevent from data corruption
-    memcpy(data_cloud, p_cloud, width * height * sizeof (float) * 4);
-    mutex_input.unlock();
+//    mutex_input.lock(); // To prevent from data corruption
+//    memcpy(p_cloud, p_cloud, width * height * sizeof (float) * 4);
+//    mutex_input.unlock();
 
-    int index4 = height*width/2;
-//    int index4 = 0;
+//    int index4 = height*width/2;
+    int index4 = 0;
 
 #ifdef EVAL
     timeval start,end;
@@ -126,14 +129,14 @@ bool pcCodec::cv2pcl_xyzrgba(cv::Mat &pc){
 #endif
     // for rbga
     for (auto &it : point_cloud_xyzrgba_ptr->points) {
-        float X = data_cloud[index4 * 4];
+        float X = p_cloud[index4 * 4];
         if (!isValidMeasure(X)) // Checking if it's a valid point
             it.x = it.y = it.z = it.rgb = 0;
         else {
             it.x = X;
-            it.y = data_cloud[index4 * 4 + 1];
-            it.z = data_cloud[index4 * 4 + 2];
-            it.rgb = data_cloud[index4 * 4 + 3];
+            it.y = p_cloud[index4 * 4 + 1];
+            it.z = p_cloud[index4 * 4 + 2];
+            it.rgb = p_cloud[index4 * 4 + 3];
         }
         index4++;
     }
@@ -142,6 +145,7 @@ bool pcCodec::cv2pcl_xyzrgba(cv::Mat &pc){
     cout << "Total conversion time: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000 << "ms" << endl;
 #endif
 //    cout << "finished conversion\n";
+    slpc.free(MEM_CPU);
     return true;
 }
 
@@ -157,7 +161,7 @@ void pcCodec::encode(cv::Mat& pc){
 #endif
     std::stringstream compressedData;
     // compress point cloud
-    PointCloudEncoder->encodePointCloud (point_cloud_xyzrgba_ptr, compressedData);
+    PointCloudEncoder->encodePointCloud(point_cloud_xyzrgba_ptr, compressedData);
 
 #ifdef EVAL
     gettimeofday(&end,NULL);

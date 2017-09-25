@@ -23,6 +23,8 @@ private:
     int frameSeqRx;
     long timeRx;
 
+    std::thread* displayThread;
+
 public://public variables
     AugmentedVR** VNode;
 
@@ -30,6 +32,7 @@ public:
     VCluster();
     VCluster(bool live, const string mapFile, int argc, char** argv, string VPath);
     ~VCluster();
+    void exit();
 
     void run();
 
@@ -42,6 +45,8 @@ public:
     void PreProcess();
 
     void segmentation();
+
+    void initDisplay();
 };
 
 

@@ -40,6 +40,8 @@ struct ZED_DATA{
     cv::Mat FrameRightGray;
 
     cv::Mat pointcloud;
+//    sl::Mat pointcloud_sl;
+
     cv::Mat PC_noColor;
 
 
@@ -59,6 +61,8 @@ struct STEREO_DATA{
     cv::Mat FrameRightGray;
 
     cv::Mat pointcloud;
+//    sl::Mat pointcloud_sl;
+
     cv::Mat PC_noColor;
 
     cv::Mat CamMotionMat; // Tcw // (4,4,CV_32F) rotation mat and translation mat Tcw (Rcw, tcw) in ORBSLAM
@@ -108,7 +112,11 @@ public: //TODO change to private and add agetter seter
 
     cv::Mat ZED_LRes;
     cv::Mat BufferXYZRGBA;
-    cv::Mat pointcloud;
+
+    cv::Mat pointcloud_cv;
+//    sl::Mat pointcloud_sl;
+    sl::Mat pointcloud_sl_gpu;
+
     cv::Mat PC_noColor;
 
     cv::Mat initPC;
@@ -120,7 +128,7 @@ public: //TODO change to private and add agetter seter
 //    vector<cv::Mat> lastpointcloud;
     vector<STEREO_DATA> lastStereoData;
 //    vector<cv::Mat> PCMotionVec;
-    sl::Mat BufferXYZRGBA_gpu;
+
     cv::Mat depth_mat;
 
 
@@ -169,6 +177,9 @@ public:
 //    AugmentedVR(int CamId);
     AugmentedVR(int CamId, sl::InitParameters initParam, sl::RuntimeParameters runtimeParam, int ZEDConfidence);
     ~AugmentedVR();
+    void exit();
+
+
     int initZEDCam(int startFrameID);
 
     void initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap = false, string mapFile = "default.txt");
@@ -241,7 +252,7 @@ public:
 
     void dead_reckoning_onRxDynamicPC();
 
-    bool load_NextFrame();
+    bool loadSlamFrameAsCurrentFrame();
 
     void detectFeature();
 

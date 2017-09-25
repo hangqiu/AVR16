@@ -11,7 +11,7 @@
 using namespace std;
 
 
-bool COOP = true;
+bool COOP = false;
 
 bool ReuseMap = false;
 //bool ReuseMap = true;
@@ -39,7 +39,7 @@ bool LANDMARK_DISTVECTOR = false;
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;
 
-bool SHOW_CAMMOTION = false;
+bool SHOW_CAMMOTION = true;
 int DUTYCYCLE = 5; // x frames per processing
 
 double PCConnectionThresh = 0.02;
@@ -50,6 +50,8 @@ double HEIGHT_THRESH = 2.5;
 
 bool INIT_FLAG = false;
 //bool EVAL = false;
+
+bool quit = false;
 
 cv::Size DisplaySize(720, 404);
 
@@ -67,7 +69,7 @@ string TIMESTAMP = "TIMESTAMP";
 string DYNAMICPC = "DYNAMICPC";
 string MOTIONVEC = "MOTIONVEC";
 
-string VocFile = "./src/ORB_SLAM2/Vocabulary/ORBvoc.txt";
+string VocFile = "./src/ORB_SLAM2/Vocabulary/ORBvoc.bin";
 string CalibrationFile = "./CamCalib.yaml";
 
 const int NUM_CAMERAS = 1;
@@ -89,7 +91,7 @@ bool OFFLINE = true;
 //int startFrameId = 0;
 
 bool RX = false;
-bool TX = true;
+bool TX = false;
 bool SEND = false;
 //bool SEND = true;
 int CamId=1;
@@ -124,7 +126,7 @@ cv::Mat slMat2cvMat(sl::Mat& input) {
 }
 
 
-sl::Mat cvMat2slMat(cv::Mat& input) {
+void cvMat2slMat(cv::Mat& input, sl::Mat& output) {
     // Mapping between MAT_TYPE and CV_TYPE
     sl::MAT_TYPE sl_type;
     switch (input.type()) {
@@ -145,6 +147,7 @@ sl::Mat cvMat2slMat(cv::Mat& input) {
     size_t step = (size_t)(input.step);
     size_t width = (size_t)(input.size().width);
     size_t height = (size_t)(input.size().height);
-    return sl::Mat(width, height, sl_type, ptr, step, sl::MEM_CPU);
+    output = sl::Mat(width, height, sl_type, ptr, step, sl::MEM_CPU);
+    return;
 }
 
