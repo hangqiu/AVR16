@@ -58,7 +58,7 @@ link_directories(Thirdparty/DBoW2/lib)
 link_directories(Thirdparty/g2o/lib)
 
 
-message(${PCL_LIBRARY_DIRS})
+#message(${PCL_LIBRARY_DIRS})
 #message(${CUDA_INCLUDE_DIRS})
 
 SET(SRC_FOLDER src)
@@ -70,18 +70,18 @@ FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/AugmentedVR/*.cpp" "${SRC_FOLDER}/ORB
 SET(HEADER_FOLDER include)
 FILE(GLOB_RECURSE HEADER_FILES "${HEADER_FOLDER}/*.hpp" "${HEADER_FOLDER}/*.h" "${HEADER_FOLDER}/../src/ORB_SLAM2/include/*.h")
 
-message(${HEADER_FILES})
+#message(${HEADER_FILES})
 #set_property(TARGET ${execName} PROPERTY OUTPUT_NAME "ZED Multi Input")
 
 #add_definitions(-std=c++0x)
 #add_subdirectory(src/ORB_SLAM2)
 
-message("${CUDA_LIBRARIES}")
-message("${CUDA_nppi_LIBRARY}")
-message("${CUDA_npps_LIBRARY}")
-message("${CUDA_CUDA_LIBRARIES}")
-message("${CUDA_npp_LIBRARY}")
-message("${CUDA_CUDART_LIBRARY}")
+#message("${CUDA_LIBRARIES}")
+#message("${CUDA_nppi_LIBRARY}")
+#message("${CUDA_npps_LIBRARY}")
+#message("${CUDA_CUDA_LIBRARIES}")
+#message("${CUDA_npp_LIBRARY}")
+#message("${CUDA_CUDART_LIBRARY}")
 
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
@@ -106,6 +106,6 @@ TARGET_LINK_LIBRARIES(${execName}
 		)
 
 
-message("${PROJECT_SOURCE_DIR}")
+#message("${PROJECT_SOURCE_DIR}")
 
 
