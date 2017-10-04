@@ -4,6 +4,8 @@
 
 
 #include "Displayer.hpp"
+#include "PCUtils.hpp"
+#include "CVUtils.hpp"
 #include "globals.hpp"
 #include "sl/Camera.hpp"
 //opencv includes
@@ -18,7 +20,11 @@ Displayer::Displayer(AugmentedVR** VNode) : VNode(VNode) {
     PCheight = Displayer::VNode[0]->height;
     cout << "Initializing viewer: width, " << PCwidth << ", height, " << PCheight << endl;
     mGLViewer->init(PCwidth,PCheight);
-//    glutMainLoop();
+
+//    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_GPU);
+//    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_GPU | sl::MEM_CPU);
+//
+//  glutMainLoop();
 //    display_callback = std::thread(glutMainLoop);
 }
 
@@ -29,6 +35,7 @@ Displayer::~Displayer() {
 }
 
 void Displayer::exit(){
+//    PC_gpu.free(MEM_GPU);
     mGLViewer->exit();
 }
 
@@ -66,20 +73,22 @@ void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t f
 }
 
 void Displayer::showCurDynamicFrame(int idx){
-    if (VNode[0]->lastStereoData[ZEDCACHESIZE-1-idx].DynamicFrame.empty()) return;
+    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    if (currFrame.DynamicFrame.empty()) return;
     char tmp[100];
     sprintf(tmp, "Current Dynamic Left Frame against %d frames before", (idx+1)*5);
-    cv::imshow(tmp, VNode[0]->lastStereoData[ZEDCACHESIZE-1-idx].DynamicFrame);
+    cv::imshow(tmp, currFrame.DynamicFrame);
     char key = cv::waitKey(20);
     processKey(key);
 }
 
 void Displayer::showCurFrame(){
-    if (VNode[0]->FrameLeft.empty()) return;
+    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    if (currFrame.FrameLeft.empty()) return;
     char winName[100] = "Current Left Frame";
     cv::namedWindow(winName);
-    cv::imshow(winName, VNode[0]->FrameLeft);
-    cv::setMouseCallback(winName, onMouseCallback_DisplayVoxel, &(VNode[0]->PC_noColor));
+    cv::imshow(winName, currFrame.FrameLeft);
+    cv::setMouseCallback(winName, onMouseCallback_DisplayVoxel, &(currFrame.PC_noColor));
     char key = cv::waitKey(20);
     processKey(key);
 }
@@ -125,11 +134,11 @@ void Displayer::saveFrame(){
     char new_key;
     while(new_key = cv::waitKey(20)){
         if (new_key == '0' || new_key == 'a'){
-            VNode[0]->saveCurFrame();
+            VNode[0]->mIo->writeCurrentStereoFrame();
             cout << "saved cam 0 as " << tmp_str << endl;
         }
         if (new_key == '1' || new_key == 'a'){
-            VNode[1]->saveCurFrame();
+            VNode[1]->mIo->writeCurrentStereoFrame();
             cout << "saved cam 1 as " << tmp_str << endl;
         }
         if (new_key == 'r'){
@@ -150,40 +159,39 @@ void Displayer::debugPC(cv::Mat DebugPC){
 //                cv::Mat mask = cv::Mat(DebugPCChan!=DebugPCChan);
     cout    << "NonZero elements: " << cv::countNonZero(DebugPCChan) << endl; // can only count single channel matrix
 //                cout << cv::countNonZero(mask);
+    cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
 }
 
 void Displayer::showPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
-    pushPC_Mat(VNode[0]->pointcloud_cv);
+    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    pushPC_cvMat(currFrame.pointcloud);
 }
 
 void Displayer::showDynamicPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
-    pushPC_Mat(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
+    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    pushPC_cvMat(currFrame.DynamicPC);
 }
-void Displayer::pushPC_Mat(cv::Mat& mat){
-    if (DEBUG>1) debugPC(mat);
+void Displayer::pushPC_cvMat(cv::Mat &mat){
+    debugPC(mat);
     sl::Mat PC_gpu;
-    cvMat2slMat(mat,PC_gpu);
+    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_CPU);
+    cvMat2slMat(mat,PC_gpu, sl::MEM_CPU);
+    mGLViewer->updatePointCloud_HostToDevice(PC_gpu);
 
-    PC_gpu.alloc(mat.size().width, mat.size().height, sl::MAT_TYPE_8U_C4, sl::MEM_GPU);
-
-    ERROR_CODE  err= PC_gpu.updateGPUfromCPU();
-    if (err!=SUCCESS){
-        cerr << err << endl;
-    }
-    mGLViewer->updatePointCloud(PC_gpu);
-    PC_gpu.free(MEM_GPU);
-    PC_gpu.free(MEM_GPU);
-    // show the point cloud
-//    if (mPC->mutexData.try_lock()) {
-//        mPC->pushNewPC_HostToDevice(PC_gpu);
-//        mPC->mutexData.unlock();
+//    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_GPU);
+//    ERROR_CODE  err= PC_gpu.updateGPUfromCPU();
+//    if (err!=SUCCESS){
+//        cerr << err << endl;
 //    }
+//    mGLViewer->updatePointCloud(PC_gpu);
+//    PC_gpu.free(MEM_GPU);
+//    PC_gpu.free(MEM_GPU);
 }
 
 void Displayer::showPC(cv::Mat mat) {
-    pushPC_Mat(mat);
+    pushPC_cvMat(mat);
 }
 
 void Displayer::showPC(sl::Mat& mat) {
@@ -194,8 +202,8 @@ void Displayer::showMergedPC(cv::Mat mat) {
     //TODO check dimension, mat should be the same dimension as my default VNode[0]->pointcloud
 //    checkResetPCViewer(mat.cols*2,mat.rows*2);
     cv::Mat totalPC;
-    hconcat(VNode[0]->pointcloud_cv, mat,totalPC);
-    pushPC_Mat(totalPC);
+    hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, mat,totalPC);
+    pushPC_cvMat(totalPC);
 //        VNode[0]->shiftPC(VNode[0]->transformedPointcloud,Scalar(0,-5,0,0));
 //        VNode[0]->shiftPC(VNode[0]->DynamicPC,Scalar(0,5,0,0));
 //        hconcat(VNode[0]->transformedPointcloud,VNode[0]->DynamicPC,total_point_cloud);
@@ -203,10 +211,12 @@ void Displayer::showMergedPC(cv::Mat mat) {
 
 void Displayer::showSplitScreen(cv::Mat PC1, cv::Mat PC2){
     //TODO check dimension, mat should be the same dimension as my default VNode[0]->pointcloud
-//    checkResetPCViewer(PC1.cols*2,PC1.rows*2);
+//    checkResetPCViewer(PC1.cols*2,PC1->rows*2);
     cv::Mat totalPC;
-    VNode[0]->shiftPC(PC1,Scalar(0,10,0,0));
-    VNode[0]->shiftPC(PC2,Scalar(0,-10,0,0));
+//    VNode[0]->shiftPC(PC1,Scalar(0,10,0,0));
+//    VNode[0]->shiftPC(PC2,Scalar(0,-10,0,0));
+    shiftPC(PC1,Scalar(0,10,0,0));
+    shiftPC(PC2,Scalar(0,-10,0,0));
     hconcat(PC1, PC2,totalPC);
-    pushPC_Mat(totalPC);
+    pushPC_cvMat(totalPC);
 }

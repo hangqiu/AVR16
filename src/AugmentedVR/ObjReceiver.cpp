@@ -21,6 +21,33 @@ ObjReceiver::~ObjReceiver() {
 }
 
 
+struct WholeFrameWithMetaData ObjReceiver::readWholeFrameWithFullMetaData(int frameSeq){
+    char tmpstr[100];
+    sprintf(tmpstr, "/cam%d/Frame%d.yml", RxCamId, frameSeq);
+    WholeFrameWithMetaData ret;
+    WholeFrame.open(commPath+tmpstr, cv::FileStorage::READ);
+    WholeFrame[FRAME] >> ret.Frame;
+    WholeFrame[TCW] >> ret.Tcw;
+    WholeFrame[TIMESTAMP] >> ret.Timestamp;
+    WholeFrame[PC] >> ret.PC;
+    WholeFrame[DYNAMICPC] >> ret.DynamicPC;
+    WholeFrame[MOTIONVEC] >> ret.MotionVec;
+    WholeFrame[LOWPASSMOTIONVEC] >> ret.LowPassMotionVec;
+    WholeFrame.release();
+    return ret;
+}
+
+struct WholeFrameWithMetaData ObjReceiver::readWholeFrameFromSeparateFiles(int frameSeq){
+    WholeFrameWithMetaData ret;
+    ret.Frame = readFrame(frameSeq);
+    ret.Tcw = readTcw(frameSeq);
+    ret.Timestamp = readTimeStamp(frameSeq);
+    ret.PC = readPC(frameSeq);
+    ret.DynamicPC = readDynamicPC(frameSeq);
+    ret.MotionVec = readObjectMotionVec(frameSeq);
+    ret.LowPassMotionVec= readLowPassObjectMotionVec(frameSeq);
+    return ret;
+}
 
 cv::Mat ObjReceiver::readFrame(int frameSeq){
 //    char tmp_str[50];
@@ -121,7 +148,7 @@ cv::Mat ObjReceiver::readLowPassObjectMotionVec(int frameSeq){
     cv::Mat ret;
     sprintf(tmpstr, "/cam%d/LowPassObjectMotionVec%d.yml", RxCamId, frameSeq);
     dynamicPCFile.open(commPath+tmpstr, cv::FileStorage::READ);
-    dynamicPCFile[MOTIONVEC]>> ret;
+    dynamicPCFile[LOWPASSMOTIONVEC]>> ret;
     dynamicPCFile.release();
     return ret;
 }

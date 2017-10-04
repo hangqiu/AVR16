@@ -9,10 +9,21 @@
 #include <opencv2/core/mat.hpp>
 #include "AugmentedVR.hpp"
 
+struct WholeFrameWithMetaData{
+    cv::Mat Frame;
+    cv::Mat Tcw;
+    int Timestamp;
+    cv::Mat PC;
+    cv::Mat DynamicPC;
+    cv::Mat MotionVec;
+    cv::Mat LowPassMotionVec;
+};
+
 class ObjReceiver {
 
     AugmentedVR* myAVR;
     int RxCamId;
+    cv::FileStorage WholeFrame;
     cv::FileStorage TcwFile;
     cv::FileStorage PCFile;
     cv::FileStorage dynamicPCFile;
@@ -24,6 +35,9 @@ public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
     ~ObjReceiver();
+
+    struct WholeFrameWithMetaData readWholeFrameWithFullMetaData(int frameSeq);
+    struct WholeFrameWithMetaData readWholeFrameFromSeparateFiles(int frameSeq);
 
     cv::Mat readFrame(int frameSeq);
     cv::Mat readTcw(int frameSeq);

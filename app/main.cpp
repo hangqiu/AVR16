@@ -140,11 +140,13 @@ int main(int argc, char **argv) {
     gettimeofday(&tInit, NULL);
 #endif
 
-//    mV->run();
-    mvThread = new std::thread(run);
-//    while(mV->VNode[0]->getFrameSeq()<5);
-    glutCloseFunc(close);
-    glutMainLoop();
+    if (VISUAL){
+        mvThread = new std::thread(run);
+        glutCloseFunc(close);
+        glutMainLoop();
+    } else{
+        mV->run();
+    }
     return 0;
 }
 

@@ -15,12 +15,13 @@ find_package(ZED REQUIRED)
 find_package(GLUT)
 find_package(GLEW)
 find_package(OpenGL)
+find_package(OpenSSL)
+find_package(Threads)
 
 #LIST(APPEND CMAKE_MODULE_PATH /home/hang/AugmentedVR/src/ORB_SLAM2/cmake_modules/)
 #message(${CMAKE_MODULE_PATH})
 
 find_package(Eigen3 REQUIRED)
-
 find_package(CUDA REQUIRED)
 find_package(PCL)
 find_package(Pangolin REQUIRED)
@@ -88,7 +89,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp)
+ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp src/AugmentedVR/Global.cpp include/Global.hpp src/AugmentedVR/FrameCache.cpp include/FrameCache.hpp src/AugmentedVR/AVRFrame.cpp include/AVRFrame.hpp src/AugmentedVR/CVUtils.cpp include/CVUtils.hpp src/AugmentedVR/PCUtils.cpp include/PCUtils.hpp)
 TARGET_LINK_LIBRARIES(${execName}
         ${ZED_LIBRARIES}
         ${OPENGL_LIBRARIES}
@@ -105,7 +106,5 @@ TARGET_LINK_LIBRARIES(${execName}
 		/usr/lib/x86_64-linux-gnu/libcuda.so.1
 		)
 
-
-message("${PROJECT_SOURCE_DIR}")
 
 

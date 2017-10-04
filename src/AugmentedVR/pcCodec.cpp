@@ -63,7 +63,7 @@ bool pcCodec::cv2pcl_xyz(cv::Mat &pc){
 
     float* p_cloud;
     sl::Mat slpc;
-    cvMat2slMat(pc,slpc);
+    cvMat2slMat(pc,slpc, sl::MEM_CPU);
     p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
     // Fill the buffer
 //    mutex_input.lock(); // To prevent from data corruption
@@ -113,7 +113,7 @@ bool pcCodec::cv2pcl_xyzrgba(cv::Mat &pc){
 
     float* p_cloud;
     sl::Mat slpc;
-    cvMat2slMat(pc,slpc);
+    cvMat2slMat(pc,slpc,sl::MEM_CPU);
     p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
     // Fill the buffer
 //    mutex_input.lock(); // To prevent from data corruption

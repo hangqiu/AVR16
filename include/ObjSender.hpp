@@ -9,10 +9,16 @@
 #include <opencv2/core/persistence.hpp>
 #include "AugmentedVR.hpp"
 
+/*<< Defines the server. >>*/
+//struct hello_world;
+//typedef http::server<hello_world> server;
+
+
 class ObjSender {
 
 private:
     AugmentedVR *myAVR;
+    cv::FileStorage WholeFrame;
     cv::FileStorage TcwFile;
     cv::FileStorage PCFile;
     cv::FileStorage dynamicPCFile;
@@ -22,20 +28,29 @@ private:
 
     string commPath;
 public:
+
+
+
     ObjSender(AugmentedVR *myAVR, string commPath);
 
     ~ObjSender();
 
-    void writeFrame();
-    void writeTcw();
-    void writeTimeStamp();
+    void httpServerRun(string address, string port);
+
+    void writeCurrentFrame();
+    void writeCurrentTcw();
+    void writeCurrentTimeStamp();
     void writePC();
     void writeDynamicPC();
     void writeObjectMotionVec();
     void writeLowPassObjectMotionVec();
     void logFrame();
 
-    void sendFrame();
+    char* writeWholeFrameWithFullMetaData();
+
+    void writeFrameInSeparateFile();
+
+
 };
 
 

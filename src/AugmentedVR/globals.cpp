@@ -22,6 +22,8 @@ bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 
+bool DYNAMICS = false;
+
 //bool PAUSE_FLAG = false;
 bool PAUSE_FLAG = true;
 
@@ -38,6 +40,8 @@ bool LANDMARK_DISTVECTOR = false;
 
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;
+
+int MAX_COUNT = 500;
 
 bool SHOW_CAMMOTION = true;
 int DUTYCYCLE = 5; // x frames per processing
@@ -68,6 +72,7 @@ string PC = "PC";
 string TIMESTAMP = "TIMESTAMP";
 string DYNAMICPC = "DYNAMICPC";
 string MOTIONVEC = "MOTIONVEC";
+string LOWPASSMOTIONVEC = "LOWPASSMOTIONVEC";
 
 string VocFile = "./src/ORB_SLAM2/Vocabulary/ORBvoc.bin";
 string CalibrationFile = "./CamCalib.yaml";
@@ -76,31 +81,34 @@ const int NUM_CAMERAS = 1;
 
 //const sl::zed::ZEDResolution_mode ZED_RES = sl::zed::ZEDResolution_mode::HD720;
 //const sl::zed::SENSING_MODE senseMode = sl::zed::SENSING_MODE::FILL;
-string commPath = "~/AVRComm/";
+string commPath = "/home/hang/AVRComm/";
 // store video or webcam
 bool OFFLINE = true;
 
-//
-//bool RX = true;
-//bool TX = false;
-//bool SEND = false;
-//int CamId=0;
-//int RxCamId = 1;
-
-//int startFrameId = 300; // receriver 200 frame can be relocailized
-//int startFrameId = 0;
-
+//// single solo
 bool RX = false;
 bool TX = false;
 bool SEND = false;
-//bool SEND = true;
-int CamId=1;
-int RxCamId = 0;
+int CamId = 0;
+int RxCamId = 1;
 
-//int startFrameId = 362;
+
+//// Receiver
+//bool RX = true;
+//bool TX = false;
+//bool SEND = false;
+//int CamId = 1;
+//int RxCamId = 0;
+
+//// Sender
+//bool RX = false;
+//bool TX = true;
+//bool SEND = true;
+//int CamId = 0;
+//int RxCamId = 1;
 
 int startFrameId = 1;
-int lengthInFrame = 100;
+int lengthInFrame = 20;
 
 timeval tInit;
 
@@ -126,7 +134,7 @@ cv::Mat slMat2cvMat(sl::Mat& input) {
 }
 
 
-void cvMat2slMat(cv::Mat& input, sl::Mat& output) {
+void cvMat2slMat(cv::Mat& input, sl::Mat& output, sl::MEM memType) {
     // Mapping between MAT_TYPE and CV_TYPE
     sl::MAT_TYPE sl_type;
     switch (input.type()) {
@@ -147,7 +155,20 @@ void cvMat2slMat(cv::Mat& input, sl::Mat& output) {
     size_t step = (size_t)(input.step);
     size_t width = (size_t)(input.size().width);
     size_t height = (size_t)(input.size().height);
-    output = sl::Mat(width, height, sl_type, ptr, step, sl::MEM_CPU);
+    output = sl::Mat(width, height, sl_type, ptr, step, memType);
     return;
 }
+
+
+void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out){
+    assert(in.channels()==4);
+    cv::Mat ret;
+    cv::Mat PCChannels[3];
+
+    for (int i=0;i<3;i++){
+        cv::extractChannel(in,PCChannels[i],i);
+    }
+    merge(PCChannels,3,out);
+}
+
 

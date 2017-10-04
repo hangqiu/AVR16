@@ -45,6 +45,7 @@ extern int DEBUG;
 extern bool VISUAL;
 extern bool DEBUGVISUAL;
 extern bool SLAMVISUAL;
+extern bool DYNAMICS;
 extern int FRAME_ID;
 extern int TRACK_FREQ;
 extern int DUTYCYCLE;
@@ -58,6 +59,7 @@ extern bool ReuseMap;
 extern bool PAUSE_FLAG;
 
 extern cv::Size DisplaySize;
+extern int MAX_COUNT;
 
 // debug
 // TODO: remove
@@ -72,6 +74,7 @@ extern string PC;
 extern string TIMESTAMP;
 extern string DYNAMICPC;
 extern string MOTIONVEC;
+extern string LOWPASSMOTIONVEC;
 
 extern string VocFile;
 extern string CalibrationFile;
@@ -101,6 +104,7 @@ extern bool quit;
 
 
 cv::Mat slMat2cvMat(sl::Mat& input);
-void cvMat2slMat(cv::Mat& input, sl::Mat& output);
+void cvMat2slMat(cv::Mat& input, sl::Mat& output, sl::MEM);
+void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out);
 
 #endif //PROJECT_GLOBALS_H
