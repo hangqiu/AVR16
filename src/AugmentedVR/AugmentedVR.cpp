@@ -225,9 +225,9 @@ void AugmentedVR::PCMotionAnalysis() {
 cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
     // w: world, r: received frame, c: current frame
 //    if (TcwReceived.empty()) return cv::Mat;
-    AVRFrame lastFrame = frameCache.getLastFrame();
-    const cv::Mat Rcw = lastFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
-    const cv::Mat tcw = lastFrame.CamMotionMat.rowRange(0,3).col(3);
+    AVRFrame currFrame = frameCache.getCurrentFrame();
+    const cv::Mat Rcw = currFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
+    const cv::Mat tcw = currFrame.CamMotionMat.rowRange(0,3).col(3);
     const cv::Mat Rwc = Rcw.t();
     const cv::Mat twc = -Rwc*tcw;
 

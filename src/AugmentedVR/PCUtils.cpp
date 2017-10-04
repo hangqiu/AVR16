@@ -77,9 +77,9 @@ cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
     }
 
     //watchout coord sys diff
-    PCChannels[0] = -PCChannels[0];
+//    PCChannels[0] = -PCChannels[0];
 //    PCChannels[1] = -PCChannels[1];
-    PCChannels[2] = -PCChannels[2];
+//    PCChannels[2] = -PCChannels[2];
 
     cout << T << endl;
 
@@ -98,9 +98,9 @@ cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
     PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + T.at<float>(1,3);
     PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + T.at<float>(2,3);
     //set coord sys back
-    PCChannels[0] = -PCChannels[0];
+//    PCChannels[0] = -PCChannels[0];
 //    PCChannels[1] = -PCChannels[1];
-    PCChannels[2] = -PCChannels[2];
+//    PCChannels[2] = -PCChannels[2];
 
     merge(PCChannels,4,ret);
     return ret;

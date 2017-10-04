@@ -44,7 +44,7 @@ int TRACK_FREQ = 30;
 int MAX_COUNT = 500;
 
 bool SHOW_CAMMOTION = true;
-int DUTYCYCLE = 5; // x frames per processing
+int DUTYCYCLE = 1; // x frames per processing
 
 double PCConnectionThresh = 0.02;
 double MOTIONTHRESH_PERPIXEL = 0.05; //meters

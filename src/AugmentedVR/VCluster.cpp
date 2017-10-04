@@ -238,9 +238,9 @@ void VCluster::visualize(){
             mDisplayer->showPC(VNode[0]->getCurrentAVRFrame().pointcloud);
         }
         else if (RX) {
-//            if (!(VNode[0]->transRxPC.empty()) &&  !(VNode[0]->transRxDynamicPC.empty())){
+            if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
 
-//                mDisplayer->showMergedPC(transRxPC);
+                mDisplayer->showMergedPC(VNode[0]->transRxPC);
 //                cv::Mat totalPC, totalDynamicPC;
 //                hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, VNode[0]->RxPC, totalPC);
 //                hconcat(VNode[0]->pointcloud, transRxDynamicPC, totalDynamicPC);
@@ -250,7 +250,10 @@ void VCluster::visualize(){
 //            mDisplayer->showPC(VNode[0]->transRxDynamicPC);
 //                mDisplayer->showPC(VNode[0]->transRxPC);
 //                mDisplayer->showPC(totalDynamicPC);
-            mDisplayer->showPC(VNode[0]->transRxPC);
+
+//            mDisplayer->showPC(VNode[0]->transRxPC);
+            }
+
             if(COOP){
                 cv::Mat nonOverlapingPC;
                 VNode[0]->removeOverlap(VNode[0]->transRxDynamicPC).copyTo(nonOverlapingPC);

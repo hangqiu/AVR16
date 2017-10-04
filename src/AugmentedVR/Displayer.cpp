@@ -19,7 +19,7 @@ Displayer::Displayer(AugmentedVR** VNode) : VNode(VNode) {
     PCwidth = Displayer::VNode[0]->width;
     PCheight = Displayer::VNode[0]->height;
     cout << "Initializing viewer: width, " << PCwidth << ", height, " << PCheight << endl;
-    mGLViewer->init(PCwidth,PCheight);
+    mGLViewer->init(PCwidth*2,PCheight);
 
 //    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_GPU);
 //    PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_GPU | sl::MEM_CPU);
