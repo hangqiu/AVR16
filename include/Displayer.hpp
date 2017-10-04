@@ -57,7 +57,7 @@ public:
 
     void pushPC_cvMat(cv::Mat &mat);
 
-    void debugPC(cv::Mat DebugPC);
+//    void debugPC(cv::Mat DebugPC);
 
     void showPC();
 

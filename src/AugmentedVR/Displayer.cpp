@@ -147,20 +147,7 @@ void Displayer::saveFrame(){
     }
 }
 /////////////////////////////////////// PC Display ///////////////////////////////////////////////
-void Displayer::debugPC(cv::Mat DebugPC){
-//    cv::Mat DebugPC = VNode[0]->DynamicPC;
-    cout 	<< "PC dims:" << DebugPC.rows
-            << ", "<< DebugPC.cols
-            << ", "<< DebugPC.channels() <<  endl;
-    cout    << "PointCloud element size: " << DebugPC.elemSize()
-            << " Byte, total size: " << DebugPC.elemSize() * DebugPC.rows * DebugPC.cols << endl;
-    cv::Mat DebugPCChan;
-    cv::extractChannel(DebugPC,DebugPCChan,0);
-//                cv::Mat mask = cv::Mat(DebugPCChan!=DebugPCChan);
-    cout    << "NonZero elements: " << cv::countNonZero(DebugPCChan) << endl; // can only count single channel matrix
-//                cout << cv::countNonZero(mask);
-    cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
-}
+
 
 void Displayer::showPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
@@ -174,7 +161,7 @@ void Displayer::showDynamicPC(){
     pushPC_cvMat(currFrame.DynamicPC);
 }
 void Displayer::pushPC_cvMat(cv::Mat &mat){
-    debugPC(mat);
+    if (DEBUG) debugPC(mat);
     sl::Mat PC_gpu;
     PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_CPU);
     cvMat2slMat(mat,PC_gpu, sl::MEM_CPU);

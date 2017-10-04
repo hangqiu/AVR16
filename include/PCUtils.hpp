@@ -11,5 +11,6 @@ void shiftPC(cv::Mat &pc1, cv::Scalar vec);
 void onMouseCallback_DisplayDisplacement(int32_t event, int32_t x, int32_t y, int32_t flag, void* param);
 cv::Mat MatPerElementNorm(cv::Mat MotionVecMat);
 cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived);
+void debugPC(cv::Mat DebugPC);
 
 #endif //PROJECT_PCMANIPULATOR_H

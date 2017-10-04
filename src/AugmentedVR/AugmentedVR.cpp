@@ -60,6 +60,7 @@ int AugmentedVR::initZEDCam(int startFrameID){
 
     int tmp_id = 0;
     while (tmp_id++ < startFrameID){
+        cerr << "skipping frame " << tmp_id << endl;
         grabNextZEDFrameOffline();
     }
     grabNextZEDFrameOffline();
@@ -239,20 +240,22 @@ cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
     cv::Mat Trc = cv::Mat::eye(4,4,CV_32F);
     trc.copyTo(Trc.rowRange(0,3).col(3));
     Rrc.copyTo(Trc.rowRange(0,3).colRange(0,3));
-    if (DEBUG){
+//    if (DEBUG){
         cout << "trc: \n" << trc << endl;
         cout << "Rrc: \n" << Rrc << endl; // to see if Rlc is almost identity matrix
-    }
+//    }
 //    return trc; // only trc for now, TODO: include Rrc after you can compute perelement 1 by 3 multiplication
     return Trc;
 }
 
-//cv::Mat AugmentedVR::transfromRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived){
-//
-//    return transformPCViaTransformationMatrix_gpu(Trc, PCReceived);
-//
-//}
-cv::Mat AugmentedVR::transfromRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived){
+cv::Mat AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived){
+    cout << Trc << endl;
+    debugPC(PCReceived);
+    cv::Mat ret = transformPCViaTransformationMatrix_gpu(Trc, PCReceived);
+    debugPC(ret);
+    return ret;
+}
+cv::Mat AugmentedVR::translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived){
 
     cv::Scalar trc_vec = cv::Scalar(trc.at<float>(0,0),-trc.at<float>(1,0),-trc.at<float>(2,0),0);
 //    cv::Mat trc_mat(height, width, CV_32FC4, trc_vec);

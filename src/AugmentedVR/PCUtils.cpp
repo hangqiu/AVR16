@@ -40,13 +40,83 @@ cv::Mat MatPerElementNorm(cv::Mat MotionVecMat){
 }
 
 
+//cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
+//    // T is 4 by 4 transformation matix, where 3 by 3 rot, and 1 by 3 translation, last row is 0,0,0,1
+//    // point cloud is 1 by 4 (x,y,z,rgba)
+//    assert(T.size().width==4 && T.size().height==4);
+//    cv::Mat ret;
+//    cout << T << endl;
+//    //rotation
+//    for (int i=0;i<3;i++){
+//        cv::Scalar scalar_ = cv::Scalar(T.at<float>(i,0),T.at<float>(i,1),T.at<float>(i,2),T.at<float>(i,3));
+//        cout << scalar_ << endl;
+//        cv::Mat res;
+//        cv::cuda::multiply(PCReceived, scalar_, res);
+//        ret += res;
+//    }
+//    //translation
+//    cv::Mat res;
+//    cv::Scalar scalar_ = cv::Scalar(T.at<float>(3,0),-T.at<float>(3,1),-T.at<float>(3,2),T.at<float>(3,3));
+//    cout << scalar_ << endl;
+//    cv::cuda::multiply(PCReceived, scalar_, res);
+//    ret += res;
+//
+////    cv::cuda::multiply(PCReceived,T,ret);
+//    return ret;
+//}
+
 cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
     // T is 4 by 4 transformation matix, where 3 by 3 rot, and 1 by 3 translation, last row is 0,0,0,1
     // point cloud is 1 by 4 (x,y,z,rgba)
+    assert(T.size().width==4 && T.size().height==4);
+    // extract channels
+    cv::Mat PCChannels[4];
     cv::Mat ret;
-//    cv::cuda::GpuMat T_gpu(T);
-//    cv::cuda::GpuMat PCReceived_gpu(PCReceived);
-    cv::cuda::multiply(PCReceived, T, ret);
-//    ret  = cv::Mat(T_gpu);
+    for (int i=0;i<4;i++){
+        cv::extractChannel(PCReceived,PCChannels[i],i);
+    }
+
+    //watchout coord sys diff
+    PCChannels[0] = -PCChannels[0];
+//    PCChannels[1] = -PCChannels[1];
+    PCChannels[2] = -PCChannels[2];
+
+    cout << T << endl;
+
+    cv::Mat interRes[4][4];
+    for (int i=0;i<3;i++){
+        // for each channel
+        for (int j=0;j<3;j++){
+            // watchout: T.at(row,col)
+//            cv::cuda::multiply(PCChannels[i], cv::Scalar(T.at<float>(i,j)), interRes[i][j]);
+            cout << T.at<float>(j,i) << endl;
+            interRes[i][j] = PCChannels[i] * T.at<float>(j,i);
+        }
+    }
+
+    PCChannels[0] = interRes[0][0] + interRes[1][0] + interRes[2][0] + T.at<float>(0,3);
+    PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + T.at<float>(1,3);
+    PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + T.at<float>(2,3);
+    //set coord sys back
+    PCChannels[0] = -PCChannels[0];
+//    PCChannels[1] = -PCChannels[1];
+    PCChannels[2] = -PCChannels[2];
+
+    merge(PCChannels,4,ret);
     return ret;
+}
+
+void debugPC(cv::Mat DebugPC){
+//    cv::Mat DebugPC = VNode[0]->DynamicPC;
+    cout 	<< "PC dims:" << DebugPC.rows
+            << ", "<< DebugPC.cols
+            << ", "<< DebugPC.channels() <<  endl;
+    cout    << "PointCloud element size: " << DebugPC.elemSize()
+            << " Byte, total size: " << DebugPC.elemSize() * DebugPC.rows * DebugPC.cols << endl;
+    cv::Mat DebugPCChan;
+    cv::extractChannel(DebugPC,DebugPCChan,0);
+//                cv::Mat mask = cv::Mat(DebugPCChan!=DebugPCChan);
+    cout    << "NonZero elements: " << cv::countNonZero(DebugPCChan) << endl; // can only count single channel matrix
+//                cout << cv::countNonZero(mask);
+    cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
 }

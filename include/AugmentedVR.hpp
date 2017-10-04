@@ -224,7 +224,8 @@ public:
 
     cv::Mat calcRelaCamPos(cv::Mat TcwReceived);
 
-    cv::Mat transfromRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived);
+    cv::Mat translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived);
+    cv::Mat transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived);
 
     int getCamId() const;
 

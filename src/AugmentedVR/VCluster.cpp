@@ -11,7 +11,7 @@ using namespace sl;
 //}
 
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
-    frameSeqRx =0;
+    frameSeqRx =90;
     timeRx=0;
 
     InitParameters init_parameters;
@@ -241,22 +241,23 @@ void VCluster::visualize(){
 //            if (!(VNode[0]->transRxPC.empty()) &&  !(VNode[0]->transRxDynamicPC.empty())){
 
 //                mDisplayer->showMergedPC(transRxPC);
-                cv::Mat totalPC, totalDynamicPC;
-                hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, VNode[0]->RxPC, totalPC);
+//                cv::Mat totalPC, totalDynamicPC;
+//                hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, VNode[0]->RxPC, totalPC);
 //                hconcat(VNode[0]->pointcloud, transRxDynamicPC, totalDynamicPC);
 //                  hconcat(VNode[0]->initPC, VNode[0]->transRxDynamicPC, totalDynamicPC);
-                mDisplayer->showSplitScreen(VNode[0]->getCurrentAVRFrame().pointcloud,totalPC);
+//                mDisplayer->showSplitScreen(VNode[0]->getCurrentAVRFrame().pointcloud,totalPC);
 //                mDisplayer->showSplitScreen(VNode[0]->pointcloud,totalDynamicPC);
 //            mDisplayer->showPC(VNode[0]->transRxDynamicPC);
 //                mDisplayer->showPC(VNode[0]->transRxPC);
 //                mDisplayer->showPC(totalDynamicPC);
-                if(COOP){
-                    cv::Mat nonOverlapingPC;
-                    VNode[0]->removeOverlap(VNode[0]->transRxDynamicPC).copyTo(nonOverlapingPC);
+            mDisplayer->showPC(VNode[0]->transRxPC);
+            if(COOP){
+                cv::Mat nonOverlapingPC;
+                VNode[0]->removeOverlap(VNode[0]->transRxDynamicPC).copyTo(nonOverlapingPC);
 //                    mDisplayer->showSplitScreen(VNode[0]->transRxPC,nonOverlapingPC);
-                    mDisplayer->showPC(nonOverlapingPC);
+                mDisplayer->showPC(nonOverlapingPC);
 //                    mDisplayer->showPC(VNode[0]->transRxPC);
-                }
+            }
                 //        if (VISUAL && SHOW_PC) mDisplayer->showImgWithPC(RxFrame,  &(VNode[0]->transRxDynamicPC), "rx trans PC");
 //            }
         }
@@ -345,15 +346,15 @@ void VCluster::TXRX(){
             //        RxPC = VNode[0]->pointcloud;
 
             // PC manipulation
-            VNode[0]->transRxPC =  VNode[0]->transfromRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
-//            VNode[0]->transRxPC =  VNode[0]->transfromRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
+//            VNode[0]->transRxPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
+            VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
 #ifdef EVAL
             gettimeofday(&tPCmergeEnd, NULL);
             cout << "TimeStamp: " << double(tPCmergeEnd.tv_sec-tInit.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
             cout << " TXRX >>>>> PC merge: " <<double(tPCmergeEnd.tv_sec-tPCmergeStart.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tPCmergeStart.tv_usec) / 1000<< "ms"<< endl;
 #endif
             if (DYNAMICS){
-                VNode[0]->transRxDynamicPC = VNode[0]->transfromRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
+                VNode[0]->transRxDynamicPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
             }
         }
         else{ // Dead-Reckoning

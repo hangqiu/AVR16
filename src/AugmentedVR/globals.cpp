@@ -86,19 +86,19 @@ string commPath = "/home/hang/AVRComm/";
 bool OFFLINE = true;
 
 //// single solo
-bool RX = false;
-bool TX = false;
-bool SEND = false;
-int CamId = 0;
-int RxCamId = 1;
+//bool RX = false;
+//bool TX = false;
+//bool SEND = false;
+//int CamId = 0;
+//int RxCamId = 1;
 
 
 //// Receiver
-//bool RX = true;
-//bool TX = false;
-//bool SEND = false;
-//int CamId = 1;
-//int RxCamId = 0;
+bool RX = true;
+bool TX = false;
+bool SEND = false;
+int CamId = 1;
+int RxCamId = 0;
 
 //// Sender
 //bool RX = false;
@@ -107,8 +107,8 @@ int RxCamId = 1;
 //int CamId = 0;
 //int RxCamId = 1;
 
-int startFrameId = 1;
-int lengthInFrame = 20;
+int startFrameId = 90;
+int lengthInFrame = 100;
 
 timeval tInit;
 
