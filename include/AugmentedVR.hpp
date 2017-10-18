@@ -191,7 +191,7 @@ public:
     int initZEDCam(int startFrameID);
 
     void initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap = false, string mapFile = "default.txt");
-    void PrepareNextFrame();
+    bool PrepareNextFrame();
     bool grabNextZEDFrameOffline();
     void FeedSlamNextFrame();
 //    void fetchNUpdateFrameNPointcloud();
@@ -268,6 +268,8 @@ public:
     void SinkFrames();
 
     AVRFrame getCurrentAVRFrame();
+
+    bool trackGood();
 };
 
 

@@ -620,7 +620,11 @@ void Tracking::Track()
     else
     {
         // This can happen if tracking is lost
-        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+        if(mlRelativeFramePoses.size() != 0)
+        {
+            mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+        }
+//        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
         mlpReferences.push_back(mlpReferences.back());
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);

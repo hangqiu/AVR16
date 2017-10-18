@@ -42,7 +42,7 @@ public:
     void visualize();
     void TXRX();
 
-    void PreProcess();
+    bool PreProcess();
 
     void segmentation();
 

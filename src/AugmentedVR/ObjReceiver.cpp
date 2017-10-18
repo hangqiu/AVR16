@@ -3,7 +3,16 @@
 //
 
 #include "ObjReceiver.hpp"
+#include <opencv2/core/mat.hpp>
+#include <cpprest/json.h>
+#include "cpprest/http_client.h"
+#include "stdafx.hpp"
 
+using namespace std;
+using namespace web;
+using namespace http;
+using namespace utility;
+using namespace http::client;
 
 ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) : myAVR(myAVR), RxCamId(CamId), commPath(commPath) {
 //    char tmp_str[50];
@@ -13,11 +22,34 @@ ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) :
 //    TcwFile.open(tmp_str, cv::FileStorage::READ);
 //    sprintf(tmp_str, "./comm/cam%d/dynamicPC.yml", CamId);
 //    dynamicPCFile.open(tmp_str, cv::FileStorage::READ);
+    utility::string_t port = U("34568");
+    utility::string_t address = U("http://127.0.0.1:");
+    address.append(port);
+    uri_builder uri(address);
+    // connect to the base address
+    client = new http_client(uri.to_uri());
 }
 
 ObjReceiver::~ObjReceiver() {
 //    TcwFile.release();
 //    PCFile.release();
+    delete client;
+}
+
+cv::Mat ObjReceiver::AskForPointCloud(int FrameId){
+    http_response getresponse = CheckResponse(client->request(methods::GET, U("/20")).get());
+    V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+    cv::Mat ret;
+    V2VBuffer[FRAME] >> ret;
+    cout << ret << endl;
+    return ret;
+}
+
+
+http_response ObjReceiver::CheckResponse(const http_response &response)
+{
+    ucout << response.to_string() << endl;
+    return response;
 }
 
 

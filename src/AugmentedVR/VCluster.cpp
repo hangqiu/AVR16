@@ -89,7 +89,7 @@ void VCluster::run(){
 #ifdef PIPELINE
         thread CPU_download(&VCluster::PreProcess, this);
 #else
-        PreProcess();
+        if (!PreProcess()) break;
 #endif
 #ifdef EVAL
         gettimeofday(&tFetchEnd, NULL);
@@ -175,7 +175,7 @@ void VCluster::exit(){
     }
 }
 
-void VCluster::PreProcess(){
+bool VCluster::PreProcess(){
 
 #ifdef EVAL
     timeval start, end;
@@ -184,12 +184,13 @@ void VCluster::PreProcess(){
     cout << "PreProcess starts" << endl;
 #endif
     VNode[0]->calcOpticalFlow();
-    VNode[0]->PrepareNextFrame();
+    if (!(VNode[0]->PrepareNextFrame())) return false;
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "PreProcess ends: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
+    return true;
 }
 
 void VCluster::compressDynamic(){
@@ -305,6 +306,7 @@ void VCluster::TXRX(){
         timeRx = mReceiver->readTimeStamp(frameSeqRx);
         RxFrame = mReceiver->readFrame(frameSeqRx);
 
+        cv::Mat tmpFrame = mReceiver->AskForPointCloud(10);
 
 //        // time sync module
 //        while( timeRx < VNode[0]->getCurrentAVRFrame().frameTS){
@@ -336,44 +338,47 @@ void VCluster::TXRX(){
                 return;
             }
         }
+        if (VNode[0]->trackGood()){
 
-        // if received a full frame
-        if (FRAME_ID % DUTYCYCLE == 0){
+            // if received a full frame
+            if (FRAME_ID % DUTYCYCLE == 0){
 
 #ifdef EVAL
-            gettimeofday(&tPCmergeStart, NULL);
+                gettimeofday(&tPCmergeStart, NULL);
 #endif
-            // calculating rela position
-            Trc =  VNode[0]->calcRelaCamPos(mReceiver->readTcw(frameSeqRx));
-            trc = Trc.rowRange(0,3).col(3);
-            //        RxPC = VNode[0]->pointcloud;
+                // calculating rela position
+                Trc =  VNode[0]->calcRelaCamPos(mReceiver->readTcw(frameSeqRx));
+                trc = Trc.rowRange(0,3).col(3);
+                //        RxPC = VNode[0]->pointcloud;
 
-            // PC manipulation
+                // PC manipulation
 //            VNode[0]->transRxPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
-            VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
+                VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
 #ifdef EVAL
-            gettimeofday(&tPCmergeEnd, NULL);
+                gettimeofday(&tPCmergeEnd, NULL);
             cout << "TimeStamp: " << double(tPCmergeEnd.tv_sec-tInit.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
             cout << " TXRX >>>>> PC merge: " <<double(tPCmergeEnd.tv_sec-tPCmergeStart.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tPCmergeStart.tv_usec) / 1000<< "ms"<< endl;
 #endif
-            if (DYNAMICS){
-                VNode[0]->transRxDynamicPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
+                if (DYNAMICS){
+//                    VNode[0]->transRxDynamicPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
+                    VNode[0]->transRxDynamicPC = VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxDynamicPC);
+                }
             }
-        }
-        else{ // Dead-Reckoning
+            else{ // Dead-Reckoning
 
-            if ( !VNode[0]->RxMotionVec.empty()){
+                if ( !VNode[0]->RxMotionVec.empty()){
 #ifdef EVAL
-                gettimeofday(&tDeadReckonStart, NULL);
+                    gettimeofday(&tDeadReckonStart, NULL);
 #endif
-                VNode[0]->dead_reckoning_onRxDynamicPC();
+                    VNode[0]->dead_reckoning_onRxDynamicPC();
 #ifdef EVAL
-                gettimeofday(&tDeadReckonEnd, NULL);
+                    gettimeofday(&tDeadReckonEnd, NULL);
                 cout << "TimeStamp: " << double(tDeadReckonEnd.tv_sec-tInit.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
                 cout << "TXRX >>>>> Dead reckon: " <<double(tDeadReckonEnd.tv_sec-tDeadReckonStart.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tDeadReckonStart.tv_usec) / 1000<< "ms"<< endl;
 #endif
-            }
+                }
 
+            }
         }
 
 

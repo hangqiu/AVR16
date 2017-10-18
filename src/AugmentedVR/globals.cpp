@@ -17,8 +17,8 @@ bool ReuseMap = false;
 //bool ReuseMap = true;
 
 int DEBUG = 0;
-//bool VISUAL = false;
-bool VISUAL = true;
+bool VISUAL = false;
+//bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 
@@ -86,19 +86,19 @@ string commPath = "/home/hang/AVRComm/";
 bool OFFLINE = true;
 
 //// single solo
-//bool RX = false;
-//bool TX = false;
-//bool SEND = false;
-//int CamId = 0;
-//int RxCamId = 1;
+bool RX = false;
+bool TX = false;
+bool SEND = false;
+int CamId = 0;
+int RxCamId = 1;
 
 
 //// Receiver
-bool RX = true;
-bool TX = false;
-bool SEND = false;
-int CamId = 1;
-int RxCamId = 0;
+//bool RX = true;
+//bool TX = false;
+//bool SEND = false;
+//int CamId = 1;
+//int RxCamId = 0;
 
 //// Sender
 //bool RX = false;

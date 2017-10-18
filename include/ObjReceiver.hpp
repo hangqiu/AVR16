@@ -8,6 +8,15 @@
 
 #include <opencv2/core/mat.hpp>
 #include "AugmentedVR.hpp"
+#include <cpprest/json.h>
+#include "cpprest/http_client.h"
+#include "stdafx.hpp"
+
+using namespace std;
+using namespace web;
+using namespace http;
+using namespace utility;
+using namespace http::client;
 
 struct WholeFrameWithMetaData{
     cv::Mat Frame;
@@ -31,6 +40,9 @@ class ObjReceiver {
 //    fstream PCFile;
 //    fstream dynamicPCFile;
     string commPath;
+
+    http_client* client;
+    cv::FileStorage V2VBuffer;
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
@@ -47,7 +59,8 @@ public:
     cv::Mat readObjectMotionVec(int frameSeq);
     cv::Mat readLowPassObjectMotionVec(int frameSeq);
 
-
+    http_response CheckResponse(const http_response &response);
+    cv::Mat AskForPointCloud(int FrameId);
 
 };
 

@@ -3,9 +3,31 @@
 //
 
 #include "ObjSender.hpp"
+#include "stdafx.hpp"
+#include "serverHandler.hpp"
+
+using namespace std;
+
+using namespace web;
+using namespace http;
+using namespace utility;
+using namespace http::experimental::listener;
 
 ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPath(commPath) {
     //init http server, need to be run in separate thread
+    utility::string_t port = U("34568");
+
+    utility::string_t address = U("http://127.0.0.1:");
+    address.append(port);
+
+    uri_builder uri(address);
+
+
+    auto addr = uri.to_uri().to_string();
+    g_httpHandler = std::unique_ptr<serverHandler>(new serverHandler(addr));
+    g_httpHandler->open().wait();
+
+    ucout << utility::string_t(U("Listening for requests at: ")) << addr << std::endl;
 
 }
 
@@ -13,7 +35,11 @@ ObjSender::~ObjSender() {
 //    TcwFile.release();
 //
 //    PCFile.release();
+    g_httpHandler->close().wait();
 }
+
+
+
 
 
 void ObjSender::writeFrameInSeparateFile(){

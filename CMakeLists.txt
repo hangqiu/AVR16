@@ -104,6 +104,9 @@ TARGET_LINK_LIBRARIES(${execName}
 		${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 		${Boost_LIBRARIES}
 		/usr/lib/x86_64-linux-gnu/libcuda.so.1
+		cpprest
+		ssl
+		crypto
 		)
 
 

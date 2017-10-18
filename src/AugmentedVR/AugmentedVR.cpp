@@ -131,13 +131,13 @@ void AugmentedVR::SinkFrames(){
     frameCache.SinkFrames();
 }
 
-void AugmentedVR::PrepareNextFrame() {
+bool AugmentedVR::PrepareNextFrame() {
 
 
 #ifdef PIPELINE
     thread prefetch(&AugmentedVR::grabNextZEDFrameOffline,this);
 #else
-    grabNextZEDFrameOffline();
+    if (!grabNextZEDFrameOffline()) return false;
 #endif
 
     // create next frame for slam as well...
@@ -148,6 +148,7 @@ void AugmentedVR::PrepareNextFrame() {
 #ifdef PIPELINE
     prefetch.join();
 #endif
+    return true;
 }
 
 void AugmentedVR::calcOpticalFlow(){
@@ -178,6 +179,10 @@ void AugmentedVR::trackCam() {
 //        CamMotionMat.at<float>(0,3) +=7;
 //    }
     if (SHOW_CAMMOTION) cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat << endl;
+}
+
+bool AugmentedVR::trackGood(){
+    return !(getCurrentAVRFrame().CamMotionMat.empty());
 }
 
 void AugmentedVR::analyze(){
@@ -251,7 +256,17 @@ cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
 cv::Mat AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived){
     cout << Trc << endl;
     debugPC(PCReceived);
+//    if (DEBUG){
+        timeval start,end;
+        gettimeofday(&start, NULL);
+//    }
     cv::Mat ret = transformPCViaTransformationMatrix_gpu(Trc, PCReceived);
+//    if (DEBUG){
+        gettimeofday(&end,NULL);
+        cout << "Transformation time: " << double(end.tv_sec-start.tv_sec)*1000
+             << double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+
+//    }
     debugPC(ret);
     return ret;
 }

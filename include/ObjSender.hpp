@@ -8,6 +8,7 @@
 
 #include <opencv2/core/persistence.hpp>
 #include "AugmentedVR.hpp"
+#include "serverHandler.hpp"
 
 /*<< Defines the server. >>*/
 //struct hello_world;
@@ -27,6 +28,8 @@ private:
 //    fstream PCFile;
 
     string commPath;
+
+    std::unique_ptr<serverHandler> g_httpHandler;
 public:
 
 
