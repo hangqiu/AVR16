@@ -31,12 +31,11 @@ bool PAUSE_FLAG = true;
 const int FPS = 15;
 int ZEDCACHESIZE = 6;
 
-// Toggles;
+/// Toggles;
 bool SHOW_IMG = true;
 bool DECOUPLE2IMG = false;
 //bool DECOUPLE2IMG = true;
 bool SHOW_PC = true;
-bool LANDMARK_DISTVECTOR = false;
 
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;
@@ -79,10 +78,17 @@ string CalibrationFile = "./CamCalib.yaml";
 
 const int NUM_CAMERAS = 1;
 
-//const sl::zed::ZEDResolution_mode ZED_RES = sl::zed::ZEDResolution_mode::HD720;
-//const sl::zed::SENSING_MODE senseMode = sl::zed::SENSING_MODE::FILL;
+/// Comm
 string commPath = "/home/hang/AVRComm/";
-// store video or webcam
+string AddressA = "http://204.57.7.36:";
+string Port = "34568";
+string AddressB = "http://127.0.0.1:";
+
+string MyAddress = AddressB;
+string MyPort = Port;
+string ServerAddress = AddressA;
+string ServerPort = Port;
+/// store video or webcam
 bool OFFLINE = true;
 
 //// single solo

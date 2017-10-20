@@ -15,15 +15,9 @@ using namespace utility;
 using namespace http::client;
 
 ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) : myAVR(myAVR), RxCamId(CamId), commPath(commPath) {
-//    char tmp_str[50];
-//    sprintf(tmp_str, "./comm/cam%d/PointCloud.yml",CamId);
-//    PCFile.open(tmp_str, cv::FileStorage::READ);
-//    sprintf(tmp_str, "./comm/cam%d/Tcw.yml", CamId);
-//    TcwFile.open(tmp_str, cv::FileStorage::READ);
-//    sprintf(tmp_str, "./comm/cam%d/dynamicPC.yml", CamId);
-//    dynamicPCFile.open(tmp_str, cv::FileStorage::READ);
-    utility::string_t port = U("34568");
-    utility::string_t address = U("http://127.0.0.1:");
+
+    utility::string_t port = U(ServerPort.c_str());
+    utility::string_t address = U(ServerAddress.c_str());
     address.append(port);
     uri_builder uri(address);
     // connect to the base address

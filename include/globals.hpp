@@ -80,8 +80,12 @@ extern string VocFile;
 extern string CalibrationFile;
 
 extern const int NUM_CAMERAS;
-extern string commPath;
 
+extern string commPath;
+extern string MyAddress;
+extern string MyPort;
+extern string ServerAddress;
+extern string ServerPort;
 
 // store video or webcam
 extern bool OFFLINE;

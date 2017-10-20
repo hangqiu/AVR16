@@ -15,9 +15,9 @@ using namespace http::experimental::listener;
 
 ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPath(commPath) {
     //init http server, need to be run in separate thread
-    utility::string_t port = U("34568");
+    utility::string_t port = U(MyPort.c_str());
 
-    utility::string_t address = U("http://127.0.0.1:");
+    utility::string_t address = U(MyAddress.c_str());
     address.append(port);
 
     uri_builder uri(address);
