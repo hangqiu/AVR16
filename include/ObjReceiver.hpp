@@ -43,6 +43,8 @@ class ObjReceiver {
 
     http_client* client;
     cv::FileStorage V2VBuffer;
+
+
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
@@ -60,7 +62,7 @@ public:
     cv::Mat readLowPassObjectMotionVec(int frameSeq);
 
     http_response CheckResponse(const http_response &response);
-    cv::Mat AskForPointCloud(int FrameId);
+    bool AskForLatestPC_TCW_TIME(AugmentedVR *Node);
 
 };
 

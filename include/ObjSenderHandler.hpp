@@ -11,12 +11,12 @@ using namespace utility;
 using namespace http::experimental::listener;
 
 
-class serverHandler
+class ObjSenderHandler
 {
     public:
-    serverHandler();
-    serverHandler(utility::string_t url);
-        virtual ~serverHandler();
+    ObjSenderHandler();
+    ObjSenderHandler(utility::string_t url);
+        virtual ~ObjSenderHandler();
 
         pplx::task<void>open(){return m_listener.open();}
         pplx::task<void>close(){return m_listener.close();}

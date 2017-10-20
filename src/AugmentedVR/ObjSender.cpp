@@ -4,7 +4,7 @@
 
 #include "ObjSender.hpp"
 #include "stdafx.hpp"
-#include "serverHandler.hpp"
+#include "ObjSenderHandler.hpp"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPa
 
 
     auto addr = uri.to_uri().to_string();
-    g_httpHandler = std::unique_ptr<serverHandler>(new serverHandler(addr));
+    g_httpHandler = std::unique_ptr<ObjSenderHandler>(new ObjSenderHandler(addr));
     g_httpHandler->open().wait();
 
     ucout << utility::string_t(U("Listening for requests at: ")) << addr << std::endl;
@@ -50,6 +50,23 @@ void ObjSender::writeFrameInSeparateFile(){
     writeDynamicPC();
     writeObjectMotionVec();
     writeLowPassObjectMotionVec();
+}
+
+char* ObjSender::writeFullFrame_PC_TCW_Time(){
+    char tmpstr[100];
+    AVRFrame currFrame = myAVR->getCurrentAVRFrame();
+    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
+    WholeFrame << FRAME << currFrame.FrameLeft;
+    WholeFrame << TCW << currFrame.CamMotionMat;
+    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
+    WholeFrame << PC << currFrame.pointcloud;
+//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+    WholeFrame.release();
+    return tmpstr;
 }
 
 char* ObjSender::writeWholeFrameWithFullMetaData(){

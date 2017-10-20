@@ -11,7 +11,7 @@ using namespace sl;
 //}
 
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
-    frameSeqRx =90;
+    frameSeqRx =0;
     timeRx=0;
 
     InitParameters init_parameters;
@@ -232,7 +232,7 @@ void VCluster::visualize(){
     // need to show PC from Last Frame, cause buffer are freed for pre-fetching
     // Point Cloud Stiching
     if (SHOW_PC && VISUAL) {
-
+//        mDisplayer->showCurFrame();
 
         if (TX) {
 //                mDisplayer->showPC(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
@@ -276,6 +276,31 @@ void VCluster::visualize(){
 }
 
 void VCluster::TXRX(){
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+    // sending objects
+    if (TX && SEND) {
+        mSender->writeFullFrame_PC_TCW_Time();
+    }
+    cv::Mat Trc, trc, RxFrame;
+    if (RX){
+        /// receiving objects
+        if (!(mReceiver->AskForLatestPC_TCW_TIME(VNode[0]))){
+            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
+            return;
+        }
+
+        if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
+            /// calculating rela position
+            Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
+//            trc = Trc.rowRange(0,3).col(3);
+            /// PC manipulation
+            VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
+        }
+    }
+}
+
+
+void VCluster::TXRX_viaDisk(){
 
 #ifdef EVAL
 
@@ -303,10 +328,9 @@ void VCluster::TXRX(){
         // searcing for synced frame
         frameSeqRx ++;
 
+
         timeRx = mReceiver->readTimeStamp(frameSeqRx);
         RxFrame = mReceiver->readFrame(frameSeqRx);
-
-        cv::Mat tmpFrame = mReceiver->AskForPointCloud(10);
 
 //        // time sync module
 //        while( timeRx < VNode[0]->getCurrentAVRFrame().frameTS){

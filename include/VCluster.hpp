@@ -41,6 +41,7 @@ public:
     void compressDynamic();
     void visualize();
     void TXRX();
+    void TXRX_viaDisk();
 
     bool PreProcess();
 

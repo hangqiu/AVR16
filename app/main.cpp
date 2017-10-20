@@ -97,7 +97,7 @@ void close() {
 }
 
 enum ROLE{
-    SOLO, SENDER, RECEIVER
+    SOLO, SENDER, RECEIVER, TRANSCEIVER
 };
 ///////////////////////////////////////////////////////////main  function////////////////////////////////////////////////////
 int main(int argc, char **argv) {
@@ -133,8 +133,9 @@ int main(int argc, char **argv) {
         int role = stoi(argv[argidx++]);
         switch (role){
             case SOLO: RX = false;TX = false;SEND = false;CamId = 0;RxCamId = 0;cout << "Role: SOLO Mode"<<endl;break;
-            case SENDER: RX = false;TX = true;SEND = true;CamId = 0;RxCamId = 0;cout << "Role: SENDER Mode"<<endl;break;
-            case RECEIVER: RX = true;TX = false;SEND = false;CamId = 0;RxCamId = 0;cout << "Role: RECEIVER Mode"<<endl;break;
+            case SENDER: RX = false;TX = true;SEND = true;CamId = 0;RxCamId = 1;cout << "Role: SENDER Mode"<<endl;break;
+            case RECEIVER: RX = true;TX = false;SEND = false;CamId = 1;RxCamId = 0;cout << "Role: RECEIVER Mode"<<endl;break;
+            case TRANSCEIVER: RX = true;TX = true;SEND = true;CamId = 0;RxCamId = 1;cout << "Role: RECEIVER Mode"<<endl;break;
         }
 
     }

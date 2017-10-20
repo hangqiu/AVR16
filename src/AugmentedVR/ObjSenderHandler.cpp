@@ -1,23 +1,24 @@
-#include "serverHandler.hpp"
+#include "ObjSenderHandler.hpp"
+#include "globals.hpp"
 
-serverHandler::serverHandler()
+ObjSenderHandler::ObjSenderHandler()
 {
     //ctor
 }
-serverHandler::serverHandler(utility::string_t url):m_listener(url)
+ObjSenderHandler::ObjSenderHandler(utility::string_t url):m_listener(url)
 {
-    m_listener.support(methods::GET, std::bind(&serverHandler::handle_get, this, std::placeholders::_1));
-    m_listener.support(methods::PUT, std::bind(&serverHandler::handle_put, this, std::placeholders::_1));
-    m_listener.support(methods::POST, std::bind(&serverHandler::handle_post, this, std::placeholders::_1));
-    m_listener.support(methods::DEL, std::bind(&serverHandler::handle_delete, this, std::placeholders::_1));
+    m_listener.support(methods::GET, std::bind(&ObjSenderHandler::handle_get, this, std::placeholders::_1));
+    m_listener.support(methods::PUT, std::bind(&ObjSenderHandler::handle_put, this, std::placeholders::_1));
+    m_listener.support(methods::POST, std::bind(&ObjSenderHandler::handle_post, this, std::placeholders::_1));
+    m_listener.support(methods::DEL, std::bind(&ObjSenderHandler::handle_delete, this, std::placeholders::_1));
 
 }
-serverHandler::~serverHandler()
+ObjSenderHandler::~ObjSenderHandler()
 {
     //dtor
 }
 
-void serverHandler::handle_error(pplx::task<void>& t)
+void ObjSenderHandler::handle_error(pplx::task<void>& t)
 {
     try
     {
@@ -33,7 +34,7 @@ void serverHandler::handle_error(pplx::task<void>& t)
 //
 // Get Request 
 //
-void serverHandler::handle_get(http_request message)
+void ObjSenderHandler::handle_get(http_request message)
 {
 
 //    concurrency::streams::fstream::open_istream(U("/home/hang/AVRComm/cam0/dynamicPCFrame1.yml"), std::ios::in)
@@ -54,17 +55,23 @@ void serverHandler::handle_get(http_request message)
 //        std::cout << id;
 //    }
     /// parse path
+    int id =0;
     auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
     for (auto p = paths.begin();p!=paths.end();p++){
-        int id = stoi(*p);
+        id = stoi(*p);
         std::cout << id << endl;
     }
     message.relative_uri().path();
 	//Dbms* d  = new Dbms();
     //d->connect();
+    char dir[100];
+//    id = id < FRAME_ID ? id : FRAME_ID-1;
+//    sprintf(dir, "%s/cam0/Frame%d.yml", commPath.c_str(), id);
+    sprintf(dir, "%s/cam0/%s_%s_%s_%d.yml",commPath.c_str(),
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), FRAME_ID-1);
+    std::cout << "returning " << dir << endl;
 
-
-      concurrency::streams::fstream::open_istream(U("/home/hang/AVRComm/cam0/dynamicPCFrame1.yml"), std::ios::in).then([=](concurrency::streams::istream is)
+      concurrency::streams::fstream::open_istream(U(dir), std::ios::in).then([=](concurrency::streams::istream is)
     {
         message.reply(status_codes::OK, is,  U("text/html"))
 		.then([](pplx::task<void> t)
@@ -93,7 +100,7 @@ void serverHandler::handle_get(http_request message)
 //
 // A POST request
 //
-void serverHandler::handle_post(http_request message)
+void ObjSenderHandler::handle_post(http_request message)
 {
     ucout <<  message.to_string() << endl;
 
@@ -105,7 +112,7 @@ void serverHandler::handle_post(http_request message)
 //
 // A DELETE request
 //
-void serverHandler::handle_delete(http_request message)
+void ObjSenderHandler::handle_delete(http_request message)
 {
      ucout <<  message.to_string() << endl;
 
@@ -118,7 +125,7 @@ void serverHandler::handle_delete(http_request message)
 //
 // A PUT request 
 //
-void serverHandler::handle_put(http_request message)
+void ObjSenderHandler::handle_put(http_request message)
 {
     ucout <<  message.to_string() << endl;
      string rep = U("WRITE YOUR OWN PUT OPERATION");

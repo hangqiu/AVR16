@@ -156,8 +156,11 @@ public: //TODO change to private and add agetter seter
 
     cv::Mat RxMotionVec; // motion vector of object received
 
+    int RxTimeStamp;
+    cv::Mat RxFrame;
     cv::Mat RxPC;
     cv::Mat RxDynamicPC; // transfromed txceived PC
+    cv::Mat RxTCW;
 
     cv::Mat transRxPC;
     cv::Mat transRxDynamicPC; // transfromed txceived PC

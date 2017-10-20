@@ -8,7 +8,7 @@
 
 #include <opencv2/core/persistence.hpp>
 #include "AugmentedVR.hpp"
-#include "serverHandler.hpp"
+#include "ObjSenderHandler.hpp"
 
 /*<< Defines the server. >>*/
 //struct hello_world;
@@ -29,7 +29,7 @@ private:
 
     string commPath;
 
-    std::unique_ptr<serverHandler> g_httpHandler;
+    std::unique_ptr<ObjSenderHandler> g_httpHandler;
 public:
 
 
@@ -50,6 +50,7 @@ public:
     void logFrame();
 
     char* writeWholeFrameWithFullMetaData();
+    char* writeFullFrame_PC_TCW_Time();
 
     void writeFrameInSeparateFile();
 

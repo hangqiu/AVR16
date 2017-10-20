@@ -84,12 +84,12 @@ message("${CUDA_CUDA_LIBRARIES}")
 message("${CUDA_npp_LIBRARY}")
 message("${CUDA_CUDART_LIBRARY}")
 
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode 00 for debug
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -g  -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -g -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp src/AugmentedVR/Global.cpp include/Global.hpp src/AugmentedVR/FrameCache.cpp include/FrameCache.hpp src/AugmentedVR/AVRFrame.cpp include/AVRFrame.hpp src/AugmentedVR/CVUtils.cpp include/CVUtils.hpp src/AugmentedVR/PCUtils.cpp include/PCUtils.hpp)
+ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp)
 TARGET_LINK_LIBRARIES(${execName}
         ${ZED_LIBRARIES}
         ${OPENGL_LIBRARIES}

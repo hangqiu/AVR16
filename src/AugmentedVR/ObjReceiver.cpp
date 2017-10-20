@@ -36,13 +36,23 @@ ObjReceiver::~ObjReceiver() {
     delete client;
 }
 
-cv::Mat ObjReceiver::AskForPointCloud(int FrameId){
-    http_response getresponse = CheckResponse(client->request(methods::GET, U("/20")).get());
-    V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
-    cv::Mat ret;
-    V2VBuffer[FRAME] >> ret;
-    cout << ret << endl;
-    return ret;
+bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
+    char dir[100];
+    sprintf(dir, "/%d", 1000000);
+    http_response getresponse = CheckResponse(client->request(methods::GET, U(dir)).get());
+
+    if (getresponse.status_code()==status_codes::OK){
+        V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+
+        V2VBuffer[FRAME] >> Node->RxFrame;
+        V2VBuffer[PC] >> Node->RxPC;
+        V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
+        V2VBuffer[TCW] >> Node->RxTCW;
+
+        return true;
+    }else{
+        return false;
+    }
 }
 
 
