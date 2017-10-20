@@ -99,7 +99,7 @@ void AVRFrame::detectNewFeature(){
     cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,20,0.03);
     cv::Size subPixWinSize(10,10);
 
-    cv::goodFeaturesToTrack(FrameLeftGray, keypoints, MAX_COUNT, 0.01, 10, cv::Mat(), 3, 0, 0.04);
+    cv::goodFeaturesToTrack(FrameLeftGray, keypoints, MAX_COUNT, 0.01, 10, cv::Mat(), 3, false, 0.04);
     cornerSubPix(FrameLeftGray, keypoints, subPixWinSize, cv::Size(-1,-1), termcrit);
 }
 
