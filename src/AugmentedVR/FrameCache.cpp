@@ -322,7 +322,7 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
 
 
 bool FrameCache::ReachFullMotionBacklog(){
-     return fifo.size()==CacheSize && !fifo[0].CamMotionMat.empty();
+     return fifo.size()==CacheSize && !(fifo[0].CamMotionMat.empty());
 }
 
 void FrameCache::setStartTS(unsigned long long int startTS) {

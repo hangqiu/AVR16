@@ -80,13 +80,19 @@ const int NUM_CAMERAS = 1;
 
 /// Comm
 string commPath = "/home/hang/AVRComm/";
-string AddressA = "http://204.57.7.36:";
+//string AddressA = "http://204.57.7.36:";
+string AddressA = "http://192.168.0.166:";
 string Port = "34568";
-string AddressB = "http://127.0.0.1:";
-
-string MyAddress = AddressB;
+string AddressB = "http://192.168.0.187:";
+/// laptop 127
+//string MyAddress = AddressB;
+//string MyPort = Port;
+//string ServerAddress = AddressA;
+//string ServerPort = Port;
+/// desktop 204
+string MyAddress = AddressA;
 string MyPort = Port;
-string ServerAddress = AddressA;
+string ServerAddress = AddressB;
 string ServerPort = Port;
 /// store video or webcam
 bool OFFLINE = true;

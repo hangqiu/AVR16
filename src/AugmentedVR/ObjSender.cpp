@@ -52,6 +52,24 @@ void ObjSender::writeFrameInSeparateFile(){
     writeLowPassObjectMotionVec();
 }
 
+
+char* ObjSender::writeFullFrame_PC_TCW_Time_Memory(){
+    char tmpstr[100];
+    AVRFrame currFrame = myAVR->getCurrentAVRFrame();
+    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
+    SenderBuffer << FRAME << currFrame.FrameLeft;
+    SenderBuffer << TCW << currFrame.CamMotionMat;
+    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
+    SenderBuffer << PC << currFrame.pointcloud;
+//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+//    WholeFrame.release();
+    return tmpstr;
+}
+
 char* ObjSender::writeFullFrame_PC_TCW_Time(){
     char tmpstr[100];
     AVRFrame currFrame = myAVR->getCurrentAVRFrame();
@@ -59,6 +77,23 @@ char* ObjSender::writeFullFrame_PC_TCW_Time(){
             FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
     WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
     WholeFrame << FRAME << currFrame.FrameLeft;
+    WholeFrame << TCW << currFrame.CamMotionMat;
+    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
+    WholeFrame << PC << currFrame.pointcloud;
+//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+    WholeFrame.release();
+    return tmpstr;
+}
+
+char* ObjSender::writePC_TCW_Time(){
+    char tmpstr[100];
+    AVRFrame currFrame = myAVR->getCurrentAVRFrame();
+    sprintf(tmpstr, "/cam%d/%s_%s_%d.yml", myAVR->CamId,
+            TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
+//    WholeFrame << FRAME << currFrame.FrameLeft;
     WholeFrame << TCW << currFrame.CamMotionMat;
     WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
     WholeFrame << PC << currFrame.pointcloud;

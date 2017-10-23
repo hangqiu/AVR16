@@ -279,7 +279,8 @@ void VCluster::TXRX(){
     if (DEBUG) VNode[0]->mIo->logCurrentFrame();
     // sending objects
     if (TX && SEND) {
-        mSender->writeFullFrame_PC_TCW_Time();
+//        mSender->writeFullFrame_PC_TCW_Time();
+        mSender->writePC_TCW_Time();
     }
     cv::Mat Trc, trc, RxFrame;
     if (RX){
