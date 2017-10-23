@@ -65,6 +65,8 @@ public:
 
     void showCurFrame();
 
+    void showCurFrameWithPC();
+
     void showCurDynamicFrame(int idx);
 
 
