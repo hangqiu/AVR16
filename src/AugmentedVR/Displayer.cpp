@@ -4,8 +4,8 @@
 
 
 #include "Displayer.hpp"
-#include "PCUtils.hpp"
-#include "CVUtils.hpp"
+#include "UtilsPC.hpp"
+#include "UtilsCV.hpp"
 #include "globals.hpp"
 #include "sl/Camera.hpp"
 //opencv includes
@@ -87,13 +87,23 @@ void Displayer::showCurDynamicFrame(int idx){
     processKey(key);
 }
 
-void Displayer::showCurFrame(){
+void Displayer::showCurFrameWithPC(){
     AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
     if (currFrame.FrameLeft.empty()) return;
     char winName[100] = "Current Left Frame";
     cv::namedWindow(winName);
     cv::imshow(winName, currFrame.FrameLeft);
     cv::setMouseCallback(winName, onMouseCallback_DisplayVoxel, &(currFrame.PC_noColor));
+    char key = cv::waitKey(20);
+    processKey(key);
+}
+
+void Displayer::showCurFrame(){
+    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    if (currFrame.FrameLeft.empty()) return;
+    char winName[100] = "Current Left Frame";
+    cv::namedWindow(winName);
+    cv::imshow(winName, currFrame.FrameLeft);
     char key = cv::waitKey(20);
     processKey(key);
 }

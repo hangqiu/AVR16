@@ -13,6 +13,8 @@ using namespace web;
 using namespace http;
 using namespace utility;
 using namespace http::client;
+using namespace concurrency;
+using namespace concurrency::streams;
 
 ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) : myAVR(myAVR), RxCamId(CamId), commPath(commPath) {
 
@@ -30,31 +32,62 @@ ObjReceiver::~ObjReceiver() {
     delete client;
 }
 
-bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
-    char dir[100];
-    sprintf(dir, "/%d", 1000000);
-    http_response getresponse = CheckResponse(client->request(methods::GET, U(dir)).get());
-
-    if (getresponse.status_code()==status_codes::OK){
-        V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
-
-        V2VBuffer[FRAME] >> Node->RxFrame;
-        V2VBuffer[PC] >> Node->RxPC;
-        V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
-        V2VBuffer[TCW] >> Node->RxTCW;
-
-        return true;
-    }else{
-        return false;
-    }
-}
-
 
 http_response ObjReceiver::CheckResponse(const http_response &response)
 {
-    ucout << response.to_string() << endl;
+//    ucout << response.to_string() << endl;
+//    ucout << "output to file\n";
+//    fstream file("/home/hang/research/AVR16/tmp.yml");
+//    file << response.to_string() << endl;
     return response;
 }
+
+
+bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
+    char dir[100];
+    sprintf(dir, "/%d", 1000000);
+
+
+    return client->request(methods::GET, U(dir))
+          .then([](http_response response){
+              ucout << "waiting for payload..."<< endl;
+              return response.content_ready();
+          })
+          .then([this, Node](http_response getresponse){
+              if (getresponse.status_code()==status_codes::OK){
+                  try{
+//                concurrency::streams::ostream stream;
+//                concurrency::streams::container_buffer<std::string> inStringBuffer;
+//                getresponse.body().read_to_end(inStringBuffer);
+//                const string &res = inStringBuffer.collection();
+//                V2VBuffer.open(res.c_str(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+                      V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+                  }catch(...) { //slutils::cv::Exception
+//                      cout << e.what();
+                      return false;
+                  }
+
+                  //        V2VBuffer[FRAME] >> Node->RxFrame;
+                  V2VBuffer[PC] >> Node->RxPC;
+                  V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
+                  V2VBuffer[TCW] >> Node->RxTCW;
+
+                  return true;
+              }else{
+                  return false;
+              }
+          }).wait();
+//          .then([=](http_response response){
+//              return response.extract_string();
+//
+//          })
+
+
+
+
+
+}
+
 
 
 struct WholeFrameWithMetaData ObjReceiver::readWholeFrameWithFullMetaData(int frameSeq){
