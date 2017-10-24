@@ -49,7 +49,7 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
 #endif
     // SDK2.0
     sl::Mat pc;
-    ERROR_CODE err = mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA, sl::MEM_CPU, width, height);
+    sl::ERROR_CODE err = mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA);// sl::MEM_CPU, width, height);
     if (err!=SUCCESS)        cerr << "Can't retrieve point cloud! error code:" << err << endl;
     slMat2cvMat(pc).copyTo(NewFrame.pointcloud); //just to be safe
 //    ERROR_CODE err2 = mZEDCam->retrieveMeasure(pointcloud_sl_gpu, sl::MEASURE_XYZRGBA, sl::MEM_GPU, width, height);

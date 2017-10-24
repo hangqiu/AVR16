@@ -50,7 +50,7 @@
 
 #include <iostream>
 
-#include "PnPsolver.h"
+#include "src/ORB_SLAM2/include/PnPsolver.h"
 
 #include <vector>
 #include <cmath>
@@ -196,7 +196,7 @@ cv::Mat PnPsolver::iterate(int nIterations, bool &bNoMore, vector<bool> &vbInlie
 
             add_correspondence(mvP3Dw[idx].x,mvP3Dw[idx].y,mvP3Dw[idx].z,mvP2D[idx].x,mvP2D[idx].y);
 
-            vAvailableIndices[idx] = vAvailableIndices.back();
+            vAvailableIndices[randi] = vAvailableIndices.back();
             vAvailableIndices.pop_back();
         }
 
@@ -205,8 +205,6 @@ cv::Mat PnPsolver::iterate(int nIterations, bool &bNoMore, vector<bool> &vbInlie
 
         // Check inliers
         CheckInliers();
-
-        //cout << "iterate: CP mnInliersi = " << mnInliersi << " mRansacMinInliers = "<< mRansacMinInliers << endl;
 
         if(mnInliersi>=mRansacMinInliers)
         {
@@ -330,7 +328,6 @@ void PnPsolver::CheckInliers()
 
         if(error2<mvMaxError[i])
         {
-
             mvbInliersi[i]=true;
             mnInliersi++;
         }

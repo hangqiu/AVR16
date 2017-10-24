@@ -25,7 +25,6 @@
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
 
-
 #include"Viewer.h"
 #include"FrameDrawer.h"
 #include"Map.h"
@@ -55,21 +54,21 @@ class Tracking
 {  
 
 public:
+
     Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
-             KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse);
+             KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, bool bReuseMap=false);
 
     // Preprocess the input and call Track(). Extract features and performs stereo matching.
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 
-    // for pipeline
-    void CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
-    void LoadNextFrame();
-
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
     void SetViewer(Viewer* pViewer);
+
+
+    void CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
 
     // Load new settings
     // The focal lenght should be similar or scale prediction will fail when projecting points
@@ -97,13 +96,13 @@ public:
     // Input sensor
     int mSensor;
 
-    // Current Frame
-    Frame mCurrentFrame;
-    cv::Mat mImGray;
-
     // Next Frame for Pipeline
     Frame mNextFrame;
     cv::Mat mNextImGray;
+
+    // Current Frame
+    Frame mCurrentFrame;
+    cv::Mat mImGray;
 
     // Initialization Variables (Monocular)
     std::vector<int> mvIniLastMatches;
@@ -152,6 +151,8 @@ protected:
 
     bool NeedNewKeyFrame();
     void CreateNewKeyFrame();
+
+    void LoadNextFrame();
 
     // In case of performing only localization, this flag is true when there are no matches to
     // points in the map. Still tracking will continue if there are enough matches with temporal points.
@@ -221,8 +222,8 @@ protected:
 
     //Color order (true RGB, false BGR, ignored if grayscale)
     bool mbRGB;
+
     list<MapPoint*> mlpTemporalPoints;
-	bool is_preloaded;
 };
 
 } //namespace ORB_SLAM

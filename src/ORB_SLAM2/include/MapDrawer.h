@@ -21,10 +21,12 @@
 #ifndef MAPDRAWER_H
 #define MAPDRAWER_H
 
-#include"Map.h"
-#include"MapPoint.h"
-#include"KeyFrame.h"
-#include<pangolin/pangolin.h>
+#include "Map.h"
+#include "MapPoint.h"
+#include "KeyFrame.h"
+#include <pangolin/pangolin.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 
 #include<mutex>
 
@@ -36,14 +38,17 @@ class MapDrawer
 public:
     MapDrawer(Map* pMap, const string &strSettingPath);
 
+    MapDrawer (const string &strSettingPath);
+
     Map* mpMap;
 
     void DrawMapPoints();
+    void DrawMapPointsOffline(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPtr);
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
     void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);
     void SetCurrentCameraPose(const cv::Mat &Tcw);
     void SetReferenceKeyFrame(KeyFrame *pKF);
-    void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
+    void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M, bool isRunOffline);
 
 private:
 

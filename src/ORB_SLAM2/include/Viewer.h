@@ -40,8 +40,11 @@ class System;
 class Viewer
 {
 public:
-    Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Tracking *pTracking, const string &strSettingPath, bool bReuse);
 
+    //Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Tracking *pTracking, const string &strSettingPath, bool mbReuseMap);
+    Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Tracking *pTracking, const string &strSettingPath, bool mbReuseMap, bool runLocalizationMode);
+
+    Viewer (const string &strSettingPath);
     // Main thread function. Draw points, keyframes, the current camera pose and the last processed
     // frame. Drawing is refreshed according to the camera fps. We use Pangolin.
     void Run();
@@ -56,10 +59,12 @@ public:
 
     void Release();
 
+    void RunOffline (pcl::PointCloud <pcl::PointXYZ>::Ptr cloudPtr);
+
 private:
 
     bool Stop();
-	bool mbReuse;
+
     System* mpSystem;
     FrameDrawer* mpFrameDrawer;
     MapDrawer* mpMapDrawer;
@@ -79,6 +84,11 @@ private:
 
     bool mbStopped;
     bool mbStopRequested;
+    bool mbReuseMap;
+    bool localizationMode;
+
+    bool isRunningOffline;
+
     std::mutex mMutexStop;
 
 };

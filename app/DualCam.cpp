@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 
 
     string VocFile = "./ORB_SLAM2/Vocabulary/ORBvoc.txt";
-    string CalibrationFile = "./CamCalib.yaml";
+    string CalibrationFile = "media/fawad/DATA/AVR16/CamCalib.yaml";
 
     InitParameters parameters;
     // parameters.mode = PERFORMANCE;
@@ -282,12 +282,13 @@ int main(int argc, char **argv) {
 //        if (DEBUG) std::cout << " Timestamp: " << frame_ts[0] << " - " << frame_ts[1] <<  " = "<<  frame_ts[0] - frame_ts[1] << std::endl;
 
         //get the Key
-        key = cv::waitKey(20);
+        key = cv::waitKey(1);
         // pause and resume
         mDisplayer->processKey(key);
 
         VNode[0]->trackCam();
         VNode[1]->trackCam();
+
         if (VNode[0]->CamMotionMat.empty() || VNode[1]->CamMotionMat.empty()) continue;
 
         VNode[0]->calcPCMotionVec();
@@ -311,6 +312,8 @@ int main(int argc, char **argv) {
             mDisplayer->showMergedPC(transRxPC);
         }
         cout << endl;
+
+        */
     }
 
     //out --> tells both thread to finish

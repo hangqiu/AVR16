@@ -37,7 +37,7 @@ AugmentedVR::~AugmentedVR(){
 
 void AugmentedVR::exit(){
     if (!quit)mSLAM->SaveTrajectoryKITTI("CameraTrajectory.txt");
-    mSLAM->Shutdown();
+    mSLAM->Shutdown("XYZ.txt");
 
 //    pointcloud_sl_gpu.free(MEM_GPU);
 
@@ -82,10 +82,14 @@ int AugmentedVR::initZEDCam(int startFrameID){
 
 void AugmentedVR::initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap, string mapFile){
 
+    bool isUpdateMap = true;
+    bool isRunInLocalizationMode = false;
     if (bReuseMap == true){
-        mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap, mapFile);
+        mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO, true, isUpdateMap, bReuseMap, mapFile, isRunInLocalizationMode);
+
     }else{
-        mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap);
+        //mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap);
+        mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO, true, isUpdateMap, bReuseMap, mapFile, isRunInLocalizationMode);
     }
     FeedSlamNextFrame();
 }
@@ -112,9 +116,11 @@ void AugmentedVR::FeedSlamNextFrame(){
     timeval start,end;
     gettimeofday(&start, NULL);
 #endif
+
     mSLAM->mTracker_CreateNextFrame(frameCache.getSlamFrame().FrameLeftGray,
                                     frameCache.getSlamFrame().FrameRightGray,
                                     frameCache.getSlamFrame().frameTS);
+
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -168,6 +174,7 @@ void AugmentedVR::calcOpticalFlow(){
 // call SLAM and calculate camera pose relative to last frame
 // update rotation and translation matrxi to last frame: Rlc, tlc
 void AugmentedVR::trackCam() {
+
     AVRFrame currFrame = getCurrentAVRFrame();
     (mSLAM->TrackStereo(currFrame.FrameLeft,
                         currFrame.FrameRight,
@@ -177,7 +184,7 @@ void AugmentedVR::trackCam() {
 //    if(COOP){
 //        CamMotionMat.at<float>(0,3) +=7;
 //    }
-    if (SHOW_CAMMOTION) cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat << endl;
+    //if (SHOW_CAMMOTION) cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat << endl;
 }
 
 void AugmentedVR::analyze(){

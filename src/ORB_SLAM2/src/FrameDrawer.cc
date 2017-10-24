@@ -18,8 +18,8 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "FrameDrawer.h"
-#include "Tracking.h"
+#include "src/ORB_SLAM2/include/FrameDrawer.h"
+#include "src/ORB_SLAM2/include/Tracking.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -29,12 +29,12 @@
 namespace ORB_SLAM2
 {
 
-FrameDrawer::FrameDrawer(Map* pMap, bool bReuse):mpMap(pMap)
+FrameDrawer::FrameDrawer(Map* pMap, bool bReuseMap):mpMap(pMap)
 {
-    mState=Tracking::SYSTEM_NOT_READY;
-    if (bReuse)
+    if (bReuseMap)
         mState=Tracking::LOST;
-
+    else
+        mState=Tracking::SYSTEM_NOT_READY;
     mIm = cv::Mat(480,640,CV_8UC3, cv::Scalar(0,0,0));
 }
 
@@ -94,8 +94,6 @@ cv::Mat FrameDrawer::DrawFrame()
         mnTracked=0;
         mnTrackedVO=0;
         const float r = 5;
-//        for(int i=0;i<N;i++)
-        // bug fix from Raul commit on Jan 20 2017
         const int n = vCurrentKeys.size();
         for(int i=0;i<n;i++)
         {
@@ -171,9 +169,7 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
 
 void FrameDrawer::Update(Tracking *pTracker)
 {
-    if (pTracker->mImGray.empty()) return;
     unique_lock<mutex> lock(mMutex);
-
     pTracker->mImGray.copyTo(mIm);
     mvCurrentKeys=pTracker->mCurrentFrame.mvKeys;
     N = mvCurrentKeys.size();

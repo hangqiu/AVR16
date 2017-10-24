@@ -18,7 +18,7 @@
 #include <sl/Camera.hpp>
 
 #include <pcl/common/common_headers.h>
-#include <pcl/visualization/pcl_visualizer.h>
+//#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/compression/octree_pointcloud_compression.h>
 
 

@@ -18,10 +18,10 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "LocalMapping.h"
-#include "LoopClosing.h"
-#include "ORBmatcher.h"
-#include "Optimizer.h"
+#include "src/ORB_SLAM2/include/LocalMapping.h"
+#include "src/ORB_SLAM2/include/LoopClosing.h"
+#include "src/ORB_SLAM2/include/ORBmatcher.h"
+#include "src/ORB_SLAM2/include/Optimizer.h"
 
 #include<mutex>
 
@@ -91,7 +91,7 @@ void LocalMapping::Run()
             // Safe area to stop
             while(isStopped() && !CheckFinish())
             {
-                usleep(3000);
+                std::this_thread::sleep_for(std::chrono::microseconds(3000));
             }
             if(CheckFinish())
                 break;
@@ -105,7 +105,7 @@ void LocalMapping::Run()
         if(CheckFinish())
             break;
 
-        usleep(3000);
+        std::this_thread::sleep_for(std::chrono::microseconds(3000));
     }
 
     SetFinish();
@@ -173,6 +173,8 @@ void LocalMapping::MapPointCulling()
     list<MapPoint*>::iterator lit = mlpRecentAddedMapPoints.begin();
     const unsigned long int nCurrentKFid = mpCurrentKeyFrame->mnId;
 
+//    static int counter = 0;
+
     int nThObs;
     if(mbMonocular)
         nThObs = 2;
@@ -186,19 +188,24 @@ void LocalMapping::MapPointCulling()
         if(pMP->isBad())
         {
             lit = mlpRecentAddedMapPoints.erase(lit);
+//            cout << ++counter << endl;
         }
         else if(pMP->GetFoundRatio()<0.25f )
         {
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
+//            cout << ++counter << endl;;
         }
         else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=2 && pMP->Observations()<=cnThObs)
         {
             pMP->SetBadFlag();
             lit = mlpRecentAddedMapPoints.erase(lit);
+//            cout << ++counter << endl;;
         }
-        else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=3)
+        else if(((int)nCurrentKFid-(int)pMP->mnFirstKFid)>=3) {
             lit = mlpRecentAddedMapPoints.erase(lit);
+//            cout << ++counter << endl;;
+        }
         else
             lit++;
     }
@@ -644,9 +651,7 @@ void LocalMapping::KeyFrameCulling()
             continue;
         const vector<MapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
-        int /*nObs = 2;
-        if(mbMonocular)*/
-            nObs = 3;
+        int nObs = 3;
         const int thObs=nObs;
         int nRedundantObservations=0;
         int nMPs=0;
@@ -718,7 +723,7 @@ void LocalMapping::RequestReset()
             if(!mbResetRequested)
                 break;
         }
-        usleep(3000);
+        std::this_thread::sleep_for(std::chrono::microseconds(3000));
     }
 }
 

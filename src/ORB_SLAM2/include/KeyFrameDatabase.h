@@ -30,13 +30,7 @@
 #include "ORBVocabulary.h"
 
 #include<mutex>
-
-#include <boost/serialization/serialization.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/split_member.hpp>
+#include "BoostArchiver.h"
 
 namespace ORB_SLAM2
 {
@@ -49,12 +43,9 @@ class KeyFrameDatabase
 {
 public:
 
-    KeyFrameDatabase(ORBVocabulary &voc);
-    KeyFrameDatabase() {;}
+    KeyFrameDatabase(ORBVocabulary *voc);
 
    void add(KeyFrame* pKF);
-
-   void set_vocab(ORBVocabulary* pvoc);
 
    void erase(KeyFrame* pKF);
 
@@ -66,6 +57,16 @@ public:
    // Relocalization
    std::vector<KeyFrame*> DetectRelocalizationCandidates(Frame* F);
 
+public:
+   // for serialization
+   KeyFrameDatabase() {}
+   void SetORBvocabulary(ORBVocabulary *porbv) {mpVoc=porbv;}
+private:
+   // serialize is recommended to be private
+   friend class boost::serialization::access;
+   template<class Archive>
+   void serialize(Archive &ar, const unsigned int version);
+
 protected:
 
   // Associated vocabulary
@@ -76,21 +77,6 @@ protected:
 
   // Mutex
   std::mutex mMutex;
-
-	friend class boost::serialization::access;
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-		
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-	
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
 };
 
 } //namespace ORB_SLAM

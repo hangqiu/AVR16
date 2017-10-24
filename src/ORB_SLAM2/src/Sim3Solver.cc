@@ -19,14 +19,14 @@
 */
 
 
-#include "Sim3Solver.h"
+#include "src/ORB_SLAM2/include/Sim3Solver.h"
 
 #include <vector>
 #include <cmath>
 #include <opencv2/core/core.hpp>
 
-#include "KeyFrame.h"
-#include "ORBmatcher.h"
+#include "src/ORB_SLAM2/include/KeyFrame.h"
+#include "src/ORB_SLAM2/include/ORBmatcher.h"
 
 #include "Thirdparty/DBoW2/DUtils/Random.h"
 
@@ -172,7 +172,7 @@ cv::Mat Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool> &vbInli
             mvX3Dc1[idx].copyTo(P3Dc1i.col(i));
             mvX3Dc2[idx].copyTo(P3Dc2i.col(i));
 
-            vAvailableIndices[idx] = vAvailableIndices.back();
+            vAvailableIndices[randi] = vAvailableIndices.back();
             vAvailableIndices.pop_back();
         }
 

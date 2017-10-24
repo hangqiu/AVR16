@@ -18,6 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #ifndef ORBEXTRACTOR_H
 #define ORBEXTRACTOR_H
 

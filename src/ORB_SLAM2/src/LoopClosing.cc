@@ -18,15 +18,15 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "LoopClosing.h"
+#include "src/ORB_SLAM2/include/LoopClosing.h"
 
-#include "Sim3Solver.h"
+#include "src/ORB_SLAM2/include/Sim3Solver.h"
 
-#include "Converter.h"
+#include "src/ORB_SLAM2/include/Converter.h"
 
-#include "Optimizer.h"
+#include "src/ORB_SLAM2/include/Optimizer.h"
 
-#include "ORBmatcher.h"
+#include "src/ORB_SLAM2/include/ORBmatcher.h"
 
 #include<mutex>
 #include<thread>
@@ -37,11 +37,10 @@ namespace ORB_SLAM2
 
 LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, const bool bFixScale):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
-    mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
+    mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
     mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
 {
     mnCovisibilityConsistencyTh = 3;
-//    mpMatchedKF = NULL;
 }
 
 void LoopClosing::SetTracker(Tracking *pTracker)
@@ -75,14 +74,14 @@ void LoopClosing::Run()
                    CorrectLoop();
                }
             }
-        }       
+        }
 
         ResetIfRequested();
 
         if(CheckFinish())
             break;
 
-        usleep(5000);
+        std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
 
     SetFinish();
@@ -409,18 +408,6 @@ void LoopClosing::CorrectLoop()
     mpLocalMapper->RequestStop();
 
     // If a Global Bundle Adjustment is running, abort it
-//    if(isRunningGBA())
-//    {
-//        mbStopGBA = true;
-//
-//        while(!isFinishedGBA())
-//            usleep(5000);
-//
-//        mpThreadGBA->join();
-//        delete mpThreadGBA;
-//    }
-
-
     if(isRunningGBA())
     {
         unique_lock<mutex> lock(mMutexGBA);
@@ -434,10 +421,11 @@ void LoopClosing::CorrectLoop()
             delete mpThreadGBA;
         }
     }
+
     // Wait until Local Mapping has effectively stopped
     while(!mpLocalMapper->isStopped())
     {
-        usleep(1000);
+        std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 
     // Ensure current keyframe is updated
@@ -578,6 +566,8 @@ void LoopClosing::CorrectLoop()
     // Optimize graph
     Optimizer::OptimizeEssentialGraph(mpMap, mpMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, mbFixScale);
 
+    mpMap->InformNewBigChange();
+
     // Add loop edge
     mpMatchedKF->AddLoopEdge(mpCurrentKF);
     mpCurrentKF->AddLoopEdge(mpMatchedKF);
@@ -590,8 +580,6 @@ void LoopClosing::CorrectLoop()
 
     // Loop closed. Release Local Mapping.
     mpLocalMapper->Release();    
-
-    cout << "Loop Closed!" << endl;
 
     mLastLoopKFid = mpCurrentKF->mnId;   
 }
@@ -639,7 +627,7 @@ void LoopClosing::RequestReset()
         if(!mbResetRequested)
             break;
         }
-        usleep(5000);
+        std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
 }
 
@@ -659,7 +647,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
     cout << "Starting Global Bundle Adjustment" << endl;
 
     int idx =  mnFullBAIdx;
-    Optimizer::GlobalBundleAdjustemnt(mpMap,20,&mbStopGBA,nLoopKF,false);
+    Optimizer::GlobalBundleAdjustemnt(mpMap,10,&mbStopGBA,nLoopKF,false);
 
     // Update all MapPoints and KeyFrames
     // Local Mapping was active during BA, that means that there might be new keyframes
@@ -679,9 +667,8 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
             while(!mpLocalMapper->isStopped() && !mpLocalMapper->isFinished())
             {
-                usleep(1000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
-                      
 
             // Get Map Mutex
             unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
@@ -691,31 +678,16 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
             while(!lpKFtoCheck.empty())
             {
-
                 KeyFrame* pKF = lpKFtoCheck.front();
-//                if (!pKF)
-//                    continue;
-
                 const set<KeyFrame*> sChilds = pKF->GetChilds();
                 cv::Mat Twc = pKF->GetPoseInverse();
                 for(set<KeyFrame*>::const_iterator sit=sChilds.begin();sit!=sChilds.end();sit++)
                 {
-                                                                                                          
-
                     KeyFrame* pChild = *sit;
-//                    if (!pChild)
-//                        continue;
-
                     if(pChild->mnBAGlobalForKF!=nLoopKF)
                     {
-                                                                 
-
                         cv::Mat Tchildc = pChild->GetPose()*Twc;
-                                                                 
-
                         pChild->mTcwGBA = Tchildc*pKF->mTcwGBA;//*Tcorc*pKF->mTcwGBA;
-                                                                                        
-
                         pChild->mnBAGlobalForKF=nLoopKF;
 
                     }
@@ -726,25 +698,19 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 pKF->SetPose(pKF->mTcwGBA);
                 lpKFtoCheck.pop_front();
             }
-                                                  
 
             // Correct MapPoints
             const vector<MapPoint*> vpMPs = mpMap->GetAllMapPoints();
 
             for(size_t i=0; i<vpMPs.size(); i++)
             {
-                                    
-
                 MapPoint* pMP = vpMPs[i];
-//                if(!pMP)
-//                    continue;
 
                 if(pMP->isBad())
                     continue;
 
                 if(pMP->mnBAGlobalForKF==nLoopKF)
                 {
-                                                                    
                     // If optimized by Global BA, just update
                     pMP->SetWorldPos(pMP->mPosGBA);
                 }
@@ -752,35 +718,25 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 {
                     // Update according to the correction of its reference keyframe
                     KeyFrame* pRefKF = pMP->GetReferenceKeyFrame();
-//                    if(!pRefKF)
-//                        continue;
+
                     if(pRefKF->mnBAGlobalForKF!=nLoopKF)
                         continue;
-//                   cout << "RunGlobalBundleAdjustment CP " << pRefKF->mnId
-//                        << " " << pRefKF->mTcwBefGBA.rows
-//                        << " " << pRefKF->mTcwBefGBA.cols << endl;
-//                    fflush(stdout);
-
-//                    /* TODO : Stop-Gap for Loop Closure. Size coming as Zero! */
-//                    if (!pRefKF->mTcwBefGBA.rows || !pRefKF->mTcwBefGBA.cols)
-//                        continue;
-
 
                     // Map to non-corrected camera
                     cv::Mat Rcw = pRefKF->mTcwBefGBA.rowRange(0,3).colRange(0,3);
                     cv::Mat tcw = pRefKF->mTcwBefGBA.rowRange(0,3).col(3);
                     cv::Mat Xc = Rcw*pMP->GetWorldPos()+tcw;
-                                                                    
 
                     // Backproject using corrected camera
                     cv::Mat Twc = pRefKF->GetPoseInverse();
                     cv::Mat Rwc = Twc.rowRange(0,3).colRange(0,3);
                     cv::Mat twc = Twc.rowRange(0,3).col(3);
-                                                             
 
                     pMP->SetWorldPos(Rwc*Xc+twc);
                 }
-            }
+            }            
+
+            mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
 

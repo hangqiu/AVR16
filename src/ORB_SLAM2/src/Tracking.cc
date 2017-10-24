@@ -19,25 +19,24 @@
 */
 
 
-#include "Tracking.h"
+#include "src/ORB_SLAM2/include/Tracking.h"
 
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
 
-#include"ORBmatcher.h"
-#include"FrameDrawer.h"
-#include"Converter.h"
-#include"Map.h"
-#include"Initializer.h"
+#include"src/ORB_SLAM2/include/ORBmatcher.h"
+#include"src/ORB_SLAM2/include/FrameDrawer.h"
+#include"src/ORB_SLAM2/include/Converter.h"
+#include"src/ORB_SLAM2/include/Map.h"
+#include"src/ORB_SLAM2/include/Initializer.h"
 
-#include"Optimizer.h"
-#include"PnPsolver.h"
+#include"src/ORB_SLAM2/include/Optimizer.h"
+#include"src/ORB_SLAM2/include/PnPsolver.h"
 
 #include<iostream>
 
 #include<mutex>
-#include <include/globals.hpp>
-#include <sys/time.h>
+#include<chrono>
 
 
 using namespace std;
@@ -45,9 +44,9 @@ using namespace std;
 namespace ORB_SLAM2
 {
 
-Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse):
-    mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(bReuse), mbVO(false), mpORBVocabulary(pVoc),
-    mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys),
+Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, bool bReuseMap):
+    mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc),
+    mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys), mpViewer(NULL),
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0)
 {
     // Load camera parameters from settings file
@@ -84,11 +83,6 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(fps==0)
         fps=30;
 
-    is_preloaded = bReuse;
-	if (is_preloaded)
-    {
-		mState = LOST;
-    }
     // Max/Min Frames to insert keyframes and to check relocalisation
     mMinFrames = 0;
     mMaxFrames = fps;
@@ -137,7 +131,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     cout << "- Scale Factor: " << fScaleFactor << endl;
     cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
     cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
-    cout << "- Reuse Map ?: " << is_preloaded << endl;
+
     if(sensor==System::STEREO || sensor==System::RGBD)
     {
         mThDepth = mbf*(float)fSettings["ThDepth"]/fx;
@@ -147,12 +141,13 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(sensor==System::RGBD)
     {
         mDepthMapFactor = fSettings["DepthMapFactor"];
-        if(mDepthMapFactor==0)
+        if(fabs(mDepthMapFactor)<1e-5)
             mDepthMapFactor=1;
         else
             mDepthMapFactor = 1.0f/mDepthMapFactor;
     }
-
+    if (bReuseMap)
+        mState = LOST;
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -170,68 +165,68 @@ void Tracking::SetViewer(Viewer *pViewer)
     mpViewer=pViewer;
 }
 
-void Tracking::CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp){
-    mNextImGray = imRectLeft;
+
+    void Tracking::LoadNextFrame(){
+        mImGray = mNextImGray;
+        mCurrentFrame = Frame(mNextFrame);
+    }
+
+
+cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp)
+{
+    //Profiling
+
+
+    mImGray = imRectLeft;
     cv::Mat imGrayRight = imRectRight;
 
-    if(mNextImGray.channels()==3)
+    if(mImGray.channels()==3)
     {
         if(mbRGB)
         {
-            cvtColor(mNextImGray,mNextImGray,CV_RGB2GRAY);
+            cvtColor(mImGray,mImGray,CV_RGB2GRAY);
             cvtColor(imGrayRight,imGrayRight,CV_RGB2GRAY);
         }
         else
         {
-            cvtColor(mNextImGray,mNextImGray,CV_BGR2GRAY);
+            cvtColor(mImGray,mImGray,CV_BGR2GRAY);
             cvtColor(imGrayRight,imGrayRight,CV_BGR2GRAY);
         }
     }
-    else if(mNextImGray.channels()==4)
+    else if(mImGray.channels()==4)
     {
         if(mbRGB)
         {
-            cvtColor(mNextImGray,mNextImGray,CV_RGBA2GRAY);
+            cvtColor(mImGray,mImGray,CV_RGBA2GRAY);
             cvtColor(imGrayRight,imGrayRight,CV_RGBA2GRAY);
         }
         else
         {
-            cvtColor(mNextImGray,mNextImGray,CV_BGRA2GRAY);
+            cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
             cvtColor(imGrayRight,imGrayRight,CV_BGRA2GRAY);
         }
     }
 
-    mNextFrame = Frame(mNextImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
-}
+//
 
-void Tracking::LoadNextFrame(){
-    mImGray = mNextImGray;
-    mCurrentFrame = Frame(mNextFrame);
-}
 
-cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp)
-{
-#ifdef EVAL
-    timeval start, end;
-    gettimeofday(&start, NULL);
-#endif
+//    chrono::high_resolution_clock::time_point grabImageStereo_Start = chrono::high_resolution_clock::now();
+
     LoadNextFrame();
+    //mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
-#ifdef EVAL
-    gettimeofday(&end, NULL);
-    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-    cout << "trackCam >>>>>>> Feature detect and 3d compute: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-    gettimeofday(&start, NULL);
-#endif
+
 
     Track();
+//    chrono::high_resolution_clock::time_point grabImageStereo_End = chrono::high_resolution_clock::now();
+//    auto duration = chrono::duration_cast<chrono::microseconds>( grabImageStereo_End - grabImageStereo_Start ).count();
+//    cout << duration << endl;
 
-#ifdef EVAL
-    gettimeofday(&end, NULL);
-    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-    cout << "trackCam >>>>>>> Track: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-#endif
+
+
+
+
 
     return mCurrentFrame.mTcw.clone();
 }
@@ -257,8 +252,8 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
 
-    if(mDepthMapFactor!=1 || imDepth.type()!=CV_32F);
-    imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
+    if((fabs(mDepthMapFactor-1.0f)>1e-5) || imDepth.type()!=CV_32F)
+        imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
 
     mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
@@ -294,38 +289,49 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
     Track();
 
-    /* Do Pose calculation */
-    if(mState==OK && !mCurrentFrame.mTcw.empty() && mCurrentFrame.mpReferenceKF)    
-    {
-
-        vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
-        sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
-
-        // Transform all keyframes so that the first keyframe is at the origin.
-        // After a loop closure the first keyframe might not be at the origin.
-
-        cv::Mat Two = vpKFs[0]->GetPoseInverse();
-
-        ORB_SLAM2::KeyFrame* pKF = mpReferenceKF;
-
-        cv::Mat Trw = cv::Mat::eye(4,4,CV_32F);
-        while(pKF->isBad())
-        {
-          //  cout << "bad parent" << endl;
-            Trw = Trw*pKF->mTcp;
-            pKF = pKF->GetParent();
-        }
-        Trw = Trw*pKF->GetPose()*Two; 
-        cv::Mat Tcr = mlRelativeFramePoses.back();
-        cv::Mat Tcw = Tcr*Trw;
-        return Tcw.clone();
-    }
-    else 
-        return mCurrentFrame.mTcw.clone();
+    return mCurrentFrame.mTcw.clone();
 }
+
+
+    void Tracking::CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp){
+        mNextImGray = imRectLeft;
+        cv::Mat imGrayRight = imRectRight;
+
+        if(mNextImGray.channels()==3)
+        {
+            if(mbRGB)
+            {
+                cvtColor(mNextImGray,mNextImGray,CV_RGB2GRAY);
+                cvtColor(imGrayRight,imGrayRight,CV_RGB2GRAY);
+            }
+            else
+            {
+                cvtColor(mNextImGray,mNextImGray,CV_BGR2GRAY);
+                cvtColor(imGrayRight,imGrayRight,CV_BGR2GRAY);
+            }
+        }
+        else if(mNextImGray.channels()==4)
+        {
+            if(mbRGB)
+            {
+                cvtColor(mNextImGray,mNextImGray,CV_RGBA2GRAY);
+                cvtColor(imGrayRight,imGrayRight,CV_RGBA2GRAY);
+            }
+            else
+            {
+                cvtColor(mNextImGray,mNextImGray,CV_BGRA2GRAY);
+                cvtColor(imGrayRight,imGrayRight,CV_BGRA2GRAY);
+            }
+        }
+
+        mNextFrame = Frame(mNextImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+
+    }
 
 void Tracking::Track()
 {
+    static int visualOdometryCounter = 0;
+    static int normalTrackingCounter = 0;
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
@@ -338,18 +344,12 @@ void Tracking::Track()
 
     if(mState==NOT_INITIALIZED)
     {
-        if (is_preloaded)
-        {
-            mState = LOST;
-            return;
-        }
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
         else
             MonocularInitialization();
 
-        if (VISUAL && SLAMVISUAL)
-            mpFrameDrawer->Update(this);
+        mpFrameDrawer->Update(this);
 
         if(mState!=OK)
             return;
@@ -359,153 +359,168 @@ void Tracking::Track()
         // System is initialized. Track Frame.
         bool bOK;
 
-//        if (!ReuseMap){
+        // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
+        //Only if mapping is activated
 
-            // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
-            if(!mbOnlyTracking)
+        //SLAM MODE
+
+        if(!mbOnlyTracking)
+        {
+            // Local Mapping is activated. This is the normal behaviour, unless
+            // you explicitly activate the "only tracking" mode.
+
+            if(mState==OK)
             {
-                // Local Mapping is activated. This is the normal behaviour, unless
-                // you explicitly activate the "only tracking" mode.
-#ifdef EVAL
-                timeval start, end;
-                gettimeofday(&start, NULL);
-#endif
-                if(mState==OK)
-                {
-                    // Local Mapping might have changed some MapPoints tracked in last frame
-                    CheckReplacedInLastFrame();
+                // Local Mapping might have changed some MapPoints tracked in last frame
 
-                    if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
-                    {
-                        bOK = TrackReferenceKeyFrame();
-                    }
-                    else
-                    {
-                        bOK = TrackWithMotionModel();
-                        if(!bOK)
-                            bOK = TrackReferenceKeyFrame();
-                    }
+                CheckReplacedInLastFrame();
+
+
+                if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
+                {
+
+                    bOK = TrackReferenceKeyFrame();
+
+//
+
+
                 }
                 else
                 {
-                    bOK = Relocalization();
-                }
 
-#ifdef EVAL
-                gettimeofday(&end, NULL);
-//                cout << "trackCam>>>>>>> Track>>>>>>Track and update mapping: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-#endif
+
+//                    chrono::high_resolution_clock::time_point portion_one_start_time = chrono::high_resolution_clock::now();
+                    bOK = TrackWithMotionModel();
+//                    chrono::high_resolution_clock::time_point portion_one_end_time = chrono::high_resolution_clock::now();
+//                    auto iteration_one_duration = chrono::duration_cast<chrono::microseconds>( portion_one_end_time - portion_one_start_time ).count();
+//                    cout << iteration_one_duration << endl;
+                    if(!bOK)
+                        bOK = TrackReferenceKeyFrame();
+                }
             }
             else
             {
-                // Only Tracking: Local Mapping is deactivated
-#ifdef EVAL
-                timeval start, end;
-                gettimeofday(&start, NULL);
-#endif
-                if(mState==LOST)
-                {
-                    bOK = Relocalization();
-                }
-                else
-                {
-                    if(!mbVO)
-                    {
-                        // In last frame we tracked enough MapPoints in the map
+                bOK = Relocalization();
+            }
+        }
+        else
+        {
+            // Localization Mode: Local Mapping is deactivated
 
-                        if(!mVelocity.empty())
-                        {
-                            bOK = TrackWithMotionModel();
-                        }
-                        else
-                        {
-                            bOK = TrackReferenceKeyFrame();
-                        }
+            if(mState==LOST)
+            {
+                bOK = Relocalization();
+            }
+            else
+            {
+                //NON-Visual Odometry Mode
+                if(!mbVO)//if we did not track enough map points in the last frame
+                {
+                    cout << "Non-Visual Odometry Counter = " << ++normalTrackingCounter << endl;
+                    cout << "Visual Odometry Counter = " << visualOdometryCounter << endl;
+                    // In last frame we tracked enough MapPoints in the map
+
+                    if(!mVelocity.empty())
+                    {
+//
+//                        chrono::high_resolution_clock::time_point portion_one_start_time = chrono::high_resolution_clock::now();
+                        bOK = TrackWithMotionModel();
+//                        chrono::high_resolution_clock::time_point portion_one_end_time = chrono::high_resolution_clock::now();
+//                        auto iteration_one_duration = chrono::duration_cast<chrono::microseconds>( portion_one_end_time - portion_one_start_time ).count();
+//                        cout << iteration_one_duration << endl;
+
                     }
                     else
                     {
-                        // In last frame we tracked mainly "visual odometry" points.
+//                        chrono::high_resolution_clock::time_point portion_one_start_time = chrono::high_resolution_clock::now();
 
-                        // We compute two camera poses, one from motion model and one doing relocalization.
-                        // If relocalization is sucessfull we choose that solution, otherwise we retain
-                        // the "visual odometry" solution.
+                        bOK = TrackReferenceKeyFrame();
+//                        chrono::high_resolution_clock::time_point portion_one_end_time = chrono::high_resolution_clock::now();
+//                        auto iteration_one_duration = chrono::duration_cast<chrono::microseconds>( portion_one_end_time - portion_one_start_time ).count();
+//                        cout << iteration_one_duration << endl;
+                    }
+                }
+                else //Visual Odometry Mode
+                {
+                    // In last frame we tracked mainly "visual odometry" points.
 
-                        bool bOKMM = false;
-                        bool bOKReloc = false;
-                        vector<MapPoint*> vpMPsMM;
-                        vector<bool> vbOutMM;
-                        cv::Mat TcwMM;
-                        if(!mVelocity.empty())
+                    // We compute two camera poses, one from motion model and one doing relocalization.
+                    // If relocalization is sucessfull we choose that solution, otherwise we retain
+                    // the "visual odometry" solution.
+
+                    cout << "Visual Odometry Counter = " << ++visualOdometryCounter << endl;
+                    cout << "Non-Visual Odometry Counter = " << normalTrackingCounter << endl;
+
+                    bool bOKMM = false;
+                    bool bOKReloc = false;
+                    vector<MapPoint*> vpMPsMM;
+                    vector<bool> vbOutMM;
+                    cv::Mat TcwMM;
+                    if(!mVelocity.empty())
+                    {
+                        bOKMM = TrackWithMotionModel();
+                        vpMPsMM = mCurrentFrame.mvpMapPoints;
+                        vbOutMM = mCurrentFrame.mvbOutlier;
+                        TcwMM = mCurrentFrame.mTcw.clone();
+                    }
+                    bOKReloc = Relocalization();
+
+                    if(bOKMM && !bOKReloc)//If relocalization has failed, retain the visual odometry pose
+                    {
+                        mCurrentFrame.SetPose(TcwMM);
+                        mCurrentFrame.mvpMapPoints = vpMPsMM;
+                        mCurrentFrame.mvbOutlier = vbOutMM;
+
+                        if(mbVO)
                         {
-                            bOKMM = TrackWithMotionModel();
-                            vpMPsMM = mCurrentFrame.mvpMapPoints;
-                            vbOutMM = mCurrentFrame.mvbOutlier;
-                            TcwMM = mCurrentFrame.mTcw.clone();
-                        }
-                        bOKReloc = Relocalization();
-
-                        if(bOKMM && !bOKReloc)
-                        {
-                            mCurrentFrame.SetPose(TcwMM);
-                            mCurrentFrame.mvpMapPoints = vpMPsMM;
-                            mCurrentFrame.mvbOutlier = vbOutMM;
-
-                            if(mbVO)
+                            for(int i =0; i<mCurrentFrame.N; i++)
                             {
-                                for(int i =0; i<mCurrentFrame.N; i++)
+                                if(mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
                                 {
-                                    if(mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
-                                    {
-                                        mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
-                                    }
+                                    mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
                                 }
                             }
                         }
-                        else if(bOKReloc)
-                        {
-                            mbVO = false;
-                        }
-
-                        bOK = bOKReloc || bOKMM;
                     }
+                    else if(bOKReloc)//if we were able to relocalize, then switch off Visual Odometry mode
+                    {
+                        mbVO = false;
+                    }
+
+                    bOK = bOKReloc || bOKMM;
                 }
-#ifdef EVAL
-                gettimeofday(&end, NULL);
-//                cout << " trackCam>>>>>>> Track>>>>>> Track only : " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-#endif
             }
-//        }
+        }
 
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-#ifdef EVAL
-        timeval start, end;
-        gettimeofday(&start, NULL);
-#endif
         // If we have an initial estimation of the camera pose and matching. Track the local map.
-//        if (!ReuseMap)      {
+        if(!mbOnlyTracking)//SLAM Mode
+        {
 
-            if(!mbOnlyTracking)
+            if(bOK)
             {
-                if(bOK)
-                    bOK = TrackLocalMap();
-            }
-            else
-            {
-                // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
-                // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
-                // the camera we will use the local map again.
-                if(bOK && !mbVO)
-                    bOK = TrackLocalMap();
-            }
-//        }
+//                chrono::high_resolution_clock::time_point portion_one_start_time = chrono::high_resolution_clock::now();
+                bOK = TrackLocalMap();
+//                chrono::high_resolution_clock::time_point portion_one_end_time = chrono::high_resolution_clock::now();
+//                auto iteration_one_duration = chrono::duration_cast<chrono::microseconds>( portion_one_end_time - portion_one_start_time ).count();
+//                cout << iteration_one_duration << endl;
 
+            }
 
-#ifdef EVAL
-        gettimeofday(&end, NULL);
-//        cout << "trackCam>>>>>>> Track>>>>>> Track local map : " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//        gettimeofday(&start, NULL);
-#endif
+        }
+        else//Localization Mode
+        {
+            // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
+            // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
+            // the camera we will use the local map again.
+//            chrono::high_resolution_clock::time_point portion_one_start_time = chrono::high_resolution_clock::now();
+            if(bOK && !mbVO)
+                bOK = TrackLocalMap();
+//            chrono::high_resolution_clock::time_point portion_one_end_time = chrono::high_resolution_clock::now();
+//            auto iteration_one_duration = chrono::duration_cast<chrono::microseconds>( portion_one_end_time - portion_one_start_time ).count();
+//            cout << iteration_one_duration << endl;
+        }
 
         if(bOK)
             mState = OK;
@@ -513,16 +528,11 @@ void Tracking::Track()
             mState=LOST;
 
         // Update drawer
-        if (VISUAL && SLAMVISUAL)
-            mpFrameDrawer->Update(this);
+        mpFrameDrawer->Update(this);
 
         // If tracking were good, check if we insert a keyframe
         if(bOK)
         {
-#ifdef EVAL
-            timeval start, end;
-            gettimeofday(&start, NULL);
-#endif
             // Update motion model
             if(!mLastFrame.mTcw.empty())
             {
@@ -533,10 +543,10 @@ void Tracking::Track()
             }
             else
                 mVelocity = cv::Mat();
-            if (VISUAL && SLAMVISUAL)
-                mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
 
-            // Clean temporal point matches
+            mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
+
+            // Clean VO matches
             for(int i=0; i<mCurrentFrame.N; i++)
             {
                 MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
@@ -569,15 +579,7 @@ void Tracking::Track()
                 if(mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
-//#ifdef EVAL
-//            gettimeofday(&end, NULL);
-//            cout << " trackCam>>>>>>> Track>>>>>>Insert New Frame : " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-////            gettimeofday(&start, NULL);
-//#endif
         }
-
-
-
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
@@ -593,23 +595,11 @@ void Tracking::Track()
         if(!mCurrentFrame.mpReferenceKF)
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-//#ifdef EVAL
-//        gettimeofday(&start, NULL);
-//#endif
         mLastFrame = Frame(mCurrentFrame);
-//#ifdef EVAL
-//        gettimeofday(&end, NULL);
-//        cout << "trackCam>>>>>>> Track>>>>>>Record Last Frame: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//#endif
     }
 
-
-//#ifdef EVAL
-//    timeval start, end;
-//    gettimeofday(&start, NULL);
-//#endif
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
-    if(!mCurrentFrame.mTcw.empty() && mCurrentFrame.mpReferenceKF)
+    if(!mCurrentFrame.mTcw.empty())
     {
         cv::Mat Tcr = mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
         mlRelativeFramePoses.push_back(Tcr);
@@ -620,22 +610,14 @@ void Tracking::Track()
     else
     {
         // This can happen if tracking is lost
-        mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
+        if (!mlRelativeFramePoses.empty())
+            mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
         mlpReferences.push_back(mlpReferences.back());
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);
     }
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "trackCam>>>>>>> Track>>>>>>Save Cam Path: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//#endif
+
 }
-#if 0
-cv::Mat Tracking::getTransformData()
-{   
-        return mCurrentFrame.mTcw*mCurrentFrame.mpReferenceKF->GetPoseInverse();
-}
-#endif
 
 
 void Tracking::StereoInitialization()
@@ -686,8 +668,7 @@ void Tracking::StereoInitialization()
 
         mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
-        if (VISUAL && SLAMVISUAL)
-            mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
+        mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
 
         mState=OK;
     }
@@ -716,16 +697,12 @@ void Tracking::MonocularInitialization()
 
             return;
         }
-		else
-    		cout << __FUNCTION__ << "The Key Frame-s points are less: " << mCurrentFrame.mvKeys.size() << endl;
     }
     else
     {
         // Try to initialize
         if((int)mCurrentFrame.mvKeys.size()<=100)
         {
-			
-    		//cout << __FUNCTION__ << "old.The Key Frame-s points are less: " << mCurrentFrame.mvKeys.size() << endl;
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
@@ -739,7 +716,6 @@ void Tracking::MonocularInitialization()
         // Check if there are enough correspondences
         if(nmatches<100)
         {
-    		cout << __FUNCTION__ << "ORB extraction : No enough correspondesnces(<100) " << nmatches << endl;
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             return;
@@ -774,8 +750,6 @@ void Tracking::MonocularInitialization()
 
 void Tracking::CreateInitialMapMonocular()
 {
-
-    cout << __FUNCTION__ << ": Starting Initial Map Creation..." << endl;
     // Create KeyFrames
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -831,9 +805,7 @@ void Tracking::CreateInitialMapMonocular()
 
     if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)
     {
-        cout << "Wrong initialization, reseting... map points(100):" 
-		<< pKFcur->TrackedMapPoints(1) 
-		<< " medianDepth = " << medianDepth << endl;
+        cout << "Wrong initialization, reseting..." << endl;
         Reset();
         return;
     }
@@ -871,8 +843,7 @@ void Tracking::CreateInitialMapMonocular()
 
     mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
-    if (VISUAL && SLAMVISUAL)
-        mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
+    mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
 
     mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
@@ -881,7 +852,6 @@ void Tracking::CreateInitialMapMonocular()
 
 void Tracking::CheckReplacedInLastFrame()
 {
-
     for(int i =0; i<mLastFrame.N; i++)
     {
         MapPoint* pMP = mLastFrame.mvpMapPoints[i];
@@ -916,7 +886,14 @@ bool Tracking::TrackReferenceKeyFrame()
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
     mCurrentFrame.SetPose(mLastFrame.mTcw);
 
+
+    //chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     Optimizer::PoseOptimization(&mCurrentFrame);
+    //chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+
+    //auto duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
+
+    //cout << "TrackReferenceKF(): Pose Optimization Time = " << duration << " ms" << endl;
 
     // Discard outliers
     int nmatchesMap = 0;
@@ -950,7 +927,7 @@ void Tracking::UpdateLastFrame()
 
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 
-    if(mnLastKeyFrameId==mLastFrame.mnId || mSensor==System::MONOCULAR)
+    if(mnLastKeyFrameId==mLastFrame.mnId || mSensor==System::MONOCULAR || !mbOnlyTracking)
         return;
 
     // Create "visual odometry" MapPoints
@@ -1012,20 +989,9 @@ bool Tracking::TrackWithMotionModel()
 {
     ORBmatcher matcher(0.9,true);
 
-
-//#ifdef EVAL
-//    timeval start, end;
-//    gettimeofday(&start, NULL);
-//#endif
     // Update last frame pose according to its reference keyframe
-    // Create "visual odometry" points
+    // Create "visual odometry" points if in Localization Mode
     UpdateLastFrame();
-
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           UpdateLastFrame: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
 
     mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
 
@@ -1048,20 +1014,17 @@ bool Tracking::TrackWithMotionModel()
 
     if(nmatches<20)
         return false;
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           SearchByProjection: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
 
     // Optimize frame pose with all matches
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     Optimizer::PoseOptimization(&mCurrentFrame);
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+//
+    auto duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
+//
+    cout <<  duration <<  endl;
 
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           PoseOptimization: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
+
     // Discard outliers
     int nmatchesMap = 0;
     for(int i =0; i<mCurrentFrame.N; i++)
@@ -1081,13 +1044,8 @@ bool Tracking::TrackWithMotionModel()
             else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
                 nmatchesMap++;
         }
-    }
+    }    
 
-
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           Discard outliers: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//#endif
     if(mbOnlyTracking)
     {
         mbVO = nmatchesMap<10;
@@ -1102,30 +1060,21 @@ bool Tracking::TrackLocalMap()
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
-//#ifdef EVAL
-//    timeval start, end;
-//    gettimeofday(&start, NULL);
-//#endif
+
     UpdateLocalMap();
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           UpdateLocalMap: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
+
+
+//    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     SearchLocalPoints();
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           SearchLocalPoints: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
+//    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+//    auto duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
+//    cout << duration << endl;
+
     // Optimize Pose
+    //
     Optimizer::PoseOptimization(&mCurrentFrame);
 
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           PoseOptimization: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//    gettimeofday(&start, NULL);
-//#endif
+
     mnMatchesInliers = 0;
 
     // Update MapPoints Statistics
@@ -1149,10 +1098,7 @@ bool Tracking::TrackLocalMap()
 
         }
     }
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "           Update: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//#endif
+
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
@@ -1189,33 +1135,24 @@ bool Tracking::NeedNewKeyFrame()
     // Local Mapping accept keyframes?
     bool bLocalMappingIdle = mpLocalMapper->AcceptKeyFrames();
 
-    // Stereo & RGB-D: Ratio of close "matches to map"/"total matches"
-    // "total matches = matches to map + visual odometry matches"
-    // Visual odometry matches will become MapPoints if we insert a keyframe.
-    // This ratio measures how many MapPoints we could create if we insert a keyframe.
-    int nMap = 0;
-    int nTotal= 0;
+    // Check how many "close" points are being tracked and how many could be potentially created.
+    int nNonTrackedClose = 0;
+    int nTrackedClose= 0;
     if(mSensor!=System::MONOCULAR)
     {
         for(int i =0; i<mCurrentFrame.N; i++)
         {
             if(mCurrentFrame.mvDepth[i]>0 && mCurrentFrame.mvDepth[i]<mThDepth)
             {
-                nTotal++;
-                if(mCurrentFrame.mvpMapPoints[i])
-                    if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
-                        nMap++;
+                if(mCurrentFrame.mvpMapPoints[i] && !mCurrentFrame.mvbOutlier[i])
+                    nTrackedClose++;
+                else
+                    nNonTrackedClose++;
             }
         }
     }
-    else
-    {
-        // There are no visual odometry matches in the monocular case
-        nMap=1;
-        nTotal=1;
-    }
 
-    const float ratioMap = (float)nMap/fmax(1.0f,nTotal);
+    bool bNeedToInsertClose = (nTrackedClose<100) && (nNonTrackedClose>70);
 
     // Thresholds
     float thRefRatio = 0.75f;
@@ -1225,18 +1162,14 @@ bool Tracking::NeedNewKeyFrame()
     if(mSensor==System::MONOCULAR)
         thRefRatio = 0.9f;
 
-    float thMapRatio = 0.35f;
-    if(mnMatchesInliers>300)
-        thMapRatio = 0.20f;
-
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
     const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
     //Condition 1c: tracking is weak
-    const bool c1c =  mSensor!=System::MONOCULAR && (mnMatchesInliers<nRefMatches*0.25 || ratioMap<0.3f) ;
+    const bool c1c =  mSensor!=System::MONOCULAR && (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
-    const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| ratioMap<thMapRatio) && mnMatchesInliers>15);
+    const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| bNeedToInsertClose) && mnMatchesInliers>15);
 
     if((c1a||c1b||c1c)&&c2)
     {
@@ -1399,8 +1332,7 @@ void Tracking::SearchLocalPoints()
 void Tracking::UpdateLocalMap()
 {
     // This is for visualization
-    if (VISUAL && SLAMVISUAL)
-        mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
+    mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
     // Update
     UpdateLocalKeyFrames();
@@ -1547,7 +1479,6 @@ bool Tracking::Relocalization()
 {
     // Compute Bag of Words Vector
     mCurrentFrame.ComputeBoW();
-    //cout << "Relocalization Initiated" << endl;
 
     // Relocalization is performed when tracking is lost
     // Track Lost: Query KeyFrame Database for keyframe candidates for relocalisation
@@ -1556,10 +1487,7 @@ bool Tracking::Relocalization()
     if(vpCandidateKFs.empty())
         return false;
 
-
     const int nKFs = vpCandidateKFs.size();
-
-    //cout << "Relocalization: candidates =  " << nKFs  << endl;
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
@@ -1576,8 +1504,6 @@ bool Tracking::Relocalization()
 
     int nCandidates=0;
 
-    
-
     for(int i=0; i<nKFs; i++)
     {
         KeyFrame* pKF = vpCandidateKFs[i];
@@ -1593,7 +1519,6 @@ bool Tracking::Relocalization()
             }
             else
             {
-
                 PnPsolver* pSolver = new PnPsolver(mCurrentFrame,vvpMapPointMatches[i]);
                 pSolver->SetRansacParameters(0.99,10,300,4,0.5,5.991);
                 vpPnPsolvers[i] = pSolver;
@@ -1602,7 +1527,6 @@ bool Tracking::Relocalization()
         }
     }
 
-
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
@@ -1610,7 +1534,6 @@ bool Tracking::Relocalization()
 
     while(nCandidates>0 && !bMatch)
     {
-
         for(int i=0; i<nKFs; i++)
         {
             if(vbDiscarded[i])
@@ -1663,8 +1586,6 @@ bool Tracking::Relocalization()
                 // If few inliers, search by projection in a coarse window and optimize again
                 if(nGood<50)
                 {
-                    //cout << "Relocalization:  inliers < 50 : nGood = " << nGood << endl;
-
                     int nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
 
                     if(nadditional+nGood>=50)
@@ -1711,8 +1632,6 @@ bool Tracking::Relocalization()
     }
     else
     {
-        cout << "Relocated" << endl;
-
         mnLastRelocFrameId = mCurrentFrame.mnId;
         return true;
     }
@@ -1721,13 +1640,15 @@ bool Tracking::Relocalization()
 
 void Tracking::Reset()
 {
-    if (VISUAL && SLAMVISUAL){
 
+    cout << "System Reseting" << endl;
+    if(mpViewer)
+    {
         mpViewer->RequestStop();
-
-        cout << "System Reseting" << endl;
         while(!mpViewer->isStopped())
-            usleep(3000);
+        {
+            std::this_thread::sleep_for(std::chrono::microseconds(3000));
+        }
     }
 
     // Reset Local Mapping
@@ -1763,7 +1684,7 @@ void Tracking::Reset()
     mlFrameTimes.clear();
     mlbLost.clear();
 
-    if (VISUAL && SLAMVISUAL)
+    if(mpViewer)
         mpViewer->Release();
 }
 

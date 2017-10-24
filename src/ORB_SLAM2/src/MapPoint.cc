@@ -18,8 +18,8 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MapPoint.h"
-#include "ORBmatcher.h"
+#include "src/ORB_SLAM2/include/MapPoint.h"
+#include "src/ORB_SLAM2/include/ORBmatcher.h"
 
 #include<mutex>
 
@@ -28,19 +28,9 @@ namespace ORB_SLAM2
 
 long unsigned int MapPoint::nNextId=0;
 mutex MapPoint::mGlobalMutex;
-MapPoint::MapPoint():
-    nObs(0), mnTrackReferenceForFrame(0),
-    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
-    mnCorrectedReference(0), mnBAGlobalForKF(0),mnVisible(1), mnFound(1), mbBad(false),
-    mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0)
- { 
-    //mNormalVector = cv::Mat::zeros(3,1,CV_32F);
-    //unique_lock<recursive_mutex> lock(mpMap->mMutexPointCreation);
-    //mpMap = new Map();
-    // mpRefKF = new KeyFrame();
- }
+
 MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap):
-    mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), nObs(0), mnTrackReferenceForFrame(0),
+    mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), nObs(0),mbTrackInView(false), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
@@ -48,244 +38,13 @@ MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap):
     Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3,1,CV_32F);
 
-    // MapPoints can be created from Tracking and Local Mapping. This recursive_mutex avoid conflicts with id.
+    // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
-    // added by hang. Initialize uninitialized variable for boost loading traps.
-    mbTrackInView = false;
-}
-
-template<class Archive>
-    void MapPoint::save(Archive & ar, const unsigned int version) const
-    {
-        unsigned int nItems;bool is_id = false, is_valid = false;;
-        size_t t_size;
-        long unsigned int t_nId;
-
-        if (mbBad)
-            return;
-
-        ar & const_cast<long unsigned int &> (mnId );
-        //cout << "[" << mnId << "]" ;
-        ar & nNextId;
-        ar & const_cast<long int &> (mnFirstKFid);
-        ar & const_cast<long int &> (mnFirstFrame);
-        ar & const_cast<int &> (nObs);
-        ar & const_cast<float &> (mTrackProjX);
-        ar & const_cast<float &> (mTrackProjY);
-        ar & const_cast<float &> (mTrackProjXR);
-        ar & const_cast<bool &> (mbTrackInView);
-        ar & const_cast<int &> (mnTrackScaleLevel);
-        ar & const_cast<float &> (mTrackViewCos);
-        ar & const_cast<long unsigned int &> (mnTrackReferenceForFrame);
-        ar & const_cast<long unsigned int &> (mnLastFrameSeen);
-        ar & const_cast<long unsigned int &> (mnBALocalForKF);
-        ar & const_cast<long unsigned int &> (mnFuseCandidateForKF);
-        ar & const_cast<long unsigned int &> (mnLoopPointForKF);
-        ar & const_cast<long unsigned int &> (mnCorrectedByKF);
-        ar & const_cast<long unsigned int &> (mnCorrectedReference);
-
-        ar & const_cast<cv::Mat &> (mPosGBA);
-        ar & const_cast<long unsigned int &> (mnBAGlobalForKF);
-        ar & const_cast<cv::Mat &> (mWorldPos);
-        
-        // Save each KF point id
-        nItems = mObservations.size();
-        ar & nItems;
-                //cout << "{INFO}mvpMapPoints nItems -" << nItems << endl;
-        
-        for (std::map<KeyFrame*,size_t>::const_iterator it = mObservations.begin(); it != mObservations.end(); ++it) {        
-            if (it->first == NULL)
-            {
-                cout << "{INFO}Map POint Save - Empty observation " << mnId << endl;
-
-                is_id = false;
-                ar & is_id;
-                continue;
-            }
-            else
-            {
-                is_id = true;
-                ar & is_id;
-                t_nId =  it->first->mnId;
-                ar & t_nId;
-                t_size = it->second;
-                ar & t_size;
-            }
- 
-            
-        }
-        
-
-        ar & const_cast<cv::Mat &> (mNormalVector);
-        ar & const_cast<cv::Mat &> (mDescriptor);
-        if (mpRefKF) {
-            is_valid = true;
-            ar & is_valid;
-            ar & mpRefKF->mnId;
-        }
-        else
-        {
-            is_valid = false;
-            ar & is_valid;
-        }
-            
-
-        ar & const_cast<int &> (mnVisible);
-        ar & const_cast<int &> (mnFound);
-        ar & const_cast<bool &> (mbBad);
-        ar & const_cast<float &> (mfMinDistance);
-        ar & const_cast<float &> (mfMaxDistance);           
-       
-    }
-
-    template<class Archive>
-    void MapPoint::load(Archive & ar, const unsigned int version)
-    {
-        unsigned int nItems;bool is_id = false, is_valid = false;
-        size_t t_size;
-
-        long unsigned int t_nId;
-
-        ar & const_cast<long unsigned int &> (mnId );
-        //cout << "[" << mnId << "]" ;
-        ar & nNextId;
-        ar & const_cast<long int &> (mnFirstKFid);
-        ar & const_cast<long int &> (mnFirstFrame);
-        ar & const_cast<int &> (nObs);
-        ar & const_cast<float &> (mTrackProjX);
-        ar & const_cast<float &> (mTrackProjY);
-        ar & const_cast<float &> (mTrackProjXR);
-        ar & const_cast<bool &> (mbTrackInView);
-        ar & const_cast<int &> (mnTrackScaleLevel);
-        ar & const_cast<float &> (mTrackViewCos);
-        ar & const_cast<long unsigned int &> (mnTrackReferenceForFrame);
-        ar & const_cast<long unsigned int &> (mnLastFrameSeen);
-        ar & const_cast<long unsigned int &> (mnBALocalForKF);
-        ar & const_cast<long unsigned int &> (mnFuseCandidateForKF);
-        ar & const_cast<long unsigned int &> (mnLoopPointForKF);
-        ar & const_cast<long unsigned int &> (mnCorrectedByKF);
-        ar & const_cast<long unsigned int &> (mnCorrectedReference);
-
-        ar & const_cast<cv::Mat &> (mPosGBA);
-        ar & const_cast<long unsigned int &> (mnBAGlobalForKF);
-        ar & const_cast<cv::Mat &> (mWorldPos);
-        
-         // Load each map point id
-        ar & nItems;
-        //mObservations.resize(nItems);
-        //mObservations_nId.resize(nItems);
-        for (int i = 0; i < nItems; ++i) { 
-
-            ar & is_id;
-            if (is_id)
-            {
-                ar & t_nId;
-                ar & t_size;
-                mObservations_nId[t_nId] = t_size;
-            }
-            else
-            {
-
-            }
-        }
-        
-        ar & const_cast<cv::Mat &> (mNormalVector);
-        ar & const_cast<cv::Mat &> (mDescriptor);
-
-        //mpRefKF = new KeyFrame();
-        //Reference Keyframe
-        ar & is_valid;
-        if (is_valid)
-        {
-            ar & t_nId;
-        }
-        else
-            t_nId = 0;
-        
-        mref_KfId_pair = std::make_pair(t_nId,is_valid);
-
-      	ar & const_cast<int &> (mnVisible);
-        ar & const_cast<int &> (mnFound);
-        ar & const_cast<bool &> (mbBad);
-        ar & const_cast<float &> (mfMinDistance);
-        ar & const_cast<float &> (mfMaxDistance);         
-    }
-
-
-// Explicit template instantiation
-template void MapPoint::save<boost::archive::binary_oarchive>(
-    boost::archive::binary_oarchive &, 
-    const unsigned int) const;
-template void MapPoint::save<boost::archive::binary_iarchive>(
-    boost::archive::binary_iarchive &, 
-    const unsigned int) const;
-template void MapPoint::load<boost::archive::binary_oarchive>(
-    boost::archive::binary_oarchive &, 
-    const unsigned int);
-template void MapPoint::load<boost::archive::binary_iarchive>(
-    boost::archive::binary_iarchive &, 
-    const unsigned int);
-
-void MapPoint::SetMap(Map* map)
-{
-    mpMap = map;   
-}
-
-void MapPoint::SetObservations(std::vector<KeyFrame*> spKeyFrames)
-{
-    
-    long unsigned int id, kfRef_id; size_t size;    
-    //cout << "KF" << mnId <<" valid indexes-" << endl;
-    int j = 0; 
-    bool found_reference = false;
-    kfRef_id = mref_KfId_pair.first;
-    bool is_ref_valid = mref_KfId_pair.second;
-
-
-    for (map<long unsigned int, size_t>::iterator it = mObservations_nId.begin(); it != mObservations_nId.end(); j++,++it) {
-        id = it->first;
-        size = it->second;        
-        {
-            for(std::vector<KeyFrame*>::iterator mit=spKeyFrames.begin(); mit !=spKeyFrames.end(); mit++)
-            {
-                KeyFrame* pKf = *mit;
-                //cout << "[" << pKf->mnId << "]";               
-                if(id == pKf->mnId)
-                {                    
-                    //cout << "[" << id <<"]";                    
-                    mObservations[pKf] = size;
-                    //id = -1;
-                    break;
-                }
-            }
-            
-        }
-
-    }
-
-    for(std::vector<KeyFrame*>::iterator mit=spKeyFrames.begin(); mit !=spKeyFrames.end(); mit++)
-    {
-       KeyFrame* pKf = *mit;
-       if (is_ref_valid && kfRef_id == pKf->mnId )
-       {
-            // Set the refernce Keyframe
-            mpRefKF = pKf;
-            found_reference = true;
-       }
-   }
-
-    if (!found_reference)
-    {
-            mpRefKF = static_cast<KeyFrame*>(NULL);
-            cout << "refernce KF - " << kfRef_id << "is not found for mappoint " << mnId << endl;  
-            // Dummy KF
-            //mpRefKF = new KeyFrame();  
-    }
 }
 
 MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF):
-    mnFirstKFid(-1), mnFirstFrame(pFrame->mnId), nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0),
+    mnFirstKFid(-1), mnFirstFrame(pFrame->mnId), nObs(0),mbTrackInView(false), mnTrackReferenceForFrame(0), mnLastFrameSeen(0),
     mnBALocalForKF(0), mnFuseCandidateForKF(0),mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(static_cast<KeyFrame*>(NULL)), mnVisible(1),
     mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap)
@@ -306,7 +65,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
 
     pFrame->mDescriptors.row(idxF).copyTo(mDescriptor);
 
-    // MapPoints can be created from Tracking and Local Mapping. This recursive_mutex avoid conflicts with id.
+    // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
 }
@@ -332,8 +91,8 @@ cv::Mat MapPoint::GetNormal()
 
 KeyFrame* MapPoint::GetReferenceKeyFrame()
 {
-     unique_lock<mutex> lock(mMutexFeatures);
-     return mpRefKF;
+    unique_lock<mutex> lock(mMutexFeatures);
+    return mpRefKF;
 }
 
 void MapPoint::AddObservation(KeyFrame* pKF, size_t idx)
@@ -543,7 +302,7 @@ void MapPoint::ComputeDistinctiveDescriptors()
 
     {
         unique_lock<mutex> lock(mMutexFeatures);
-        mDescriptor = vDescriptors[BestIdx].clone();       
+        mDescriptor = vDescriptors[BestIdx].clone();
     }
 }
 
@@ -595,12 +354,6 @@ void MapPoint::UpdateNormalAndDepth()
         cv::Mat normali = mWorldPos - Owi;
         normal = normal + normali/cv::norm(normali);
         n++;
-    } 
-
-    if (!pRefKF)
-    {
-        
-            return;
     }
 
     cv::Mat PC = Pos - pRefKF->GetCameraCenter();
@@ -608,7 +361,6 @@ void MapPoint::UpdateNormalAndDepth()
     const int level = pRefKF->mvKeysUn[observations[pRefKF]].octave;
     const float levelScaleFactor =  pRefKF->mvScaleFactors[level];
     const int nLevels = pRefKF->mnScaleLevels;
-
 
     {
         unique_lock<mutex> lock3(mMutexPos);
@@ -630,15 +382,77 @@ float MapPoint::GetMaxDistanceInvariance()
     return 1.2f*mfMaxDistance;
 }
 
-int MapPoint::PredictScale(const float &currentDist, const float &logScaleFactor)
+int MapPoint::PredictScale(const float &currentDist, KeyFrame* pKF)
 {
     float ratio;
     {
-        unique_lock<mutex> lock3(mMutexPos);
+        unique_lock<mutex> lock(mMutexPos);
         ratio = mfMaxDistance/currentDist;
     }
 
-    return ceil(log(ratio)/logScaleFactor);
+    int nScale = ceil(log(ratio)/pKF->mfLogScaleFactor);
+    if(nScale<0)
+        nScale = 0;
+    else if(nScale>=pKF->mnScaleLevels)
+        nScale = pKF->mnScaleLevels-1;
+
+    return nScale;
 }
+
+int MapPoint::PredictScale(const float &currentDist, Frame* pF)
+{
+    float ratio;
+    {
+        unique_lock<mutex> lock(mMutexPos);
+        ratio = mfMaxDistance/currentDist;
+    }
+
+    int nScale = ceil(log(ratio)/pF->mfLogScaleFactor);
+    if(nScale<0)
+        nScale = 0;
+    else if(nScale>=pF->mnScaleLevels)
+        nScale = pF->mnScaleLevels-1;
+
+    return nScale;
+}
+
+MapPoint::MapPoint():
+    nObs(0), mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
+    mnCorrectedReference(0), mnBAGlobalForKF(0),mnVisible(1), mnFound(1), mbBad(false),
+    mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0)
+{}
+template<class Archive>
+void MapPoint::serialize(Archive &ar, const unsigned int version)
+{
+    ar & mnId & nNextId & mnFirstKFid & mnFirstFrame & nObs;
+    // Tracking related vars
+    ar & mTrackProjX;
+    ar & mTrackProjY;
+    ar & mTrackProjXR;
+    ar & mbTrackInView;
+    ar & mnTrackScaleLevel;
+    ar & mTrackViewCos;
+    ar & mnTrackReferenceForFrame;
+    ar & mnLastFrameSeen;
+    // Local Mapping related vars
+    ar & mnBALocalForKF & mnFuseCandidateForKF;
+    // Loop Closing related vars
+    ar & mnLoopPointForKF & mnCorrectedByKF & mnCorrectedReference & mPosGBA & mnBAGlobalForKF;
+    // don't save the mutex
+    ar & mWorldPos;
+    ar & mObservations;
+    ar & mNormalVector;
+    ar & mDescriptor;
+    ar & mpRefKF;
+    ar & mnVisible & mnFound;
+    ar & mbBad & mpReplaced;
+    ar & mfMinDistance & mfMaxDistance;
+    ar & mpMap;
+    // don't save the mutex
+}
+template void MapPoint::serialize(boost::archive::binary_iarchive&, const unsigned int);
+template void MapPoint::serialize(boost::archive::binary_oarchive&, const unsigned int);
+
 
 } //namespace ORB_SLAM

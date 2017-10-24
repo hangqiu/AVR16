@@ -34,12 +34,14 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
     VNode[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
     VNode[i]->initZEDCam(startFrameId);
 
+    string pathToCalibFile = "/media/fawad/DATA/AVR16/CamCalib.yaml";
+    string pathToVocabFile = "/media/fawad/DATA/AVR16/src/ORB_SLAM2/Vocabulary/ORBvoc.txt";
     if (ReuseMap){
         cout << "Reusing Map\n";
-        VNode[i]->initSLAMStereo(VocFile, CalibrationFile,true, mapFile);
+        VNode[i]->initSLAMStereo(pathToVocabFile, pathToCalibFile,true, mapFile);
     }
     else{
-        VNode[i]->initSLAMStereo(VocFile, CalibrationFile,false);
+        VNode[i]->initSLAMStereo(pathToVocabFile, pathToCalibFile,false);
     }
 
     if (VISUAL) mDisplayer = new Displayer(VNode);
@@ -70,7 +72,7 @@ void VCluster::run(){
     //loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
     while (key != 'q' && !quit && VNode[0]->TotalFrameSeq < lengthInFrame) {
-//        key = waitKey(20);
+        //key = waitKey(20);
         FRAME_ID++;
         count++;
         //Resize and imshow
@@ -84,7 +86,6 @@ void VCluster::run(){
         timeval tTotalStart, tTotalEnd;
         gettimeofday(&tTotalStart, NULL);
 #endif
-
         VNode[0]->SinkFrames();
 #ifdef PIPELINE
         thread CPU_download(&VCluster::PreProcess, this);
@@ -99,7 +100,17 @@ void VCluster::run(){
 
         prepFrameTime += double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000;
 #endif
+        //
+       //Track();
+//
+//        chrono::high_resolution_clock::time_point grabImageStereo_Start = chrono::high_resolution_clock::now();
         VNode[0]->trackCam();
+//        chrono::high_resolution_clock::time_point grabImageStereo_End = chrono::high_resolution_clock::now();
+//    auto duration = chrono::duration_cast<chrono::microseconds>( grabImageStereo_End - grabImageStereo_Start ).count();
+//    cout << duration << endl;
+
+
+        /*
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
         cout << "TimeStamp: " << double(tSlamEnd.tv_sec-tInit.tv_sec)*1000 + double(tSlamEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -147,6 +158,7 @@ void VCluster::run(){
         totalTime += double(tTotalEnd.tv_sec-tTotalStart.tv_sec)*1000 + double(tTotalEnd.tv_usec-tTotalStart.tv_usec) / 1000;
         cout << "Avg total: " << totalTime / count << endl;
 #endif
+    */
     }
 
     if (!quit){

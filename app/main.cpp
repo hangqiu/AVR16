@@ -69,6 +69,8 @@
 
 #include "AugmentedVR.hpp"
 
+const std::string videoFilePath = "/media/fawad/DATA/ZED_SVO_Files/HD720_SN3138_16-50-42_flipped.svo";
+
 
 //#define EVAL;
 
@@ -98,12 +100,16 @@ void close() {
 ///////////////////////////////////////////////////////////main  function////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
+
 #ifdef WIN32
     std::cout << "Multiple ZEDs are not available under Windows" << std::endl;
     return -1;
 #endif
 // parse input
 //    if (argc != 4) cout << "vidoe 1, video 2, map file\n";
+
+
+    /*
     if (argc <1 ) cout << "vidoe path, id, map file\n";
     string VPath[NUM_CAMERAS];
     int argidx =0;
@@ -112,16 +118,20 @@ int main(int argc, char **argv) {
         cout << "Video " << argidx << ": " << VPath[argidx] << endl;
     }
 
+     */
+
 
 //    const string mapFile = argv[argidx+1];
 //    cout << "Map File: " << mapFile << endl;
 
+    /*
     string mapFile;
 
     string identifier = argv[argidx+1];
     if (identifier == "left"){
         COOP = true;
     }
+
 
     if (argc > 3){
         startFrameId = stoi(argv[argidx+2]);
@@ -133,8 +143,11 @@ int main(int argc, char **argv) {
         mapFile = argv[argidx+4];
         cout << "Map File: " << mapFile << endl;
     }
+     */
 
-    mV = new VCluster(false, mapFile, argc, argv, VPath[0]);
+    string mapFile;
+
+    mV = new VCluster(false, mapFile, 0, 0, videoFilePath);
 
 #ifdef EVAL
     gettimeofday(&tInit, NULL);
