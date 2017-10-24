@@ -10,6 +10,9 @@
 AVRFrame::AVRFrame(){
 
 }
+AVRFrame::~AVRFrame(){
+
+}
 
 //AVRFrame::AVRFrame(long ZEDTS, long FrameTS, int frameSeq,
 //                   cv::Mat& FrameLeft, cv::Mat& FrameRight, cv::Mat& FrameLeftGray, cv::Mat& FrameRightGray,
@@ -190,39 +193,15 @@ void AVRFrame::tranformPointCloud_via_TransformationMat(){
     gettimeofday(&end, NULL);
     cout << "   CPU warpperspective: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
-//    cv::cuda::GpuMat tmp(pointcloud);
-//    cv::cuda::warpPerspective(pointcloud,transformedPointcloud,sceneTransformMat,outputSize);
-
-
-//            cv::Mat transformedPC_Coords(height, width, CV_32FC3);
-//        int from_to[] = { 0,0, 1,1, 2,2 };
-//            cv::mixChannels(transformedPC, transformedPC_Coords, from_to, 3);
-
-
-    // TODO: speed up the operations
-//            for (int x=0;x<transformedPC_Coords.cols;x++){
-//                for (int y=0;y<transformedPC_Coords.rows;y++){
-//                    transformedPC_Coords_inLast(cv::Rect(x,y,1,1)) = Rlc * transformedPC_Coords(cv::Rect(x,y,1,1))+tlc;
-//                }
-//            }
 
     // TODO: use tlc only for now
-//            cout << "tlc(1,0): " << tlc.at<float>(1,0) << endl;
-//            cout << "tlc mat type: " << tlc.type() << endl;
-//            cv::Mat tlc_mat(height, width, CV_32FC3, tlc_vec);
-//            cout << "tlc: " << tlc_mat(cv::Rect(dbx,dby,1,1)) << endl;
-//            cv::Mat tlc_chan[4];
-//            cv::split(tlc_mat,tlc_chan);
-//            tlc_chan[3]=cv::Mat(height,width,CV_32F,);
-//            cv::Mat tlc_mat_4;
-//            cv::merge(tlc_chan,4,tlc_mat_4);
-
     // watch out, orbslam and zed have different default coordinate frame positive difrection
-    // same x, opposite y,z
+    // same x, opposite y,z, not true any more?
+    /// TODO: double chck the new SDK
     assert(!TranslationMat_Curr2CacheHead.empty());
     cv::Scalar tlc_vec = cv::Scalar(TranslationMat_Curr2CacheHead.at<float>(0,0),
-                                    -TranslationMat_Curr2CacheHead.at<float>(1,0),
-                                    -TranslationMat_Curr2CacheHead.at<float>(2,0),0);
+                                    TranslationMat_Curr2CacheHead.at<float>(1,0),
+                                    TranslationMat_Curr2CacheHead.at<float>(2,0),0);
     cv::Mat tlc_mat(height, width, CV_32FC4, tlc_vec);
     transformedPointcloud = transformedPointcloud+tlc_mat;
 

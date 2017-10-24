@@ -270,7 +270,7 @@ public:
 
     void SinkFrames();
 
-    AVRFrame getCurrentAVRFrame();
+    void getCurrentAVRFrame(AVRFrame &ret);
 
     bool trackGood();
 };

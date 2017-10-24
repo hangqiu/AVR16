@@ -18,6 +18,9 @@ FrameCache::FrameCache(){
     CurrentFrame = AVRFrame();
     LastFrame = AVRFrame();
     startTS = 0;
+    fifoStartIndex = -1;
+    fifoEndIndex = -1;
+    fifo = new  AVRFrame[CacheSize];
 }
 FrameCache::FrameCache(int size){
     CacheSize = size;
@@ -27,6 +30,13 @@ FrameCache::FrameCache(int size){
     CurrentFrame = AVRFrame();
     LastFrame = AVRFrame();
     startTS = 0;
+    fifoStartIndex = -1;
+    fifoEndIndex = -1;
+    fifo = new AVRFrame[CacheSize];
+}
+
+FrameCache::~FrameCache(){
+//    delete[] fifo;
 }
 
 
@@ -139,17 +149,54 @@ bool FrameCache::CurrentFrame2LastFrame(){
     return true;
 }
 
-bool FrameCache::LastFrame2FIFO(){
-    if (LastFrame.isEmpty()) return false;
-    AVRFrame* newFrame = new AVRFrame();
-    newFrame->setFrom(LastFrame);
-    if (fifo.size()==CacheSize){
-        fifo.erase(fifo.begin());
-    }
-    fifo.push_back(*newFrame);
-    return true;
+void FrameCache::getFIFOHead(AVRFrame& frame){
+    frame.setFrom(fifo[fifoStartIndex]);
 }
 
+bool FrameCache::LastFrame2FIFO(){
+    if (LastFrame.isEmpty()) return false;
+    fifoEndIndex++;
+    if (fifoEndIndex == CacheSize){
+        fullBacklog = true;
+    }
+    fifoEndIndex%=CacheSize;
+    fifo[fifoEndIndex].setFrom(LastFrame);
+    if (fifoEndIndex==fifoStartIndex || fifoStartIndex==-1){
+        fifoStartIndex++;
+        fifoStartIndex%=CacheSize;
+    }
+
+    return true;
+}
+//
+//bool FrameCache::LastFrame2FIFO(){
+//    if (LastFrame.isEmpty()) return false;
+//    AVRFrame* newFrame = new AVRFrame();
+//    newFrame->setFrom(LastFrame);
+//    if (fifo.size()==CacheSize){
+////        vector<AVRFrame>* tmp = new vector<AVRFrame>;
+////        for (int i=1;i<CacheSize;i++){
+////            tmp->push_back(fifo[i]);
+////        }
+////        fifo.swap(*tmp);
+////        for (int i=0;i<tmp->size();i++){
+////            delete &(tmp[i]);
+////        }
+////        tmp->clear();
+////        delete tmp;
+//
+////        delete &(fifo[0]);
+////        AVRFrame* ptr = &fifo[0];
+//        fifo.erase(fifo.begin());
+//        fifo.resize(fifo.size());
+//        fifo.shrink_to_fit();
+////        delete ptr;
+//    }
+//    fifo.push_back(*newFrame);
+//
+//    return true;
+//}
+//
 
 
 
@@ -292,13 +339,13 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
 }
 
 void FrameCache::updateMotionVec_Curr2CacheHead(){
-    CurrentFrame.PCMotionVec = CurrentFrame.transformedPointcloud - fifo[0].pointcloud;
+    CurrentFrame.PCMotionVec = CurrentFrame.transformedPointcloud - fifo[fifoStartIndex].pointcloud;
 }
 
 void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
     // w: world, l: last frame, c: current frame
     assert(ReachFullMotionBacklog());
-    if (fifo[0].CamMotionMat.empty() || CurrentFrame.CamMotionMat.empty()) {
+    if (fifo[fifoStartIndex].CamMotionMat.empty() || CurrentFrame.CamMotionMat.empty()) {
         cerr << "FrameCache::updateTransformationMatrix_Curr2CacheHead: No CamMotionMat\n";
         return;
     }
@@ -307,8 +354,8 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
     const cv::Mat Rwc = Rcw.t();
     const cv::Mat twc = -Rwc*tcw;
 
-    const cv::Mat Rlw = fifo[0].CamMotionMat.rowRange(0,3).colRange(0,3);
-    const cv::Mat tlw = fifo[0].CamMotionMat.rowRange(0,3).col(3);
+    const cv::Mat Rlw = fifo[fifoStartIndex].CamMotionMat.rowRange(0,3).colRange(0,3);
+    const cv::Mat tlw = fifo[fifoStartIndex].CamMotionMat.rowRange(0,3).col(3);
 
     CurrentFrame.TranslationMat_Curr2CacheHead= Rlw*twc+tlw;
     CurrentFrame.RotationMat_Curr2CacheHead = Rlw*Rwc;
@@ -322,43 +369,35 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
 
 
 bool FrameCache::ReachFullMotionBacklog(){
-     return fifo.size()==CacheSize && !fifo[0].CamMotionMat.empty();
+//     return fifo.size()==CacheSize && !(fifo[0].CamMotionMat.empty());
+    return fullBacklog && !fifo[fifoStartIndex].CamMotionMat.empty();
 }
 
 void FrameCache::setStartTS(unsigned long long int startTS) {
     FrameCache::startTS = startTS;
 }
 
-FrameCache::~FrameCache() {
 
+void  FrameCache::getCurrentFrame(AVRFrame & ret){
+    theBigLock.lock();
+    ret.setFrom(CurrentFrame);
+    theBigLock.unlock();
 }
 
-AVRFrame  FrameCache::getCurrentFrame(){
+void  FrameCache::getNextFrame(AVRFrame & ret){
     theBigLock.lock();
-    AVRFrame ret = CurrentFrame;
+    ret.setFrom(NextFrame);
     theBigLock.unlock();
-    return ret;
 }
-
-AVRFrame  FrameCache::getNextFrame(){
+void  FrameCache::getSlamFrame(AVRFrame & ret){
     theBigLock.lock();
-    AVRFrame ret = NextFrame;
+    ret.setFrom(SlamFrame);
     theBigLock.unlock();
-    return ret;
 }
-
-AVRFrame  FrameCache::getSlamFrame(){
+void  FrameCache::getLastFrame(AVRFrame & ret){
     theBigLock.lock();
-    AVRFrame ret = SlamFrame;
+    ret.setFrom(LastFrame);
     theBigLock.unlock();
-    return ret;
-}
-
-AVRFrame  FrameCache::getLastFrame(){
-    theBigLock.lock();
-    AVRFrame ret = LastFrame;
-    theBigLock.unlock();
-    return ret;
 }
 
 void FrameCache::updateCurrFrameFeature(){

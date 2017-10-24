@@ -21,6 +21,7 @@ int DEBUG = 0;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
+bool PCVISUAL = true;
 
 bool DYNAMICS = false;
 
@@ -84,10 +85,15 @@ string commPath = "/home/hang/AVRComm/";
 string AddressA = "http://192.168.0.166:";
 string Port = "34568";
 string AddressB = "http://192.168.0.187:";
-
-string MyAddress = AddressB;
+/// laptop 127
+//string MyAddress = AddressB;
+//string MyPort = Port;
+//string ServerAddress = AddressA;
+//string ServerPort = Port;
+/// desktop 204
+string MyAddress = AddressA;
 string MyPort = Port;
-string ServerAddress = AddressA;
+string ServerAddress = AddressB;
 string ServerPort = Port;
 /// store video or webcam
 bool OFFLINE = true;

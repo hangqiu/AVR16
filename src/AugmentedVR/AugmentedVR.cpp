@@ -100,7 +100,9 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
     frameCache.LoadNextFrameFromZED(mZEDCam, width, height, TotalFrameSeq++);
 
     if (!INIT_FLAG) {
-        frameCache.getNextFrame().pointcloud.copyTo(initPC);//TODO
+        AVRFrame next;
+        frameCache.getNextFrame(next);
+        next.pointcloud.copyTo(initPC);//TODO
         INIT_FLAG = true;
     }
 
@@ -112,9 +114,11 @@ void AugmentedVR::FeedSlamNextFrame(){
     timeval start,end;
     gettimeofday(&start, NULL);
 #endif
-    mSLAM->mTracker_CreateNextFrame(frameCache.getSlamFrame().FrameLeftGray,
-                                    frameCache.getSlamFrame().FrameRightGray,
-                                    frameCache.getSlamFrame().frameTS);
+    AVRFrame slam;
+    frameCache.getSlamFrame(slam);
+    mSLAM->mTracker_CreateNextFrame(slam.FrameLeftGray,
+                                    slam.FrameRightGray,
+                                    slam.frameTS);
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -123,8 +127,8 @@ void AugmentedVR::FeedSlamNextFrame(){
 }
 
 
-AVRFrame AugmentedVR::getCurrentAVRFrame(){
-    return frameCache.getCurrentFrame();
+void AugmentedVR::getCurrentAVRFrame(AVRFrame &ret){
+    frameCache.getCurrentFrame(ret);
 }
 
 void AugmentedVR::SinkFrames(){
@@ -169,7 +173,8 @@ void AugmentedVR::calcOpticalFlow(){
 // call SLAM and calculate camera pose relative to last frame
 // update rotation and translation matrxi to last frame: Rlc, tlc
 void AugmentedVR::trackCam() {
-    AVRFrame currFrame = getCurrentAVRFrame();
+    AVRFrame currFrame;
+    getCurrentAVRFrame(currFrame);
     (mSLAM->TrackStereo(currFrame.FrameLeft,
                         currFrame.FrameRight,
                         currFrame.frameTS))
@@ -182,7 +187,9 @@ void AugmentedVR::trackCam() {
 }
 
 bool AugmentedVR::trackGood(){
-    return !(getCurrentAVRFrame().CamMotionMat.empty());
+    AVRFrame currFrame;
+    getCurrentAVRFrame(currFrame);
+    return !(currFrame.CamMotionMat.empty());
 }
 
 void AugmentedVR::analyze(){
@@ -230,7 +237,8 @@ void AugmentedVR::PCMotionAnalysis() {
 cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
     // w: world, r: received frame, c: current frame
 //    if (TcwReceived.empty()) return cv::Mat;
-    AVRFrame currFrame = frameCache.getCurrentFrame();
+    AVRFrame currFrame;
+    frameCache.getCurrentFrame(currFrame);
     const cv::Mat Rcw = currFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
     const cv::Mat tcw = currFrame.CamMotionMat.rowRange(0,3).col(3);
     const cv::Mat Rwc = Rcw.t();
@@ -359,103 +367,103 @@ void AugmentedVR::dead_reckoning_onRxDynamicPC(){
 
 //TODO: rethink Segmentation!!!
 
-void AugmentedVR::CheckConnection(int tgt_x, int tgt_y, int cur_x, int cur_y, int idx, std::queue<cv::Point2f> & Q, cv::Mat & checkFlag,cv::Mat & inQueue, float motionThreshold){
-
-
-
-    cv::Mat lastPC, curPC;
-    frameCache.fifo[0].PC_noColor.copyTo(lastPC);
-    frameCache.CurrentFrame.PC_noColor.copyTo(curPC);
-    if (DEBUG) cout << "    Checking " << tgt_x << "," << tgt_y << ": " << (int)frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x);
-    if ((int)frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x) == 255) {
-//    if (PCDisplacement.at<float>(tgt_x,tgt_y) < motionThreshold) {
-        if (DEBUG) cout << " ... in mask\n";
-        // see if it has already been checked
-        if ((int)checkFlag.at<uchar>(tgt_y, tgt_x)==0){
-            // if not push back , expand the search area into the queue, as long as it's within the motionmask
-            if ((int)inQueue.at<uchar>(tgt_y, tgt_x) == 0){
-                if (DEBUG) cout << "        pushing back " << tgt_x << "," << tgt_y << endl;
-                inQueue.at<uchar>(tgt_y, tgt_x) = 255;
-                Q.push(cv::Point2f(tgt_x, tgt_y));
-            }
-        }
-
-        // for each cur node in the queue. check in motion mask
-        cout << (int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) << endl;
-        if ((int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) ==0){
-//        if (PCDisplacement.at<float>(tgt_x,tgt_y) >= motionThreshold) {
-            // if not in motionmask check if close to the target which is in motion mask
-//            cout << endl << "norm" << norm(lastPC.at<Vec3f>(tgt_x,tgt_y), lastPC.at<Vec3f>(cur_x,cur_y)) << endl;
-
-            if (DEBUG){
-
-                int range = 3;
-                cout << "Last PC: "<<lastPC(cv::Rect(tgt_y, tgt_x,range,range)) << ", " << lastPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
-                cout << "Cur PC: "<<curPC(cv::Rect(tgt_y, tgt_x,range,range)) << ", " << curPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
-                cout << "distance in last PC" << norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
-                cout << "distance in cur PC" << norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
-            }
-
-            if ( min(norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))), norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1)))) < PCConnectionThresh * PATCHSIZE *1.414 ){
-                // mark motion mask if connected
-                if (DEBUG) cout << "        close enough...Adding to mask " << cur_x << "," << cur_y << endl;
-//                lastStereoData[ZEDCACHESIZE-idx-1].MotionMask.at<uchar>(cur_y, cur_x) = 255;
-
-                frameCache.fifo[0].MotionMask(cv::Rect(cv::Point2f(cur_x, cur_y), cv::Point2f(tgt_x, tgt_y)))   = 255;
-                frameCache.fifo[0].MotionMask(cv::Rect(cur_x, cur_y,1,1))   = 255;
-                // recheck the connections
-                if (cur_x>PATCHSIZE && cur_y>PATCHSIZE)                    CheckConnection(cur_x-PATCHSIZE, cur_y-PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue, motionThreshold);
-                if (cur_x<frameCache.CurrentFrame.FrameLeft.cols-PATCHSIZE && cur_y>PATCHSIZE)     CheckConnection(cur_x+PATCHSIZE, cur_y-PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
-                if (cur_x>PATCHSIZE && cur_y<frameCache.CurrentFrame.FrameLeft.rows-PATCHSIZE)                    CheckConnection(cur_x-PATCHSIZE, cur_y+PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
-                if (cur_x<frameCache.CurrentFrame.FrameLeft.cols-PATCHSIZE && cur_y<frameCache.CurrentFrame.FrameLeft.rows-PATCHSIZE)     CheckConnection(cur_x+PATCHSIZE, cur_y+PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
-            }else{
-                if (DEBUG) cout << "too far \n";
-
-            }
-        }else{
-            frameCache.fifo[0].MotionMask(cv::Rect(cv::Point2f(cur_x, cur_y), cv::Point2f(tgt_x, tgt_y)))   = 255;
-        }
-    }else{
-        if (DEBUG) cout << "..."<< frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x) << " ... NOT in mask\n";
-        if ((int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) == 255){
-//        if (PCDisplacement.at<float>(cur_x, cur_y) < motionThreshold) {
-//            // check if calculations are correct -- checked good code
-//            cout << "Point 1: ";
-//            for (int i=0;i<3;i++){
-//                cout << lastPC.at<Vec3f>(tgt_x,tgt_y)[i] << ", ";
+//void AugmentedVR::CheckConnection(int tgt_x, int tgt_y, int cur_x, int cur_y, int idx, std::queue<cv::Point2f> & Q, cv::Mat & checkFlag,cv::Mat & inQueue, float motionThreshold){
+//
+//
+//
+//    cv::Mat lastPC, curPC;
+//    frameCache.fifo[0].PC_noColor.copyTo(lastPC);
+//    frameCache.CurrentFrame.PC_noColor.copyTo(curPC);
+//    if (DEBUG) cout << "    Checking " << tgt_x << "," << tgt_y << ": " << (int)frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x);
+//    if ((int)frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x) == 255) {
+////    if (PCDisplacement.at<float>(tgt_x,tgt_y) < motionThreshold) {
+//        if (DEBUG) cout << " ... in mask\n";
+//        // see if it has already been checked
+//        if ((int)checkFlag.at<uchar>(tgt_y, tgt_x)==0){
+//            // if not push back , expand the search area into the queue, as long as it's within the motionmask
+//            if ((int)inQueue.at<uchar>(tgt_y, tgt_x) == 0){
+//                if (DEBUG) cout << "        pushing back " << tgt_x << "," << tgt_y << endl;
+//                inQueue.at<uchar>(tgt_y, tgt_x) = 255;
+//                Q.push(cv::Point2f(tgt_x, tgt_y));
 //            }
-//            cout << endl << "Point 2: ";
-//            for (int i=0;i<3;i++){
-//                cout << lastPC.at<Vec3f>(cur_x,cur_y)[i] << ", ";
+//        }
+//
+//        // for each cur node in the queue. check in motion mask
+//        cout << (int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) << endl;
+//        if ((int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) ==0){
+////        if (PCDisplacement.at<float>(tgt_x,tgt_y) >= motionThreshold) {
+//            // if not in motionmask check if close to the target which is in motion mask
+////            cout << endl << "norm" << norm(lastPC.at<Vec3f>(tgt_x,tgt_y), lastPC.at<Vec3f>(cur_x,cur_y)) << endl;
+//
+//            if (DEBUG){
+//
+//                int range = 3;
+//                cout << "Last PC: "<<lastPC(cv::Rect(tgt_y, tgt_x,range,range)) << ", " << lastPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
+//                cout << "Cur PC: "<<curPC(cv::Rect(tgt_y, tgt_x,range,range)) << ", " << curPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
+//                cout << "distance in last PC" << norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
+//                cout << "distance in cur PC" << norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
 //            }
-//            cout << endl << "norm" << norm(lastPC.at<Vec3f>(tgt_x,tgt_y), lastPC.at<Vec3f>(cur_x,cur_y)) << endl;
-            if (DEBUG){
-
-                int range = 3;
-                cout << "Last PC: "<<lastPC(cv::Rect(tgt_y, tgt_x,range,range)) << endl << lastPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
-                cout << "Cur PC: "<<curPC(cv::Rect(tgt_y, tgt_x,range,range)) << endl << curPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
-                cout << "distance in last PC" << norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
-                cout << "distance in cur PC" << norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
-            }
-
-            if ( min(norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))), norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1)))) < PCConnectionThresh * PATCHSIZE *1.414 ){
-                // see if it has already been checked
-                if ((int)checkFlag.at<uchar>(tgt_y, tgt_x)==0){
-                    // if not push back , expand the search area into the queue, as long as it's within the motionmask
-
-                    if ((int)inQueue.at<uchar>(tgt_y, tgt_x) == 0){
-                        if (DEBUG) cout << "        close enough...pushing back " << tgt_x << "," << tgt_y << endl;
-                        inQueue.at<uchar>(tgt_y, tgt_x) = 255;
-                        Q.push(cv::Point2f(tgt_x, tgt_y));
-                    }
-                }
-            }else{
-                if (DEBUG) cout << "too far \n";
-
-            }
-        }
-    }
-}
+//
+//            if ( min(norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))), norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1)))) < PCConnectionThresh * PATCHSIZE *1.414 ){
+//                // mark motion mask if connected
+//                if (DEBUG) cout << "        close enough...Adding to mask " << cur_x << "," << cur_y << endl;
+////                lastStereoData[ZEDCACHESIZE-idx-1].MotionMask.at<uchar>(cur_y, cur_x) = 255;
+//
+//                frameCache.fifo[0].MotionMask(cv::Rect(cv::Point2f(cur_x, cur_y), cv::Point2f(tgt_x, tgt_y)))   = 255;
+//                frameCache.fifo[0].MotionMask(cv::Rect(cur_x, cur_y,1,1))   = 255;
+//                // recheck the connections
+//                if (cur_x>PATCHSIZE && cur_y>PATCHSIZE)                    CheckConnection(cur_x-PATCHSIZE, cur_y-PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue, motionThreshold);
+//                if (cur_x<frameCache.CurrentFrame.FrameLeft.cols-PATCHSIZE && cur_y>PATCHSIZE)     CheckConnection(cur_x+PATCHSIZE, cur_y-PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
+//                if (cur_x>PATCHSIZE && cur_y<frameCache.CurrentFrame.FrameLeft.rows-PATCHSIZE)                    CheckConnection(cur_x-PATCHSIZE, cur_y+PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
+//                if (cur_x<frameCache.CurrentFrame.FrameLeft.cols-PATCHSIZE && cur_y<frameCache.CurrentFrame.FrameLeft.rows-PATCHSIZE)     CheckConnection(cur_x+PATCHSIZE, cur_y+PATCHSIZE, cur_x, cur_y, idx, Q, checkFlag,inQueue,motionThreshold);
+//            }else{
+//                if (DEBUG) cout << "too far \n";
+//
+//            }
+//        }else{
+//            frameCache.fifo[0].MotionMask(cv::Rect(cv::Point2f(cur_x, cur_y), cv::Point2f(tgt_x, tgt_y)))   = 255;
+//        }
+//    }else{
+//        if (DEBUG) cout << "..."<< frameCache.fifo[0].MotionMask.at<uchar>(tgt_y, tgt_x) << " ... NOT in mask\n";
+//        if ((int)frameCache.fifo[0].MotionMask.at<uchar>(cur_y, cur_x) == 255){
+////        if (PCDisplacement.at<float>(cur_x, cur_y) < motionThreshold) {
+////            // check if calculations are correct -- checked good code
+////            cout << "Point 1: ";
+////            for (int i=0;i<3;i++){
+////                cout << lastPC.at<Vec3f>(tgt_x,tgt_y)[i] << ", ";
+////            }
+////            cout << endl << "Point 2: ";
+////            for (int i=0;i<3;i++){
+////                cout << lastPC.at<Vec3f>(cur_x,cur_y)[i] << ", ";
+////            }
+////            cout << endl << "norm" << norm(lastPC.at<Vec3f>(tgt_x,tgt_y), lastPC.at<Vec3f>(cur_x,cur_y)) << endl;
+//            if (DEBUG){
+//
+//                int range = 3;
+//                cout << "Last PC: "<<lastPC(cv::Rect(tgt_y, tgt_x,range,range)) << endl << lastPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
+//                cout << "Cur PC: "<<curPC(cv::Rect(tgt_y, tgt_x,range,range)) << endl << curPC(cv::Rect(cur_y, cur_x,range,range)) << endl;
+//                cout << "distance in last PC" << norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
+//                cout << "distance in cur PC" << norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1))) << endl;
+//            }
+//
+//            if ( min(norm(lastPC(cv::Rect(tgt_y, tgt_x,1,1))-lastPC(cv::Rect(cur_y, cur_x,1,1))), norm(curPC(cv::Rect(tgt_y, tgt_x,1,1))- curPC(cv::Rect(cur_y, cur_x,1,1)))) < PCConnectionThresh * PATCHSIZE *1.414 ){
+//                // see if it has already been checked
+//                if ((int)checkFlag.at<uchar>(tgt_y, tgt_x)==0){
+//                    // if not push back , expand the search area into the queue, as long as it's within the motionmask
+//
+//                    if ((int)inQueue.at<uchar>(tgt_y, tgt_x) == 0){
+//                        if (DEBUG) cout << "        close enough...pushing back " << tgt_x << "," << tgt_y << endl;
+//                        inQueue.at<uchar>(tgt_y, tgt_x) = 255;
+//                        Q.push(cv::Point2f(tgt_x, tgt_y));
+//                    }
+//                }
+//            }else{
+//                if (DEBUG) cout << "too far \n";
+//
+//            }
+//        }
+//    }
+//}
 
 
 
@@ -474,11 +482,12 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
     frameCache.CurrentFrame.FrameLeft.copyTo(img);
 
 //    img = mSLAM->DrawSlamFrame();
+    AVRFrame cacheHead;
+    frameCache.getFIFOHead(cacheHead);
 
+    if (!cacheHead.sceneTransformMat.empty()&& !cacheHead.MotionMask.empty()){
 
-    if (!frameCache.fifo[0].sceneTransformMat.empty()&& !frameCache.fifo[0].MotionMask.empty()){
-
-        perspectiveTransform( frameCache.fifo[0].keypoints, points_trans, frameCache.fifo[0].sceneTransformMat);
+        perspectiveTransform( cacheHead.keypoints, points_trans, cacheHead.sceneTransformMat);
 
         cv::Mat total_motionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
         int count = 0;
@@ -486,22 +495,22 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
 
         for( size_t i = 0; i < points_trans.size(); i++ ) {
             cv::Rect rect(0, 0, img.cols, img.rows);
-            if (rect.contains(frameCache.CurrentFrame.keypoints[i])  && rect.contains(frameCache.fifo[0].keypoints[i])) {
+            if (rect.contains(frameCache.CurrentFrame.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
                 // check if the point is in range after transformation
                 if (frameCache.CurrentFrame.tracked_status[i] && norm(points_trans[i] - frameCache.CurrentFrame.keypoints[i]) > 5) {
 
                     if (DEBUG) {
 
-                        circle(img, frameCache.fifo[0].keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
+                        circle(img, cacheHead.keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
                         circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
                         circle(img, frameCache.CurrentFrame.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
                         line(img, points_trans[i], frameCache.CurrentFrame.keypoints[i], cv::Scalar(0, 0, 255));
-                        line(img, frameCache.fifo[0].keypoints[i], points_trans[i],
+                        line(img, cacheHead.keypoints[i], points_trans[i],
                              cv::Scalar(0, 255, 255));
                     }
 
-                    if (frameCache.fifo[0].MotionMask.at<uchar>(frameCache.fifo[0].keypoints[i]) == 255 &&
-                            frameCache.fifo[0].MotionMask.at<uchar>(frameCache.CurrentFrame.keypoints[i]) == 255) {
+                    if (cacheHead.MotionMask.at<uchar>(cacheHead.keypoints[i]) == 255 &&
+                            cacheHead.MotionMask.at<uchar>(frameCache.CurrentFrame.keypoints[i]) == 255) {
 
 
                         //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor(Rect(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,1,1));
@@ -510,9 +519,9 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
                         //                    cout << PC_noColor.at<Vec3f>(keypoints[i]) << endl;
 
 
-                        cv::Mat motionVec = frameCache.fifo[0].PC_noColor(
-                                cv::Rect(frameCache.fifo[0].keypoints[i].x,
-                                         frameCache.fifo[0].keypoints[i].y, 1, 1)) -
+                        cv::Mat motionVec = cacheHead.PC_noColor(
+                                cv::Rect(cacheHead.keypoints[i].x,
+                                         cacheHead.keypoints[i].y, 1, 1)) -
                                 frameCache.CurrentFrame.PC_noColor(cv::Rect(frameCache.CurrentFrame.keypoints[i].x, frameCache.CurrentFrame.keypoints[i].y, 1, 1));
                         double dist = norm(motionVec);
                         if (cvIsInf(dist) || cvIsNaN(dist)) continue;
@@ -531,7 +540,7 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
         if (DEBUG && VISUAL){
 //            imshow("KLT matches", img);
             cv::Mat masked_img;
-            img.copyTo(masked_img,frameCache.fifo[0].MotionMask);
+            img.copyTo(masked_img,cacheHead.MotionMask);
             imshow("masked KLT matches", masked_img);
         }
 
@@ -540,18 +549,18 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
             cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
         total_motionVec.copyTo(ObjectMotionVec);
         // TODO: find a safe way to do it
-        ObjectMotionVec.copyTo(frameCache.fifo[0].ObjectMotionVec);
+        ObjectMotionVec.copyTo(cacheHead.ObjectMotionVec);
 
         // low pass filtering (sliding window average)
         cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
         for (int i=0;i<ZEDCACHESIZE-1;i++){
-            if (!frameCache.fifo[0].ObjectMotionVec.empty()){
-                lp_total+= frameCache.fifo[0].ObjectMotionVec;
+            if (!cacheHead.ObjectMotionVec.empty()){
+                lp_total+= cacheHead.ObjectMotionVec;
             }
         }
         lp_total /= ZEDCACHESIZE-1;
         lp_total.copyTo(Log_LowPassMotionVec);
-        Log_LowPassMotionVec.copyTo(frameCache.fifo[0].LowPass_ObjectMotionVec);
+        Log_LowPassMotionVec.copyTo(cacheHead.LowPass_ObjectMotionVec);
         if (DEBUG) cout << "Low Pass Total Motion Vec: " << Log_LowPassMotionVec<< " >> " << norm(Log_LowPassMotionVec)<< endl;
     }
 }

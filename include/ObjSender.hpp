@@ -27,6 +27,7 @@ private:
 //    fstream TcwFile;
 //    fstream PCFile;
 
+    cv::FileStorage SenderBuffer;
     string commPath;
 
     std::unique_ptr<ObjSenderHandler> g_httpHandler;
@@ -51,6 +52,8 @@ public:
 
     char* writeWholeFrameWithFullMetaData();
     char* writeFullFrame_PC_TCW_Time();
+    char* writeFullFrame_PC_TCW_Time_Memory();
+    char* writePC_TCW_Time();
 
     void writeFrameInSeparateFile();
 
