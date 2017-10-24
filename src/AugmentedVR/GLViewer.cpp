@@ -170,6 +170,12 @@ void GLViewer::updatePointCloud(sl::Mat &matXYZRGBA) {
     pointCloud_.mutexData.unlock();
 }
 
+void GLViewer::updatePointCloud_HostToDevice(sl::Mat &matXYZRGBA) {
+    pointCloud_.mutexData.lock();
+    pointCloud_.pushNewPC_HostToDevice(matXYZRGBA);
+    pointCloud_.mutexData.unlock();
+}
+
 void GLViewer::update() {
     if (keyStates_['q'] == KEY_STATE::UP || keyStates_['Q'] == KEY_STATE::UP || keyStates_[27] == KEY_STATE::UP) {
         currentInstance_->exit();
@@ -544,6 +550,26 @@ void PointCloud::pushNewPC(sl::Mat &matXYZRGBA) {
         hasNewPCL_ = true;
     }
 }
+
+void PointCloud::pushNewPC_HostToDevice(const sl::Mat matXYZRGBA) {
+    if (initialized_) {
+        cuCtxSetCurrent(cuda_zed_ctx);
+        matGPU_.setFrom(matXYZRGBA, sl::COPY_TYPE_CPU_GPU);
+        hasNewPCL_ = true;
+    }
+}
+
+//void PointCloud::pushNewPC_HostToDevice(const sl::Mat matXYZRGBA) {
+//    if (initialized_) {
+//        cuCtxSetCurrent(cuda_zed_ctx);
+//        cudaError_t err = cudaMemcpy2D(matGPU_.data,matGPU_.step,matXYZRGBA.data, matXYZRGBA.step,matXYZRGBA.step,height_ , cudaMemcpyHostToDevice);
+//
+//        if (err != cudaSuccess)
+//            std::cerr << "ERROR: CUDA - Cuda MemCpy Push Failed with Err Code (" << err << ")" << std::endl;
+//
+//        hasNewPCL_ = true;
+//    }
+//}
 
 void PointCloud::update() {
     if (hasNewPCL_ && initialized_) {

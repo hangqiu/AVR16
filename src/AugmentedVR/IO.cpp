@@ -20,7 +20,7 @@ IO::IO(AugmentedVR *myAVR) : myAVR(myAVR) {
     sprintf(tmp_str, "/home/nsl/imgs/cam%d/times.txt", myAVR->CamId);
     TimeFile.open(tmp_str);
 
-    sprintf(tmp_str, "./FrameInfo.txt", myAVR->CamId);
+    sprintf(tmp_str, "./FrameInfo%d.txt", myAVR->CamId);
     logFile.open(tmp_str);
 
 
@@ -38,21 +38,28 @@ IO::~IO() {
 }
 
 
-void IO::writeStereoFrame(){
+void IO::writeCurrentStereoFrame(){
     cout <<"writing frames " << FRAME_ID << endl;
+    AVRFrame currFrame;
+    myAVR->getCurrentAVRFrame(currFrame);
     char tmp_str[50];
     sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_0/%06d.png", myAVR->CamId, FRAME_ID);
-    imwrite(tmp_str,myAVR->FrameLeft);
+    imwrite(tmp_str,currFrame.FrameLeft);
     sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_1/%06d.png", myAVR->CamId, FRAME_ID);
-    imwrite(tmp_str,myAVR->FrameRight);
-    TimeFile << myAVR->frameTS << endl;
+    imwrite(tmp_str,currFrame.FrameRight);
+    TimeFile << currFrame.frameTS << endl;
 }
 
 
-void IO::logFrame(){
-    char tmpstr[100];
-    logFile << "Frame " << myAVR->LastFrame.frameSeq << ": TS: "<< myAVR->LastFrame.ZEDTS
-            << ": Obj MotionVec: " << myAVR->ObjectMotionVec << ": dist: " << norm(myAVR->ObjectMotionVec)
-            << ": LP_MotionVec: " << myAVR-> Log_LowPassMotionVec << ": dist: " << norm(myAVR->Log_LowPassMotionVec) << endl;
+void IO::logCurrentFrame(){
+//    char tmpstr[100];
+    AVRFrame currFrame;
+    myAVR->getCurrentAVRFrame(currFrame);
+    logFile << "Frame " << currFrame.frameSeq
+            << ": TS: " << currFrame.ZEDTS
+            << ": Obj MotionVec: " << currFrame.ObjectMotionVec
+            << ": dist: " << norm(currFrame.ObjectMotionVec)
+            << ": LP_MotionVec: " << myAVR-> Log_LowPassMotionVec  //TODO check valid
+            << ": dist: " << norm(myAVR->Log_LowPassMotionVec) << endl;
 
 }

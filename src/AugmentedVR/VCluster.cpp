@@ -3,6 +3,7 @@
 //
 
 #include <sys/time.h>
+#include <include/UtilsCV.hpp>
 #include "VCluster.hpp"
 using namespace sl;
 
@@ -11,7 +12,7 @@ using namespace sl;
 //}
 
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
-    frameSeqRx =0;
+    frameSeqRx = 300;
     timeRx=0;
 
     InitParameters init_parameters;
@@ -59,10 +60,10 @@ void VCluster::run(){
 #endif
 
 
+//    std::thread* pauser = new thread(debugCin);
+//    debugPauser();
+
     char key = ' ';
-    double prepFrameTime = 0;
-    double slamTime = 0;
-    double totalTime = 0;
     int count = 0;
 #ifdef EVAL
     timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
@@ -72,24 +73,14 @@ void VCluster::run(){
 #endif
     //loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
-    while (key != 'q' && !quit && VNode[0]->getFrameSeq() < lengthInFrame) {
+    while (key != 'q' && !quit && VNode[0]->TotalFrameSeq < lengthInFrame) {
 //        key = waitKey(20);
-        FRAME_ID++;
+        FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
         //Resize and imshow
         cout << endl << "FrameID: " << FRAME_ID << endl;
 
-
-//        if (VNode[0]->mZEDCam->grab(VNode[0]->runtimeParameters) == SUCCESS) {
-//            // Retrieve a colored RGBA point cloud in GPU memory and update GL viewing window
-//            // width and height specify the total number of columns and rows for the point cloud dataset
-//            // In this example, we retrieve and display a half size point cloud using width and height parameters
-//            cout << "Displaying point cloud: " << VNode[0]->width << " by " << VNode[0]->height << endl;
-//            VNode[0]->mZEDCam->retrieveMeasure(VNode[0]->pointcloud_sl_gpu, MEASURE_XYZRGBA, MEM_GPU, VNode[0]->width, VNode[0]->height);
-//            mDisplayer->mGLViewer->updatePointCloud(VNode[0]->pointcloud_sl_gpu);
-//
-//        } else sl::sleep_ms(1);
-
+        if (VISUAL) mDisplayer->showCurFrame();
 
 #ifdef EVAL
         gettimeofday(&tFetchStart, NULL);
@@ -99,14 +90,12 @@ void VCluster::run(){
         timeval tTotalStart, tTotalEnd;
         gettimeofday(&tTotalStart, NULL);
 #endif
-        if (!VNode[0]->loadSlamFrameAsCurrentFrame()) {
-            cerr<< "SLamFrame to Current Frame Failure\n";
-            break;
-        }
+
+        VNode[0]->SinkFrames();
 #ifdef PIPELINE
         thread CPU_download(&VCluster::PreProcess, this);
 #else
-        PreProcess();
+        if (!PreProcess()) break;
 #endif
 #ifdef EVAL
         gettimeofday(&tFetchEnd, NULL);
@@ -135,7 +124,7 @@ void VCluster::run(){
         gettimeofday(&tCacheStart, NULL);
 #endif
 
-        VNode[0]->updateLastStereoData();
+
 
 #ifdef EVAL
         gettimeofday(&tCacheEnd, NULL);
@@ -192,7 +181,7 @@ void VCluster::exit(){
     }
 }
 
-void VCluster::PreProcess(){
+bool VCluster::PreProcess(){
 
 #ifdef EVAL
     timeval start, end;
@@ -201,18 +190,21 @@ void VCluster::PreProcess(){
     cout << "PreProcess starts" << endl;
 #endif
     VNode[0]->calcOpticalFlow();
-    VNode[0]->PrepareNextFrame();
+    if (!(VNode[0]->PrepareNextFrame())) return false;
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "PreProcess ends: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
+    return true;
 }
 
 void VCluster::compressDynamic(){
 //    cout << "compressing \n ";
     cv::Mat tmp;
-    VNode[0]->pointcloud_cv.copyTo(tmp);
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
+    currFrame.pointcloud.copyTo(tmp);
     mCodec->encode(tmp);
 }
 
@@ -225,7 +217,7 @@ void VCluster::compressDynamic(){
 //}
 
 void VCluster::postProcess(){
-    if (DECOUPLE2IMG) VNode[0]->mIo->writeStereoFrame();
+    if (DECOUPLE2IMG) VNode[0]->mIo->writeCurrentStereoFrame();
 #ifdef EVAL
     timeval start, end;
     gettimeofday(&start, NULL);
@@ -235,7 +227,8 @@ void VCluster::postProcess(){
     VNode[0]->analyze();
 //    compressDynamic();
 //    segmentation();
-    TXRX();
+//    TXRX();
+    TXRX_viaDisk();
     visualize();
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -248,53 +241,107 @@ void VCluster::visualize(){
     // need to show PC from Last Frame, cause buffer are freed for pre-fetching
     // Point Cloud Stiching
     if (SHOW_PC && VISUAL) {
-
-
+//        mDisplayer->showCurFrame();
+        AVRFrame currFrame;
+        VNode[0]->getCurrentAVRFrame(currFrame);
         if (TX) {
 //                mDisplayer->showPC(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
-            mDisplayer->showPC(VNode[0]->LastFrame.pointcloud);
+
+            mDisplayer->showPC(currFrame.pointcloud);
+//            saveOpenGL(1000, 1000);
         }
         else if (RX) {
-//                mDisplayer->showMergedPC(transRxPC);
-            cv::Mat totalPC, totalDynamicPC;
-//                hconcat(VNode[0]->pointcloud, transRxPC, totalPC);
+            if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
+
+                mDisplayer->showMergedPC(VNode[0]->transRxPC);
+//                saveOpenGL(VNode[0]->width*2, VNode[0]->height);
+//                cv::Mat totalPC, totalDynamicPC;
+//                hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, VNode[0]->RxPC, totalPC);
 //                hconcat(VNode[0]->pointcloud, transRxDynamicPC, totalDynamicPC);
 //                  hconcat(VNode[0]->initPC, VNode[0]->transRxDynamicPC, totalDynamicPC);
-//                mDisplayer->showSplitScreen(VNode[0]->pointcloud,totalPC);
+//                mDisplayer->showSplitScreen(VNode[0]->getCurrentAVRFrame().pointcloud,totalPC);
 //                mDisplayer->showSplitScreen(VNode[0]->pointcloud,totalDynamicPC);
-            mDisplayer->showPC(VNode[0]->transRxDynamicPC);
+//            mDisplayer->showPC(VNode[0]->transRxDynamicPC);
 //                mDisplayer->showPC(VNode[0]->transRxPC);
 //                mDisplayer->showPC(totalDynamicPC);
-            if(COOP && !(VNode[0]->transRxPC.empty())){
+
+//            mDisplayer->showPC(VNode[0]->transRxPC);
+            }
+
+            if(COOP){
                 cv::Mat nonOverlapingPC;
                 VNode[0]->removeOverlap(VNode[0]->transRxDynamicPC).copyTo(nonOverlapingPC);
 //                    mDisplayer->showSplitScreen(VNode[0]->transRxPC,nonOverlapingPC);
                 mDisplayer->showPC(nonOverlapingPC);
 //                    mDisplayer->showPC(VNode[0]->transRxPC);
             }
+                //        if (VISUAL && SHOW_PC) mDisplayer->showImgWithPC(RxFrame,  &(VNode[0]->transRxDynamicPC), "rx trans PC");
+//            }
         }
         else{
-//            mDisplayer->showPC(VNode[0]->NextFrame.pointcloud);
-            mDisplayer->showPC(VNode[0]->pointcloud_sl_gpu);
+            // debug
+
+            mDisplayer->showPC(currFrame.pointcloud);
+
+//            mDisplayer->showPC(VNode[0]->pointcloud_sl_gpu);
         }
     }
 }
 
 void VCluster::TXRX(){
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+    // sending objects
+    if (TX && SEND) {
+//        mSender->writeFullFrame_PC_TCW_Time();
+        mSender->writePC_TCW_Time();
+    }
+    cv::Mat Trc, trc, RxFrame;
+    if (RX){
+        timeval tTXStart, tTXEnd;
+        gettimeofday(&tTXStart, NULL);
+
+
+        /// receiving objects
+        if (!(mReceiver->AskForLatestPC_TCW_TIME(VNode[0]))){
+            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
+            return;
+        }
+        gettimeofday(&tTXEnd, NULL);
+
+        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+
+
+        if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
+            /// calculating rela position
+//            cout << VNode[0]->RxTCW << endl;
+//            cout << VNode[0]->getCurrentAVRFrame().CamMotionMat << endl;
+
+            Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
+
+//            cout << Trc << endl;
+//            trc = Trc.rowRange(0,3).col(3);
+            /// PC manipulation
+            VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
+        }
+    }
+}
+
+
+void VCluster::TXRX_viaDisk(){
 
 #ifdef EVAL
 
     timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
     timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
 #endif
-    if (DEBUG) VNode[0]->mIo->logFrame();
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
 
     // sending objects
     if (TX && SEND) {
 #ifdef EVAL
         gettimeofday(&tTXStart, NULL);
 #endif
-        mSender->sendFrame();
+        mSender->writeFrameInSeparateFile();
 #ifdef EVAL
         gettimeofday(&tTXEnd, NULL);
         cout << "TimeStamp: " << double(tTXEnd.tv_sec-tInit.tv_sec)*1000 + double(tTXEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -302,82 +349,94 @@ void VCluster::TXRX(){
 #endif
     }
 
-    cv::Mat Trc, trc, RxPC, RxDynamicPC, RxFrame;
+    cv::Mat Trc, trc, RxFrame;
     if (RX){
         // receiving objects
         // searcing for synced frame
+        frameSeqRx ++;
+
+
         timeRx = mReceiver->readTimeStamp(frameSeqRx);
-        RxFrame = mReceiver->readFrame(frameSeqRx);
+        mReceiver->readFrame(frameSeqRx, RxFrame);
+
+//        // time sync module
+//        while( timeRx < VNode[0]->getCurrentAVRFrame().frameTS){
+//            frameSeqRx++;
+//            cout << "reading frame: "  << frameSeqRx << endl;
+//            timeRx = mReceiver->readTimeStamp(frameSeqRx);
+//        }
 
 
-        // time sync module
-        while( timeRx < VNode[0]->getFrameTS()){
-            frameSeqRx++;
-            if (DEBUG) cout << "reading frame: "  << frameSeqRx << endl;
-            timeRx = mReceiver->readTimeStamp(frameSeqRx);
-        }
-
-//            frameSeqRx ++;
 #ifdef EVAL
         gettimeofday(&tRXStart, NULL);
 #endif
-        RxPC = mReceiver->readPC(frameSeqRx);
+        mReceiver->readPC(frameSeqRx,VNode[0]->RxPC);
+        if (VNode[0]->RxPC.empty()) {
+            cerr << "VCluster::TXRX() can't load rx frame " << frameSeqRx << endl;
+            return;
+        }
 #ifdef EVAL
         gettimeofday(&tRXEnd, NULL);
         cout << "TimeStamp: " << double(tRXEnd.tv_sec-tInit.tv_sec)*1000 + double(tFetchEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
         cout << "TXRX >>>>> RX: " <<double(tRXEnd.tv_sec-tRXStart.tv_sec)*1000 + double(tRXEnd.tv_usec-tRXStart.tv_usec) / 1000<< "ms"<< endl;
 #endif
-        RxDynamicPC = mReceiver->readDynamicPC(frameSeqRx);
-        //        RxPC = mReceiver->readDynamicPC(frameSeqRx);
+        if (DYNAMICS){
+             mReceiver->readDynamicPC(frameSeqRx,VNode[0]->RxDynamicPC);
 //        VNode[0]->RxMotionVec = mReceiver->readObjectMotionVec(frameSeqRx);
-        VNode[0]->RxMotionVec = mReceiver->readLowPassObjectMotionVec(frameSeqRx);
-
-        if (RxPC.empty() || RxDynamicPC.empty()) {
-            cout << "can't load frame " << frameSeqRx << endl;
-            return;
+             mReceiver->readLowPassObjectMotionVec(frameSeqRx, VNode[0]->RxMotionVec);
+            if (VNode[0]->RxDynamicPC.empty()){
+                cerr << "VCluster::TXRX() can't load rx dynamic frame " << frameSeqRx << endl;
+                return;
+            }
         }
+        if (VNode[0]->trackGood()){
 
-
-        // if received a full frame
-        if (FRAME_ID % DUTYCYCLE == 0){
+            // if received a full frame
+//            if (FRAME_ID % DUTYCYCLE == 0){
 
 #ifdef EVAL
-            gettimeofday(&tPCmergeStart, NULL);
+                gettimeofday(&tPCmergeStart, NULL);
 #endif
-            // calculating rela position
-            Trc =  VNode[0]->calcRelaCamPos(mReceiver->readTcw(frameSeqRx));
-            trc = Trc.rowRange(0,3).col(3);
-            //        RxPC = VNode[0]->pointcloud;
+                // calculating rela position
+                mReceiver->readTcw(frameSeqRx,VNode[0]->RxTCW);
+                if (VNode[0]->RxTCW.empty()) {
+                    cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
+                    return;
+                }
+                Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
+                trc = Trc.rowRange(0,3).col(3);
+                //        RxPC = VNode[0]->pointcloud;
 
-            // PC manipulation
-            VNode[0]->transRxPC =  VNode[0]->transfromRxPCtoMyFrameCoord(trc, RxPC);
+                // PC manipulation
+//            VNode[0]->transRxPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
+                VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
 #ifdef EVAL
-            gettimeofday(&tPCmergeEnd, NULL);
+                gettimeofday(&tPCmergeEnd, NULL);
             cout << "TimeStamp: " << double(tPCmergeEnd.tv_sec-tInit.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
             cout << " TXRX >>>>> PC merge: " <<double(tPCmergeEnd.tv_sec-tPCmergeStart.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tPCmergeStart.tv_usec) / 1000<< "ms"<< endl;
 #endif
-
-//            clock_t tPCmerge = clock();
-            VNode[0]->transRxDynamicPC = VNode[0]->transfromRxPCtoMyFrameCoord(trc, RxDynamicPC);
-
-
+                if (DYNAMICS){
+//                    VNode[0]->transRxDynamicPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
+                    VNode[0]->transRxDynamicPC = VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxDynamicPC);
+                }
+//            }
+//            else{ // Dead-Reckoning
+//
+//                if ( !VNode[0]->RxMotionVec.empty()){
+//#ifdef EVAL
+//                    gettimeofday(&tDeadReckonStart, NULL);
+//#endif
+//                    VNode[0]->dead_reckoning_onRxDynamicPC();
+//#ifdef EVAL
+//                    gettimeofday(&tDeadReckonEnd, NULL);
+//                cout << "TimeStamp: " << double(tDeadReckonEnd.tv_sec-tInit.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+//                cout << "TXRX >>>>> Dead reckon: " <<double(tDeadReckonEnd.tv_sec-tDeadReckonStart.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tDeadReckonStart.tv_usec) / 1000<< "ms"<< endl;
+//#endif
+//                }
+//
+//            }
         }
-        else{ // Dead-Reckoning
 
-            if ( !VNode[0]->RxMotionVec.empty()){
-#ifdef EVAL
-                gettimeofday(&tDeadReckonStart, NULL);
-#endif
-                VNode[0]->dead_reckoning_onRxDynamicPC();
-#ifdef EVAL
-                gettimeofday(&tDeadReckonEnd, NULL);
-                cout << "TimeStamp: " << double(tDeadReckonEnd.tv_sec-tInit.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-                cout << "TXRX >>>>> Dead reckon: " <<double(tDeadReckonEnd.tv_sec-tDeadReckonStart.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tDeadReckonStart.tv_usec) / 1000<< "ms"<< endl;
-#endif
-            }
 
-        }
-
-        if (VISUAL && SHOW_PC) mDisplayer->showImgWithPC(RxFrame,  &(VNode[0]->transRxDynamicPC), "rx trans PC");
     }
 }

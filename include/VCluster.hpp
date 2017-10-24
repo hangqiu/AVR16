@@ -41,8 +41,9 @@ public:
     void compressDynamic();
     void visualize();
     void TXRX();
+    void TXRX_viaDisk();
 
-    void PreProcess();
+    bool PreProcess();
 
     void segmentation();
 

@@ -29,8 +29,8 @@ private:
 
 
 public:
-    void writeStereoFrame();
-    void logFrame();
+    void writeCurrentStereoFrame();
+    void logCurrentFrame();
 };
 
 

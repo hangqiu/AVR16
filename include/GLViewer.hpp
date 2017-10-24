@@ -174,6 +174,8 @@ public:
     // Push a new point cloud
     // Warning: can be called from any thread but the mutex "mutexData" must be locked
     void pushNewPC(sl::Mat &matXYZRGBA);
+
+    void pushNewPC_HostToDevice(const sl::Mat matXYZRGBA);
     // Update the Opengl buffer
     // Warning: must be called in the Opengl thread
     void update();
@@ -213,6 +215,9 @@ public:
     bool isInitialized();
     void init(int w, int h);
     void updatePointCloud(sl::Mat &matXYZRGBA);
+    void updatePointCloud_HostToDevice(sl::Mat &matXYZRGBA);
+
+
 
 private:
     // Initialize OpenGL context and variables, and other Viewer's variables

@@ -57,11 +57,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Check settings file
     cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
-    if(!fsSettings.isOpened())
-    {
-       cerr << "Failed to open settings file at: " << strSettingsFile << endl;
-       exit(-1);
-    }
+//    while(!fsSettings.isOpened())
+//    {
+//       cerr << "Failed to open settings file at: " << strSettingsFile << endl;
+////       exit(-1);
+//        fsSettings.open(strSettingsFile.c_str(), cv::FileStorage::READ);
+//    }
 
 
     //Load ORB Vocabulary

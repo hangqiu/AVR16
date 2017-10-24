@@ -15,12 +15,13 @@ find_package(ZED REQUIRED)
 find_package(GLUT)
 find_package(GLEW)
 find_package(OpenGL)
+find_package(OpenSSL)
+find_package(Threads)
 
 #LIST(APPEND CMAKE_MODULE_PATH /home/hang/AugmentedVR/src/ORB_SLAM2/cmake_modules/)
 #message(${CMAKE_MODULE_PATH})
 
 find_package(Eigen3 REQUIRED)
-
 find_package(CUDA REQUIRED)
 find_package(PCL)
 find_package(Pangolin REQUIRED)
@@ -83,9 +84,9 @@ FILE(GLOB_RECURSE HEADER_FILES "${HEADER_FOLDER}/*.hpp" "${HEADER_FOLDER}/*.h" "
 #message("${CUDA_npp_LIBRARY}")
 #message("${CUDA_CUDART_LIBRARY}")
 
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode. 00 for debug
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -g  -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -g -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp)
@@ -103,9 +104,8 @@ TARGET_LINK_LIBRARIES(${execName}
 		${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 		${Boost_LIBRARIES}
 		/usr/lib/x86_64-linux-gnu/libcuda.so.1
+		cpprest
+		ssl
+		crypto
 		)
-
-
-#message("${PROJECT_SOURCE_DIR}")
-
 

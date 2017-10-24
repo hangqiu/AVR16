@@ -22,9 +22,12 @@
 //ORB_SLAM Includes
 #include "../src/ORB_SLAM2/include/System.h"
 
+//AVR includes
 #include <include/landmark_matchinfo.hpp>
 #include "globals.hpp"
 #include "IO.hpp"
+#include "FrameCache.hpp"
+
 
 #include <queue>
 
@@ -33,58 +36,58 @@ using namespace std;
 //using namespace cv;
 //using namespace cv::xfeatures2d;
 
-struct ZED_DATA{
-    cv::Mat FrameLeft;
-    cv::Mat FrameRight;
-    cv::Mat FrameLeftGray;
-    cv::Mat FrameRightGray;
-
-    cv::Mat pointcloud;
-//    sl::Mat pointcloud_sl;
-
-    cv::Mat PC_noColor;
-
-
-    long ZEDTS;
-    long frameTS;
-};
-
-struct STEREO_DATA{
-
-    long frameTS;
-    long ZEDTS;
-    int frameSeq;
-
-    cv::Mat FrameLeft;
-    cv::Mat FrameRight;
-    cv::Mat FrameLeftGray;
-    cv::Mat FrameRightGray;
-
-    cv::Mat pointcloud;
-//    sl::Mat pointcloud_sl;
-
-    cv::Mat PC_noColor;
-
-    cv::Mat CamMotionMat; // Tcw // (4,4,CV_32F) rotation mat and translation mat Tcw (Rcw, tcw) in ORBSLAM
-    cv::Mat DynamicFrame; // the corresponding frame after PC motion filtering, to double confirm the filtering works out correctly.
-    // this is the motion mask appilied on FrameLeft in this struct, which means a hitoric frame, not current frame.
-    cv::Mat DynamicPC; // filtered by motion displacement threshold
-    cv::Mat MotionMask;
-
-    cv::Mat PCMotionVec; // matrix of pc motion
-
-    cv::Mat ObjectMotionVec; // matrix of average object motion vec
-    cv::Mat LowPass_ObjectMotionVec; // matrix of average object motion vec
-
-    vector<cv::Point2f> keypoints;
-    vector<cv::Point2f> tracked_keypoints;
-    vector<uchar> tracked_status;
-
-//    vector<Point2f> keypoints_cache;
-
-//    landmark_matchinfo matched_scene;
-    cv::Mat sceneTransformMat;
-};
+//struct ZED_DATA{
+//    cv::Mat FrameLeft;
+//    cv::Mat FrameRight;
+//    cv::Mat FrameLeftGray;
+//    cv::Mat FrameRightGray;
+//
+//    cv::Mat pointcloud;
+////    sl::Mat pointcloud_sl;
+//
+//    cv::Mat PC_noColor;
+//
+//
+//    long ZEDTS;
+//    long frameTS;
+//};
+//
+//struct STEREO_DATA{
+//
+//    long frameTS;
+//    long ZEDTS;
+//    int frameSeq;
+//
+//    cv::Mat FrameLeft;
+//    cv::Mat FrameRight;
+//    cv::Mat FrameLeftGray;
+//    cv::Mat FrameRightGray;
+//
+//    cv::Mat pointcloud;
+////    sl::Mat pointcloud_sl;
+//
+//    cv::Mat PC_noColor;
+//
+//    cv::Mat CamMotionMat; // Tcw // (4,4,CV_32F) rotation mat and translation mat Tcw (Rcw, tcw) in ORBSLAM
+//    cv::Mat DynamicFrame; // the corresponding frame after PC motion filtering, to double confirm the filtering works out correctly.
+//    // this is the motion mask appilied on FrameLeft in this struct, which means a hitoric frame, not current frame.
+//    cv::Mat DynamicPC; // filtered by motion displacement threshold
+//    cv::Mat MotionMask;
+//
+//    cv::Mat PCMotionVec; // matrix of pc motion
+//
+//    cv::Mat ObjectMotionVec; // matrix of average object motion vec
+//    cv::Mat LowPass_ObjectMotionVec; // matrix of average object motion vec
+//
+//    vector<cv::Point2f> keypoints;
+//    vector<cv::Point2f> tracked_keypoints;
+//    vector<uchar> tracked_status;
+//
+////    vector<Point2f> keypoints_cache;
+//
+////    landmark_matchinfo matched_scene;
+//    cv::Mat sceneTransformMat;
+//};
 
 class IO;
 class AugmentedVR {
@@ -92,9 +95,9 @@ class AugmentedVR {
 public: //TODO change to private and add agetter seter
     int CamId;
     long startTS;
-    long frameTS;
-    long ZEDTS;
-    int frameSeq;
+//    long frameTS;
+//    long ZEDTS;
+    int TotalFrameSeq;
 
     // ZED data
     // params
@@ -104,50 +107,60 @@ public: //TODO change to private and add agetter seter
 
     int width, height;// video input size
     int ZEDConfidence;
-    cv::Mat SbSResult;
-    cv::Mat FrameLeft;
-    cv::Mat FrameRight;
-    cv::Mat FrameLeftGray;
-    cv::Mat FrameRightGray;
+//    cv::Mat SbSResult;
+//    cv::Mat FrameLeft;
+//    cv::Mat FrameRight;
+//    cv::Mat FrameLeftGray;
+//    cv::Mat FrameRightGray;
 
     cv::Mat ZED_LRes;
     cv::Mat BufferXYZRGBA;
 
-    cv::Mat pointcloud_cv;
-//    sl::Mat pointcloud_sl;
-    sl::Mat pointcloud_sl_gpu;
+//    cv::Mat pointcloud_cv;
+////    sl::Mat pointcloud_sl;
+//    sl::Mat pointcloud_sl_gpu;
 
-    cv::Mat PC_noColor;
+//    cv::Mat PC_noColor;
 
     cv::Mat initPC;
 
-    ZED_DATA NextFrame;
-    ZED_DATA SlamFrame;// intermedieate buffer between zed and slam,for pipeline
-    STEREO_DATA LastFrame;
+    bool initialized;
 
-//    vector<cv::Mat> lastpointcloud;
-    vector<STEREO_DATA> lastStereoData;
+//    ZED_DATA NextFrame;
+//    ZED_DATA SlamFrame;// intermedieate buffer between zed and slam,for pipeline
+//    STEREO_DATA LastFrame;
+//
+////    vector<cv::Mat> lastpointcloud;
+//    vector<STEREO_DATA> lastStereoData;
 //    vector<cv::Mat> PCMotionVec;
 
-    cv::Mat depth_mat;
+//    cv::Mat depth_mat;
+
+
 
 
     // ORB SLAM data
-    cv::Mat CamMotionMat; // Tcw // (4,4,CV_32F) rotation mat and translation mat Tcw (Rcw, tcw) in ORBSLAM
+//    cv::Mat CamMotionMat; // Tcw // (4,4,CV_32F) rotation mat and translation mat Tcw (Rcw, tcw) in ORBSLAM
 //    cv::Mat lastCamMotionMat; // (4,4,CV_32F)
 
-    cv::Mat tlc;
-    cv::Mat Rlc;
+    cv::Mat tlc; // translation
+    cv::Mat Rlc; // rotation
 
-    cv::Mat sceneTransformMat;
-    cv::Mat transformedPointcloud; // transforming to the coordinate frame of last frame
+//    cv::Mat sceneTransformMat;
+//    cv::Mat transformedPointcloud; // transforming to the coordinate frame of last frame
 
-    cv::Mat PCDisplacement;
+//    cv::Mat PCDisplacement;
     cv::Mat ObjectMotionVec; // matrix of average object motion vec
 
     cv::Mat Log_LowPassMotionVec; // after low pass filter TODO: make a log
 
     cv::Mat RxMotionVec; // motion vector of object received
+
+    int RxTimeStamp;
+    cv::Mat RxFrame;
+    cv::Mat RxPC;
+    cv::Mat RxDynamicPC; // transfromed txceived PC
+    cv::Mat RxTCW;
 
     cv::Mat transRxPC;
     cv::Mat transRxDynamicPC; // transfromed txceived PC
@@ -160,6 +173,7 @@ public: //TODO change to private and add agetter seter
     vector<uchar> status_cache;
     vector<float> err_cache;
 
+    FrameCache frameCache;
     sl::Camera* mZEDCam;
     ORB_SLAM2::System* mSLAM;
     IO* mIo;
@@ -167,9 +181,6 @@ public: //TODO change to private and add agetter seter
     thread CPU_download;
 
     void setMSLAM(ORB_SLAM2::System *mSLAM);
-//    DeepCam* mDeepCam;
-//    IO* mIo;
-//    Displayer* mDisplayer;
 
 
 
@@ -183,7 +194,7 @@ public:
     int initZEDCam(int startFrameID);
 
     void initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap = false, string mapFile = "default.txt");
-    void PrepareNextFrame();
+    bool PrepareNextFrame();
     bool grabNextZEDFrameOffline();
     void FeedSlamNextFrame();
 //    void fetchNUpdateFrameNPointcloud();
@@ -203,10 +214,10 @@ public:
     void subtractCamMotion();
 
     void calcSceneTransformMat(int idx);
-    void calcCamMotion(int idx);
+    void calcCamMotion_CacheIdx2Last(int idx);
     void transfromPCtoLastFrameCoord(int idx);
 
-    void calcPCMotionVec();
+    void PCMotionAnalysis();
 
     void filterPCMotion();
 
@@ -216,7 +227,8 @@ public:
 
     cv::Mat calcRelaCamPos(cv::Mat TcwReceived);
 
-    cv::Mat transfromRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived);
+    cv::Mat translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived);
+    cv::Mat transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived);
 
     int getCamId() const;
 
@@ -226,15 +238,13 @@ public:
 
     long getZEDTS() const;
 
-    int getFrameSeq() const;
-
     void updateLastPointCloud();
 
     cv::Mat calcPCDisplacement(int idx);
 
-    void filterObjectMotion(int idx);
+    void ObjectMotionAnalysis(int idx);
 
-    bool calcOpticalFlow();
+    void calcOpticalFlow();
 
     void retrieve_ZED_PC_CPU();
 
@@ -257,6 +267,12 @@ public:
     void detectFeature();
 
     cv::Mat removeOverlap(cv::Mat transPC);
+
+    void SinkFrames();
+
+    void getCurrentAVRFrame(AVRFrame &ret);
+
+    bool trackGood();
 };
 
 

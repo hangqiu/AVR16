@@ -25,6 +25,7 @@ public:
 // SDK 2.0 Point cloud viewer
     GLViewer* mGLViewer;
     std::thread display_callback;
+
 //    sl::Mat PC_gpu;
 
     int PCwidth, PCheight; //
@@ -54,15 +55,17 @@ public:
 
     void checkResetPCViewer(int width, int height);
 
-    void pushPC_Mat(cv::Mat& mat);
+    void pushPC_cvMat(cv::Mat &mat);
 
-    void debugPC(cv::Mat DebugPC);
+//    void debugPC(cv::Mat DebugPC);
 
     void showPC();
 
     void showSplitScreen(cv::Mat PC1, cv::Mat PC2);
 
     void showCurFrame();
+
+    void showCurFrameWithPC();
 
     void showCurDynamicFrame(int idx);
 
