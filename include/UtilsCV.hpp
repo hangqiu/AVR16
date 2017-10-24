@@ -13,7 +13,7 @@ void debugPauser();
 void processKey(char key);
 void pauseStopResume();
 void saveCurFrame(cv::Mat FrameLeft, int frameSeq, long frameTS);
-
+void saveOpenGL(int width, int height);
 
 
 #endif //PROJECT_CVUTILS_H

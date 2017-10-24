@@ -13,10 +13,10 @@ using namespace std;
 FrameCache::FrameCache(){
     CacheSize = ZEDCACHESIZE;
     assert(CacheSize>4); // must > 4. since simultanesouly processing 4 frames, 3 + ZEDCACHESIZE ensure comparing ZEDCACHESIZE frames back
-    NextFrame = AVRFrame();
-    SlamFrame = AVRFrame();
-    CurrentFrame = AVRFrame();
-    LastFrame = AVRFrame();
+//    NextFrame = AVRFrame();
+//    SlamFrame = AVRFrame();
+//    CurrentFrame = AVRFrame();
+//    LastFrame = AVRFrame();
     startTS = 0;
     fifoStartIndex = -1;
     fifoEndIndex = -1;
@@ -25,10 +25,10 @@ FrameCache::FrameCache(){
 FrameCache::FrameCache(int size){
     CacheSize = size;
     assert(CacheSize>4); // must > 4. since simultanesouly processing 4 frames, 3 + ZEDCACHESIZE ensure comparing ZEDCACHESIZE frames back
-    NextFrame = AVRFrame();
-    SlamFrame = AVRFrame();
-    CurrentFrame = AVRFrame();
-    LastFrame = AVRFrame();
+//    NextFrame = AVRFrame();
+//    SlamFrame = AVRFrame();
+//    CurrentFrame = AVRFrame();
+//    LastFrame = AVRFrame();
     startTS = 0;
     fifoStartIndex = -1;
     fifoEndIndex = -1;
@@ -47,6 +47,7 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     gettimeofday(&start, NULL);
 //    cout << "grabZEDFrameOffline >>>>>>> PC thread starting at: " << double(start.tv_sec)*1000 + double(start.tv_usec) / 1000<< "ms" << endl;
 #endif
+    NewFrame.FrameLock.lock();
     NewFrame.ZEDTS = mZEDCam->getCameraTimestamp();
     LatestTS = NewFrame.ZEDTS;
     NewFrame.frameTS = NewFrame.ZEDTS - startTS;
@@ -61,7 +62,8 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     sl::Mat pc;
     ERROR_CODE err = mZEDCam->retrieveMeasure(pc, sl::MEASURE_XYZRGBA, sl::MEM_CPU, width, height);
     if (err!=SUCCESS)        cerr << "Can't retrieve point cloud! error code:" << err << endl;
-    slMat2cvMat(pc).copyTo(NewFrame.pointcloud); //just to be safe
+
+    slMat2cvMat(pc,NewFrame.pointcloud); //just to be safe
 //    ERROR_CODE err2 = mZEDCam->retrieveMeasure(pointcloud_sl_gpu, sl::MEASURE_XYZRGBA, sl::MEM_GPU, width, height);
 //    if (err2!=SUCCESS){
 //        cerr << "Can't retrieve point cloud gpu! error code:" << err2 << endl;
@@ -78,12 +80,15 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     sl::Mat frameLeft_cpu, frameRight_cpu;
     mZEDCam->retrieveImage(frameLeft_cpu, sl::VIEW_LEFT,sl::MEM_CPU);
     mZEDCam->retrieveImage(frameRight_cpu, sl::VIEW_RIGHT,sl::MEM_CPU);
-    NewFrame.FrameLeft = slMat2cvMat(frameLeft_cpu);
-    NewFrame.FrameRight = slMat2cvMat(frameRight_cpu);
+    slMat2cvMat(frameLeft_cpu, NewFrame.FrameLeft);
+    slMat2cvMat(frameRight_cpu, NewFrame.FrameRight);
+//    cv::imshow("newframe",NewFrame.FrameLeft);
 
 
     cv::cvtColor(NewFrame.FrameLeft, NewFrame.FrameLeftGray, CV_BGR2GRAY);
     cv::cvtColor(NewFrame.FrameRight, NewFrame.FrameRightGray, CV_BGR2GRAY);
+
+    NewFrame.FrameLock.unlock();
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -126,26 +131,23 @@ void FrameCache::SinkFrames(){
 }
 
 bool FrameCache::NextFrame2SlamFrame(){
-//    if (SlamFrame) delete SlamFrame;
     if (NextFrame.isEmpty()) return false;
     SlamFrame.setFrom(NextFrame);
-    NextFrame.setFrom(AVRFrame());
+//    NextFrame.setFrom(AVRFrame());
     return true;
 }
 
 bool FrameCache::SlamFrame2CurrentFrame(){
-//    if (CurrentFrame) delete CurrentFrame;
     if (SlamFrame.isEmpty()) return false;
     CurrentFrame.setFrom(SlamFrame);
-    SlamFrame.setFrom(AVRFrame());
+//    SlamFrame.setFrom(AVRFrame());
     return true;
 }
 
 bool FrameCache::CurrentFrame2LastFrame(){
-//    if (LastFrame) delete LastFrame;
     if (CurrentFrame.isEmpty()) return false;
     LastFrame.setFrom(CurrentFrame);
-    CurrentFrame.setFrom(AVRFrame());
+//    CurrentFrame.setFrom(AVRFrame());
     return true;
 }
 
@@ -202,12 +204,18 @@ bool FrameCache::LastFrame2FIFO(){
 
 void FrameCache::opticalFlowTrack_Curr2Last(){
     theBigLock.lock();
+    LastFrame.FrameLock.lock();
+    CurrentFrame.FrameLock.lock();
     calcOpticalFlow_Current2Last();
     FindHomographyMatrix_Curr2Last();
+    CurrentFrame.FrameLock.unlock();
+    LastFrame.FrameLock.unlock();
     theBigLock.unlock();
 }
 
 bool FrameCache::calcOpticalFlow_Current2Last() {
+
+
     cv::TermCriteria termcrit(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 20, 0.03);
     cv::Size  winSize(31, 31);
 #ifdef EVAL
@@ -329,6 +337,9 @@ void FrameCache::FindHomographyMatrix_Curr2Last(){
 
 void FrameCache::updateMotionData_Curr2CacheHead(){
     assert(ReachFullMotionBacklog());
+
+    CurrentFrame.FrameLock.lock();
+    fifo[fifoStartIndex].FrameLock.lock();
     //PC motion
     updateTransformationMatrix_Curr2CacheHead();
     CurrentFrame.tranformPointCloud_via_TransformationMat();
@@ -336,6 +347,8 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     // filter dynamics
     CurrentFrame.MotionAnalysis();
 
+    fifo[fifoStartIndex].FrameLock.unlock();
+    CurrentFrame.FrameLock.unlock();
 }
 
 void FrameCache::updateMotionVec_Curr2CacheHead(){
@@ -370,7 +383,7 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
 
 bool FrameCache::ReachFullMotionBacklog(){
 //     return fifo.size()==CacheSize && !(fifo[0].CamMotionMat.empty());
-    return fullBacklog && !fifo[fifoStartIndex].CamMotionMat.empty();
+    return fullBacklog && !(fifo[fifoStartIndex].CamMotionMat.empty()) && !(CurrentFrame.CamMotionMat.empty());
 }
 
 void FrameCache::setStartTS(unsigned long long int startTS) {

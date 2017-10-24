@@ -4,6 +4,7 @@
 
 #include <opencv2/core/types.hpp>
 #include <include/globals.hpp>
+#include <GL/gl.h>
 #include "UtilsCV.hpp"
 
 
@@ -84,6 +85,14 @@ cv::Mat getGrayBBox(cv::Mat img, int select_left, int select_top, int select_wid
 }
 
 
+//void saveOpenGL(int width, int height){
+//    float* buffer = new float[width*height*3];
+////    glReadBuffer(GL_BACK);
+//    glReadPixels(0, 0, width, height, GL_RGB, GL_FLOAT, buffer);
+//    cv::Mat image(height, width, CV_8UC3, buffer);
+//    cv::imshow("Show Image", image);
+////    cv::imwrite("Show Image", image);
+//}
 
 
 

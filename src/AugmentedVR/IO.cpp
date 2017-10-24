@@ -52,7 +52,7 @@ void IO::writeCurrentStereoFrame(){
 
 
 void IO::logCurrentFrame(){
-    char tmpstr[100];
+//    char tmpstr[100];
     AVRFrame currFrame;
     myAVR->getCurrentAVRFrame(currFrame);
     logFile << "Frame " << currFrame.frameSeq

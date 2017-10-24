@@ -108,7 +108,7 @@ extern timeval tInit;
 extern bool quit;
 
 
-cv::Mat slMat2cvMat(sl::Mat& input);
+void slMat2cvMat(sl::Mat& input, cv::Mat& output);
 void cvMat2slMat(cv::Mat& input, sl::Mat& output, sl::MEM);
 void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out);
 

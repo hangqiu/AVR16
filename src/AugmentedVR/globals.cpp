@@ -50,7 +50,7 @@ double PCConnectionThresh = 0.02;
 double MOTIONTHRESH_PERPIXEL = 0.05; //meters
 int PATCHSIZE = 10; // expand step x pixels
 
-double HEIGHT_THRESH = 2.5;
+double HEIGHT_THRESH = 2;
 
 bool INIT_FLAG = false;
 //bool EVAL = false;
@@ -85,16 +85,16 @@ string commPath = "/home/hang/AVRComm/";
 string AddressA = "http://192.168.0.166:";
 string Port = "34568";
 string AddressB = "http://192.168.0.187:";
-/// laptop 127
-//string MyAddress = AddressB;
-//string MyPort = Port;
-//string ServerAddress = AddressA;
-//string ServerPort = Port;
-/// desktop 204
-string MyAddress = AddressA;
+/// laptop 187
+string MyAddress = AddressB;
 string MyPort = Port;
-string ServerAddress = AddressB;
+string ServerAddress = AddressA;
 string ServerPort = Port;
+/// desktop 166
+//string MyAddress = AddressA;
+//string MyPort = Port;
+//string ServerAddress = AddressB;
+//string ServerPort = Port;
 /// store video or webcam
 bool OFFLINE = true;
 
@@ -126,7 +126,7 @@ int lengthInFrame = 100;
 timeval tInit;
 
 
-cv::Mat slMat2cvMat(sl::Mat& input) {
+void slMat2cvMat(sl::Mat& input, cv::Mat& output) {
     // Mapping between MAT_TYPE and CV_TYPE
     int cv_type = -1;
     switch (input.getDataType()) {
@@ -143,7 +143,7 @@ cv::Mat slMat2cvMat(sl::Mat& input) {
 
     // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
     // cv::Mat and sl::Mat will share a single memory structure
-    return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(sl::MEM_CPU));
+    cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(sl::MEM_CPU)).copyTo(output);
 }
 
 

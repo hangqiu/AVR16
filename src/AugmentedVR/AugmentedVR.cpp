@@ -104,6 +104,7 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
         frameCache.getNextFrame(next);
         next.pointcloud.copyTo(initPC);//TODO
         INIT_FLAG = true;
+//        imshow("retrieve new", next.FrameLeft);
     }
 
     return true;
@@ -479,7 +480,10 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
 
     cv::Mat img;
 
-    frameCache.CurrentFrame.FrameLeft.copyTo(img);
+    AVRFrame cur;
+    frameCache.getCurrentFrame(cur);
+    
+    cur.FrameLeft.copyTo(img);
 
 //    img = mSLAM->DrawSlamFrame();
     AVRFrame cacheHead;
@@ -495,22 +499,22 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
 
         for( size_t i = 0; i < points_trans.size(); i++ ) {
             cv::Rect rect(0, 0, img.cols, img.rows);
-            if (rect.contains(frameCache.CurrentFrame.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
+            if (rect.contains(cur.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
                 // check if the point is in range after transformation
-                if (frameCache.CurrentFrame.tracked_status[i] && norm(points_trans[i] - frameCache.CurrentFrame.keypoints[i]) > 5) {
+                if (cur.tracked_status[i] && norm(points_trans[i] - cur.keypoints[i]) > 5) {
 
                     if (DEBUG) {
 
                         circle(img, cacheHead.keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
                         circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
-                        circle(img, frameCache.CurrentFrame.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
-                        line(img, points_trans[i], frameCache.CurrentFrame.keypoints[i], cv::Scalar(0, 0, 255));
+                        circle(img, cur.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
+                        line(img, points_trans[i], cur.keypoints[i], cv::Scalar(0, 0, 255));
                         line(img, cacheHead.keypoints[i], points_trans[i],
                              cv::Scalar(0, 255, 255));
                     }
 
                     if (cacheHead.MotionMask.at<uchar>(cacheHead.keypoints[i]) == 255 &&
-                            cacheHead.MotionMask.at<uchar>(frameCache.CurrentFrame.keypoints[i]) == 255) {
+                            cacheHead.MotionMask.at<uchar>(cur.keypoints[i]) == 255) {
 
 
                         //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor(Rect(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,1,1));
@@ -522,7 +526,7 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
                         cv::Mat motionVec = cacheHead.PC_noColor(
                                 cv::Rect(cacheHead.keypoints[i].x,
                                          cacheHead.keypoints[i].y, 1, 1)) -
-                                frameCache.CurrentFrame.PC_noColor(cv::Rect(frameCache.CurrentFrame.keypoints[i].x, frameCache.CurrentFrame.keypoints[i].y, 1, 1));
+                                cur.PC_noColor(cv::Rect(cur.keypoints[i].x, cur.keypoints[i].y, 1, 1));
                         double dist = norm(motionVec);
                         if (cvIsInf(dist) || cvIsNaN(dist)) continue;
                         if (DEBUG > 1) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;
