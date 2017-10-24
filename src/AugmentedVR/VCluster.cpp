@@ -75,7 +75,7 @@ void VCluster::run(){
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
     while (key != 'q' && !quit && VNode[0]->TotalFrameSeq < lengthInFrame) {
 //        key = waitKey(20);
-        FRAME_ID++;
+        FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
         //Resize and imshow
         cout << endl << "FrameID: " << FRAME_ID << endl;
@@ -202,7 +202,9 @@ bool VCluster::PreProcess(){
 void VCluster::compressDynamic(){
 //    cout << "compressing \n ";
     cv::Mat tmp;
-    VNode[0]->getCurrentAVRFrame().pointcloud.copyTo(tmp);
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
+    currFrame.pointcloud.copyTo(tmp);
     mCodec->encode(tmp);
 }
 
@@ -226,6 +228,7 @@ void VCluster::postProcess(){
 //    compressDynamic();
 //    segmentation();
     TXRX();
+//    TXRX_viaDisk();
     visualize();
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -239,10 +242,12 @@ void VCluster::visualize(){
     // Point Cloud Stiching
     if (SHOW_PC && VISUAL) {
 //        mDisplayer->showCurFrame();
-
+        AVRFrame currFrame;
+        VNode[0]->getCurrentAVRFrame(currFrame);
         if (TX) {
 //                mDisplayer->showPC(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
-            mDisplayer->showPC(VNode[0]->getCurrentAVRFrame().pointcloud);
+
+            mDisplayer->showPC(currFrame.pointcloud);
         }
         else if (RX) {
             if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
@@ -274,7 +279,7 @@ void VCluster::visualize(){
         else{
             // debug
 
-            mDisplayer->showPC(VNode[0]->getCurrentAVRFrame().pointcloud);
+            mDisplayer->showPC(currFrame.pointcloud);
 
 //            mDisplayer->showPC(VNode[0]->pointcloud_sl_gpu);
         }

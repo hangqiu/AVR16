@@ -45,6 +45,7 @@ extern int DEBUG;
 extern bool VISUAL;
 extern bool DEBUGVISUAL;
 extern bool SLAMVISUAL;
+extern bool PCVISUAL;
 extern bool DYNAMICS;
 extern int FRAME_ID;
 extern int TRACK_FREQ;

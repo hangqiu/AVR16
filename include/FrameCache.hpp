@@ -21,7 +21,11 @@ public:
     AVRFrame CurrentFrame;
     AVRFrame LastFrame;
     unsigned long long int LatestTS;
-    std::vector<AVRFrame> fifo;
+//    std::vector<AVRFrame> fifo;
+    AVRFrame* fifo;
+    int fifoStartIndex;
+    int fifoEndIndex;
+    bool fullBacklog = false;
 
 public:
     FrameCache();
@@ -64,12 +68,15 @@ public:
 
     void updateMotionVec_Curr2CacheHead();
 
+//    AVRFrame getFIFOHead();
+    void getFIFOHead(AVRFrame& frame);
+
     bool LastFrame2FIFO();
 
-    AVRFrame getCurrentFrame();
-    AVRFrame getNextFrame();
-    AVRFrame getSlamFrame();
-    AVRFrame getLastFrame();
+    void getCurrentFrame(AVRFrame & ret);
+    void getNextFrame(AVRFrame & ret);
+    void getSlamFrame(AVRFrame & ret);
+    void getLastFrame(AVRFrame & ret);
 
     unsigned long long int getLatestTS() ;
 

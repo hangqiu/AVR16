@@ -78,7 +78,8 @@ void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t f
 }
 
 void Displayer::showCurDynamicFrame(int idx){
-    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
     if (currFrame.DynamicFrame.empty()) return;
     char tmp[100];
     sprintf(tmp, "Current Dynamic Left Frame against %d frames before", (idx+1)*5);
@@ -88,7 +89,8 @@ void Displayer::showCurDynamicFrame(int idx){
 }
 
 void Displayer::showCurFrameWithPC(){
-    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
     if (currFrame.FrameLeft.empty()) return;
     char winName[100] = "Current Left Frame";
     cv::namedWindow(winName);
@@ -99,10 +101,11 @@ void Displayer::showCurFrameWithPC(){
 }
 
 void Displayer::showCurFrame(){
-    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
     if (currFrame.FrameLeft.empty()) return;
     char winName[100] = "Current Left Frame";
-    cv::namedWindow(winName);
+//    cv::namedWindow(winName, CV_WINDOW_NORMAL|CV_GUI_NORMAL);
     cv::imshow(winName, currFrame.FrameLeft);
     char key = cv::waitKey(20);
     processKey(key);
@@ -166,13 +169,15 @@ void Displayer::saveFrame(){
 
 void Displayer::showPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
-    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
     pushPC_cvMat(currFrame.pointcloud);
 }
 
 void Displayer::showDynamicPC(){
 //    checkResetPCViewer(VNode[0]->width, VNode[0]->height);
-    AVRFrame currFrame = VNode[0]->getCurrentAVRFrame();
+    AVRFrame currFrame ;
+    VNode[0]->getCurrentAVRFrame(currFrame);
     pushPC_cvMat(currFrame.DynamicPC);
 }
 void Displayer::pushPC_cvMat(cv::Mat &mat){
@@ -204,7 +209,9 @@ void Displayer::showMergedPC(cv::Mat mat) {
     //TODO check dimension, mat should be the same dimension as my default VNode[0]->pointcloud
 //    checkResetPCViewer(mat.cols*2,mat.rows*2);
     cv::Mat totalPC;
-    hconcat(VNode[0]->getCurrentAVRFrame().pointcloud, mat,totalPC);
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
+    hconcat(currFrame.pointcloud, mat,totalPC);
     pushPC_cvMat(totalPC);
 //        VNode[0]->shiftPC(VNode[0]->transformedPointcloud,Scalar(0,-5,0,0));
 //        VNode[0]->shiftPC(VNode[0]->DynamicPC,Scalar(0,5,0,0));

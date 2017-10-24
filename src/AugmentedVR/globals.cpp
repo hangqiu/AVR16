@@ -21,6 +21,7 @@ int DEBUG = 0;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
+bool PCVISUAL = true;
 
 bool DYNAMICS = false;
 

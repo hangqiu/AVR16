@@ -64,7 +64,8 @@ void ObjSenderHandler::handle_get_fromMemory(http_request message)
 
     /// from file
     sprintf(dir, "%s/cam0/%s_%s_%s_%d.yml",commPath.c_str(),
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), FRAME_ID-2);
+            ///Frameid in Next Frame, -2 in Slam, -3 in current, -4 done
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), FRAME_ID-4);
     std::cout << "returning " << dir << endl;
 
     concurrency::streams::fstream::open_istream(U(dir), std::ios::in)
@@ -120,8 +121,8 @@ void ObjSenderHandler::handle_get(http_request message)
 
     char dir[100];
     /// from file
-    sprintf(dir, "%s/cam0/%s_%s_%s_%d.yml",commPath.c_str(),
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), FRAME_ID-2);
+    sprintf(dir, "%s/cam0/%s_%s_%d.yml",commPath.c_str(),
+            TCW.c_str(), TIMESTAMP.c_str(), FRAME_ID-4);
     std::cout << "returning " << dir << endl;
 
       concurrency::streams::fstream::open_istream(U(dir), std::ios::in).then([=](concurrency::streams::istream is)

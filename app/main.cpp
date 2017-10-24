@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
     gettimeofday(&tInit, NULL);
 #endif
 
-    if (VISUAL){
+    if (PCVISUAL){
         mvThread = new std::thread(run);
         glutCloseFunc(close);
         glutMainLoop();

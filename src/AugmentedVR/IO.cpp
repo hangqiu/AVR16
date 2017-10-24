@@ -40,7 +40,8 @@ IO::~IO() {
 
 void IO::writeCurrentStereoFrame(){
     cout <<"writing frames " << FRAME_ID << endl;
-    AVRFrame currFrame = myAVR->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    myAVR->getCurrentAVRFrame(currFrame);
     char tmp_str[50];
     sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_0/%06d.png", myAVR->CamId, FRAME_ID);
     imwrite(tmp_str,currFrame.FrameLeft);
@@ -52,7 +53,8 @@ void IO::writeCurrentStereoFrame(){
 
 void IO::logCurrentFrame(){
     char tmpstr[100];
-    AVRFrame currFrame = myAVR->getCurrentAVRFrame();
+    AVRFrame currFrame;
+    myAVR->getCurrentAVRFrame(currFrame);
     logFile << "Frame " << currFrame.frameSeq
             << ": TS: " << currFrame.ZEDTS
             << ": Obj MotionVec: " << currFrame.ObjectMotionVec

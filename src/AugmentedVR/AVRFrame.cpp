@@ -10,6 +10,9 @@
 AVRFrame::AVRFrame(){
 
 }
+AVRFrame::~AVRFrame(){
+
+}
 
 //AVRFrame::AVRFrame(long ZEDTS, long FrameTS, int frameSeq,
 //                   cv::Mat& FrameLeft, cv::Mat& FrameRight, cv::Mat& FrameLeftGray, cv::Mat& FrameRightGray,
