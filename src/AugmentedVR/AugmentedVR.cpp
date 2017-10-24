@@ -257,15 +257,15 @@ cv::Mat AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived
     cout << Trc << endl;
     debugPC(PCReceived);
 //    if (DEBUG){
-        timeval start,end;
-        gettimeofday(&start, NULL);
+//        timeval start,end;
+//        gettimeofday(&start, NULL);
 //    }
     cv::Mat ret = transformPCViaTransformationMatrix_gpu(Trc, PCReceived);
 //    if (DEBUG){
-        gettimeofday(&end,NULL);
-        cout << "Transformation time: " << double(end.tv_sec-start.tv_sec)*1000
-             << double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-
+//        gettimeofday(&end,NULL);
+//        cout << "Transformation time: " << double(end.tv_sec-start.tv_sec)*1000
+//             << double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+//
 //    }
     debugPC(ret);
     return ret;

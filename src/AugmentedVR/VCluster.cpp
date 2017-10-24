@@ -225,7 +225,8 @@ void VCluster::postProcess(){
     VNode[0]->analyze();
 //    compressDynamic();
 //    segmentation();
-    TXRX();
+//    TXRX();
+    TXRX_viaDisk();
     visualize();
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -305,7 +306,12 @@ void VCluster::TXRX(){
 
         if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
             /// calculating rela position
+            cout << VNode[0]->RxTCW << endl;
+            cout << VNode[0]->getCurrentAVRFrame().CamMotionMat << endl;
+
             Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
+
+            cout << Trc << endl;
 //            trc = Trc.rowRange(0,3).col(3);
             /// PC manipulation
             VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
