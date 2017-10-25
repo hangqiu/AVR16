@@ -235,7 +235,7 @@ void AugmentedVR::PCMotionAnalysis() {
 }
 
 //Return relative transformation matrix from received frame to current frame
-cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
+void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Trc){
     // w: world, r: received frame, c: current frame
 //    if (TcwReceived.empty()) return cv::Mat;
     AVRFrame currFrame;
@@ -251,25 +251,25 @@ cv::Mat AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived){
     cv::Mat trc = Rrw*twc+trw;
     cv::Mat Rrc = Rrw*Rwc;
 
-    cv::Mat Trc = cv::Mat::eye(4,4,CV_32F);
+    Trc = cv::Mat::eye(4,4,CV_32F);
     trc.copyTo(Trc.rowRange(0,3).col(3));
     Rrc.copyTo(Trc.rowRange(0,3).colRange(0,3));
-//    if (DEBUG){
+    if (DEBUG){
         cout << "trc: \n" << trc << endl;
         cout << "Rrc: \n" << Rrc << endl; // to see if Rlc is almost identity matrix
-//    }
+    }
 //    return trc; // only trc for now, TODO: include Rrc after you can compute perelement 1 by 3 multiplication
-    return Trc;
+//    return Trc;
 }
 
-cv::Mat AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived){
+void AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived, cv::Mat & ret){
     cout << Trc << endl;
     debugPC(PCReceived);
 //    if (DEBUG){
 //        timeval start,end;
 //        gettimeofday(&start, NULL);
 //    }
-    cv::Mat ret = transformPCViaTransformationMatrix_gpu(Trc, PCReceived);
+    transformPCViaTransformationMatrix_gpu(Trc, PCReceived, ret);
 //    if (DEBUG){
 //        gettimeofday(&end,NULL);
 //        cout << "Transformation time: " << double(end.tv_sec-start.tv_sec)*1000
@@ -277,7 +277,7 @@ cv::Mat AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived
 //
 //    }
     debugPC(ret);
-    return ret;
+//    return ret;
 }
 cv::Mat AugmentedVR::translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived){
 

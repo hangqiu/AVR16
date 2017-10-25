@@ -45,7 +45,7 @@ ObjSender::~ObjSender() {
 void ObjSender::writeFrameInSeparateFile(){
 //    writeCurrentFrame();
     writeCurrentTcw();
-//    writeCurrentTimeStamp();
+    writeCurrentTimeStamp();
     writePC();
 //    writeDynamicPC();
 //    writeObjectMotionVec();

@@ -225,10 +225,10 @@ public:
 
     ORB_SLAM2::System *getMSLAM() const;
 
-    cv::Mat calcRelaCamPos(cv::Mat TcwReceived);
+    void calcRelaCamPos(cv::Mat TcwReceived, cv::Mat&ret);
 
     cv::Mat translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived);
-    cv::Mat transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived);
+    void transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived, cv::Mat & ret);
 
     int getCamId() const;
 

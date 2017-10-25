@@ -12,7 +12,7 @@ using namespace sl;
 //}
 
 VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
-    frameSeqRx = 300;
+    frameSeqRx = 0;
     timeRx=0;
 
     InitParameters init_parameters;
@@ -251,6 +251,35 @@ void VCluster::visualize(){
 //            saveOpenGL(1000, 1000);
         }
         else if (RX) {
+            if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
+                /// calculating rela position
+                cv::Mat Trc;
+                VNode[0]->calcRelaCamPos(VNode[0]->RxTCW, Trc);
+
+                /// PC manipulation
+                VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC, VNode[0]->transRxPC);
+                if (DYNAMICS){
+                    VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxDynamicPC, VNode[0]->transRxDynamicPC);
+                }
+            }
+            /// Dead-Reckoning
+//            else{
+//
+//                if ( !VNode[0]->RxMotionVec.empty()){
+//#ifdef EVAL
+//                    gettimeofday(&tDeadReckonStart, NULL);
+//#endif
+//                    VNode[0]->dead_reckoning_onRxDynamicPC();
+//#ifdef EVAL
+//                    gettimeofday(&tDeadReckonEnd, NULL);
+//                cout << "TimeStamp: " << double(tDeadReckonEnd.tv_sec-tInit.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+//                cout << "TXRX >>>>> Dead reckon: " <<double(tDeadReckonEnd.tv_sec-tDeadReckonStart.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tDeadReckonStart.tv_usec) / 1000<< "ms"<< endl;
+//#endif
+//                }
+//
+//            }
+
+            /// visualize
             if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
 
                 mDisplayer->showMergedPC(VNode[0]->transRxPC);
@@ -309,20 +338,6 @@ void VCluster::TXRX(){
         gettimeofday(&tTXEnd, NULL);
 
         cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
-
-
-        if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
-            /// calculating rela position
-//            cout << VNode[0]->RxTCW << endl;
-//            cout << VNode[0]->getCurrentAVRFrame().CamMotionMat << endl;
-
-            Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
-
-//            cout << Trc << endl;
-//            trc = Trc.rowRange(0,3).col(3);
-            /// PC manipulation
-            VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
-        }
     }
 }
 
@@ -349,16 +364,13 @@ void VCluster::TXRX_viaDisk(){
 #endif
     }
 
-    cv::Mat Trc, trc, RxFrame;
+    /// ensure atomic reception
+    cv::Mat RxFrame, RxPC, RxTCW, RxDynamicPC;
     if (RX){
         // receiving objects
         // searcing for synced frame
         frameSeqRx ++;
-
-
         timeRx = mReceiver->readTimeStamp(frameSeqRx);
-        mReceiver->readFrame(frameSeqRx, RxFrame);
-
 //        // time sync module
 //        while( timeRx < VNode[0]->getCurrentAVRFrame().frameTS){
 //            frameSeqRx++;
@@ -366,77 +378,34 @@ void VCluster::TXRX_viaDisk(){
 //            timeRx = mReceiver->readTimeStamp(frameSeqRx);
 //        }
 
+        mReceiver->readPC(frameSeqRx,RxPC);
+        if (RxPC.empty()) {
+            cerr << "VCluster::TXRX() can't load rx PC " << frameSeqRx << endl;
+            return;
+        }
+        mReceiver->readTcw(frameSeqRx,RxTCW);
+        if (RxTCW.empty()) {
+            cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
+            return;
+        }
+        /// basic info complete
+        RxPC.copyTo(VNode[0]->RxPC);
+        RxTCW.copyTo(VNode[0]->RxTCW);
 
-#ifdef EVAL
-        gettimeofday(&tRXStart, NULL);
-#endif
-        mReceiver->readPC(frameSeqRx,VNode[0]->RxPC);
-        if (VNode[0]->RxPC.empty()) {
+        /// not care whether others are atomic fow now
+        mReceiver->readFrame(frameSeqRx, VNode[0]->RxFrame);
+        if (VNode[0]->RxFrame.empty()){
             cerr << "VCluster::TXRX() can't load rx frame " << frameSeqRx << endl;
             return;
         }
-#ifdef EVAL
-        gettimeofday(&tRXEnd, NULL);
-        cout << "TimeStamp: " << double(tRXEnd.tv_sec-tInit.tv_sec)*1000 + double(tFetchEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "TXRX >>>>> RX: " <<double(tRXEnd.tv_sec-tRXStart.tv_sec)*1000 + double(tRXEnd.tv_usec-tRXStart.tv_usec) / 1000<< "ms"<< endl;
-#endif
         if (DYNAMICS){
-             mReceiver->readDynamicPC(frameSeqRx,VNode[0]->RxDynamicPC);
-//        VNode[0]->RxMotionVec = mReceiver->readObjectMotionVec(frameSeqRx);
-             mReceiver->readLowPassObjectMotionVec(frameSeqRx, VNode[0]->RxMotionVec);
+            mReceiver->readDynamicPC(frameSeqRx,VNode[0]->RxDynamicPC);
+            mReceiver->readLowPassObjectMotionVec(frameSeqRx, VNode[0]->RxMotionVec);
             if (VNode[0]->RxDynamicPC.empty()){
                 cerr << "VCluster::TXRX() can't load rx dynamic frame " << frameSeqRx << endl;
                 return;
             }
         }
-        if (VNode[0]->trackGood()){
-
-            // if received a full frame
-//            if (FRAME_ID % DUTYCYCLE == 0){
-
-#ifdef EVAL
-                gettimeofday(&tPCmergeStart, NULL);
-#endif
-                // calculating rela position
-                mReceiver->readTcw(frameSeqRx,VNode[0]->RxTCW);
-                if (VNode[0]->RxTCW.empty()) {
-                    cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
-                    return;
-                }
-                Trc =  VNode[0]->calcRelaCamPos(VNode[0]->RxTCW);
-                trc = Trc.rowRange(0,3).col(3);
-                //        RxPC = VNode[0]->pointcloud;
-
-                // PC manipulation
-//            VNode[0]->transRxPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxPC);
-                VNode[0]->transRxPC =  VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxPC);
-#ifdef EVAL
-                gettimeofday(&tPCmergeEnd, NULL);
-            cout << "TimeStamp: " << double(tPCmergeEnd.tv_sec-tInit.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-            cout << " TXRX >>>>> PC merge: " <<double(tPCmergeEnd.tv_sec-tPCmergeStart.tv_sec)*1000 + double(tPCmergeEnd.tv_usec-tPCmergeStart.tv_usec) / 1000<< "ms"<< endl;
-#endif
-                if (DYNAMICS){
-//                    VNode[0]->transRxDynamicPC = VNode[0]->translateRxPCtoMyFrameCoord(trc, VNode[0]->RxDynamicPC);
-                    VNode[0]->transRxDynamicPC = VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxDynamicPC);
-                }
-//            }
-//            else{ // Dead-Reckoning
-//
-//                if ( !VNode[0]->RxMotionVec.empty()){
-//#ifdef EVAL
-//                    gettimeofday(&tDeadReckonStart, NULL);
-//#endif
-//                    VNode[0]->dead_reckoning_onRxDynamicPC();
-//#ifdef EVAL
-//                    gettimeofday(&tDeadReckonEnd, NULL);
-//                cout << "TimeStamp: " << double(tDeadReckonEnd.tv_sec-tInit.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-//                cout << "TXRX >>>>> Dead reckon: " <<double(tDeadReckonEnd.tv_sec-tDeadReckonStart.tv_sec)*1000 + double(tDeadReckonEnd.tv_usec-tDeadReckonStart.tv_usec) / 1000<< "ms"<< endl;
-//#endif
-//                }
-//
-//            }
-        }
-
 
     }
 }

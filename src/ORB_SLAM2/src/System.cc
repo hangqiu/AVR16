@@ -36,9 +36,10 @@ namespace ORB_SLAM2
 {
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
-               const bool bUseViewer, const bool bReuse, const string & mapFilePath ):mSensor(sensor),mbReset(false),mbActivateLocalizationMode(bReuse),
+               const bool bUseViewer, const bool bReuse, const string & mapFilePath ):mSensor(sensor),mbReset(false),mbActivateLocalizationMode(false),
         mbDeactivateLocalizationMode(false)
 {
+    /// even with a map, better use slam mode, since accuracy is better yet latency is similar
     // Output welcome message
     cout << endl <<
     "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl <<

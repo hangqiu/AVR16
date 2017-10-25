@@ -65,13 +65,13 @@ cv::Mat MatPerElementNorm(cv::Mat MotionVecMat){
 //    return ret;
 //}
 
-cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
+void transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived, cv::Mat & ret){
     // T is 4 by 4 transformation matix, where 3 by 3 rot, and 1 by 3 translation, last row is 0,0,0,1
     // point cloud is 1 by 4 (x,y,z,rgba)
     assert(T.size().width==4 && T.size().height==4);
     // extract channels
     cv::Mat PCChannels[4];
-    cv::Mat ret;
+//    cv::Mat ret;
     for (int i=0;i<4;i++){
         cv::extractChannel(PCReceived,PCChannels[i],i);
     }
@@ -103,7 +103,7 @@ cv::Mat transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived){
 //    PCChannels[2] = -PCChannels[2];
 
     merge(PCChannels,4,ret);
-    return ret;
+//    return ret;
 }
 
 void debugPC(cv::Mat DebugPC){

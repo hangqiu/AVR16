@@ -68,12 +68,17 @@ bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
                   }
 
                   //        V2VBuffer[FRAME] >> Node->RxFrame;
-                  V2VBuffer[PC] >> Node->RxPC;
+                  /// atomic reception
+                  cv::Mat RxPC, RxTCW;
+
                   V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
-                  V2VBuffer[TCW] >> Node->RxTCW;
+                  V2VBuffer[PC] >> RxPC;
+                  V2VBuffer[TCW] >> RxTCW;
 
-                  if (Node->RxPC.empty() || Node->RxTCW.empty()) return false;
+                  if (RxPC.empty() || RxTCW.empty()) return false;
 
+                  RxPC.copyTo(Node->RxPC);
+                  RxTCW.copyTo(Node->RxTCW);
                   return true;
               }else{
                   return false;
