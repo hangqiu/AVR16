@@ -94,7 +94,7 @@ class AugmentedVR {
 
 public: //TODO change to private and add agetter seter
     int CamId;
-    long startTS;
+    unsigned long long int startTS;
 //    long frameTS;
 //    long ZEDTS;
     int TotalFrameSeq;
@@ -271,6 +271,10 @@ public:
     void SinkFrames();
 
     void getCurrentAVRFrame(AVRFrame &ret);
+
+    void getCurrentAVRFrame_PointCloud(cv::Mat &ret);
+
+    unsigned long long int getCurrentAVRFrame_TimeStamp();
 
     bool trackGood();
 };

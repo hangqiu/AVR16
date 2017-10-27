@@ -20,7 +20,8 @@ public:
     AVRFrame SlamFrame;// intermedieate buffer between zed and slam,for pipeline
     AVRFrame CurrentFrame;
     AVRFrame LastFrame;
-    unsigned long long int LatestTS;
+    unsigned long long int LatestZEDTS;
+    unsigned long long int LatestFrameTS;
 //    std::vector<AVRFrame> fifo;
     AVRFrame* fifo;
     int fifoStartIndex;
@@ -78,7 +79,12 @@ public:
     void getSlamFrame(AVRFrame & ret);
     void getLastFrame(AVRFrame & ret);
 
-    unsigned long long int getLatestTS() ;
+    void getCurrentFrame_PointCloud(cv::Mat & ret);
+
+//    long getCurrentFrame_TimeStamp();
+
+    unsigned long long int getLatestZEDTS() ;
+    unsigned long long int getLatestFrameTS();
 
     void updateCurrFrameFeature();
 

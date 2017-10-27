@@ -21,7 +21,7 @@ private:
     ObjReceiver* mReceiver;
     pcCodec* mCodec;
     int frameSeqRx;
-    long timeRx;
+    unsigned long long int timeRx;
 
     std::thread* displayThread;
 

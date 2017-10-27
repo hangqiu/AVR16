@@ -58,24 +58,25 @@ int AugmentedVR::initZEDCam(int startFrameID){
     height = (int)image_size.height;
 //    mZEDCam->setConfidenceThreshold(ZEDConfidence);
 
+    /// get initial time stamp
+    grabNextZEDFrameOffline();
+    startTS = frameCache.getLatestZEDTS();
+    frameCache.setStartTS(startTS);
+
     int tmp_id = 0;
     while (tmp_id++ < startFrameID){
         cerr << "skipping frame " << tmp_id << endl;
         grabNextZEDFrameOffline();
     }
+
+    /// Here starts the frame seq 0.
+    TotalFrameSeq = 0;
     grabNextZEDFrameOffline();
+
     if (!frameCache.NextFrame2SlamFrame()){
         if (DEBUG) cerr<< " AugmentedVR::initZEDCam: SlamFrame2CurrentFrame Failure\n";
     };
     grabNextZEDFrameOffline();
-
-    // Here starts the frame seq 0.
-    TotalFrameSeq = 0;
-    startTS = frameCache.getLatestTS();
-    frameCache.setStartTS(startTS);
-
-
-
     return 0;
 }
 
@@ -132,6 +133,14 @@ void AugmentedVR::getCurrentAVRFrame(AVRFrame &ret){
     frameCache.getCurrentFrame(ret);
 }
 
+void AugmentedVR::getCurrentAVRFrame_PointCloud(cv::Mat &ret){
+    frameCache.getCurrentFrame_PointCloud(ret);
+}
+
+unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp(){
+    return frameCache.getLatestFrameTS();
+}
+
 void AugmentedVR::SinkFrames(){
     frameCache.SinkFrames();
 }
@@ -162,9 +171,9 @@ void AugmentedVR::calcOpticalFlow(){
         initialized = true;
         return;
     }
-    if (FRAME_ID%DUTYCYCLE==0){
+//    if (FRAME_ID%DUTYCYCLE==0){
+    if (FRAME_ID%ZEDCACHESIZE==0){
         frameCache.updateLastFrameFeature();
-
     }
     frameCache.opticalFlowTrack_Curr2Last();
 }
@@ -489,82 +498,91 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
     AVRFrame cacheHead;
     frameCache.getFIFOHead(cacheHead);
 
-    if (!cacheHead.sceneTransformMat.empty()&& !cacheHead.MotionMask.empty()){
 
-        perspectiveTransform( cacheHead.keypoints, points_trans, cacheHead.sceneTransformMat);
+    if (cacheHead.sceneTransformMat.empty() || cacheHead.MotionMask.empty()){
+        std::cerr << "ObjectMotionAnalysis: Miss\n";
+        return;
+    }
 
-        cv::Mat total_motionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
-        int count = 0;
+    if (cacheHead.keypoints.size()!= cur.keypoints.size()){
+        std::cerr << "Keypoints Size Mismatch\n";
+        ///todo: how to deal with inconsistent track to cachehead?
+        return;
+    }
+    perspectiveTransform( cacheHead.keypoints, points_trans, cacheHead.sceneTransformMat);
 
-
-        for( size_t i = 0; i < points_trans.size(); i++ ) {
-            cv::Rect rect(0, 0, img.cols, img.rows);
-            if (rect.contains(cur.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
-                // check if the point is in range after transformation
-                if (cur.tracked_status[i] && norm(points_trans[i] - cur.keypoints[i]) > 5) {
-
-                    if (DEBUG) {
-
-                        circle(img, cacheHead.keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
-                        circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
-                        circle(img, cur.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
-                        line(img, points_trans[i], cur.keypoints[i], cv::Scalar(0, 0, 255));
-                        line(img, cacheHead.keypoints[i], points_trans[i],
-                             cv::Scalar(0, 255, 255));
-                    }
-
-                    if (cacheHead.MotionMask.at<uchar>(cacheHead.keypoints[i]) == 255 &&
-                            cacheHead.MotionMask.at<uchar>(cur.keypoints[i]) == 255) {
+    cv::Mat total_motionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
+    int count = 0;
 
 
-                        //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor(Rect(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,1,1));
-                        //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor.at<Vec3f>(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i])  << endl;
-                        //                    cout << PC_noColor(Rect(keypoints[i].y,keypoints[i].y,1,1));
-                        //                    cout << PC_noColor.at<Vec3f>(keypoints[i]) << endl;
+    for( size_t i = 0; i < points_trans.size(); i++ ) {
+        cv::Rect rect(0, 0, img.cols, img.rows);
+        if (rect.contains(cur.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
+            // check if the point is in range after transformation
+            if (cur.tracked_status[i] && norm(points_trans[i] - cur.keypoints[i]) > 5) {
+
+                if (DEBUG) {
+
+                    circle(img, cacheHead.keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
+                    circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
+                    circle(img, cur.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
+                    line(img, points_trans[i], cur.keypoints[i], cv::Scalar(0, 0, 255));
+                    line(img, cacheHead.keypoints[i], points_trans[i],
+                         cv::Scalar(0, 255, 255));
+                }
+
+                if (cacheHead.MotionMask.at<uchar>(cacheHead.keypoints[i]) == 255 &&
+                        cacheHead.MotionMask.at<uchar>(cur.keypoints[i]) == 255) {
 
 
-                        cv::Mat motionVec = cacheHead.PC_noColor(
-                                cv::Rect(cacheHead.keypoints[i].x,
-                                         cacheHead.keypoints[i].y, 1, 1)) -
-                                cur.PC_noColor(cv::Rect(cur.keypoints[i].x, cur.keypoints[i].y, 1, 1));
-                        double dist = norm(motionVec);
-                        if (cvIsInf(dist) || cvIsNaN(dist)) continue;
-                        if (DEBUG > 1) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;
-                        total_motionVec += motionVec;
-                        //                    cout << motionVec.type();
-                        //                    cout << PC_noColor.type();
-                        if (DEBUG > 1)
-                            cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec) << endl;
-                        count++;
-                    }
+                    //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor(Rect(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,1,1));
+                    //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor.at<Vec3f>(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i])  << endl;
+                    //                    cout << PC_noColor(Rect(keypoints[i].y,keypoints[i].y,1,1));
+                    //                    cout << PC_noColor.at<Vec3f>(keypoints[i]) << endl;
+
+
+                    cv::Mat motionVec = cacheHead.PC_noColor(
+                            cv::Rect(cacheHead.keypoints[i].x,
+                                     cacheHead.keypoints[i].y, 1, 1)) -
+                            cur.PC_noColor(cv::Rect(cur.keypoints[i].x, cur.keypoints[i].y, 1, 1));
+                    double dist = norm(motionVec);
+                    if (cvIsInf(dist) || cvIsNaN(dist)) continue;
+                    if (DEBUG > 1) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;
+                    total_motionVec += motionVec;
+                    //                    cout << motionVec.type();
+                    //                    cout << PC_noColor.type();
+                    if (DEBUG > 1)
+                        cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec) << endl;
+                    count++;
                 }
             }
         }
-
-        if (DEBUG && VISUAL){
-//            imshow("KLT matches", img);
-            cv::Mat masked_img;
-            img.copyTo(masked_img,cacheHead.MotionMask);
-            imshow("masked KLT matches", masked_img);
-        }
-
-        total_motionVec /= count;
-        if (DEBUG)
-            cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
-        total_motionVec.copyTo(ObjectMotionVec);
-        // TODO: find a safe way to do it
-        ObjectMotionVec.copyTo(cacheHead.ObjectMotionVec);
-
-        // low pass filtering (sliding window average)
-        cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
-        for (int i=0;i<ZEDCACHESIZE-1;i++){
-            if (!cacheHead.ObjectMotionVec.empty()){
-                lp_total+= cacheHead.ObjectMotionVec;
-            }
-        }
-        lp_total /= ZEDCACHESIZE-1;
-        lp_total.copyTo(Log_LowPassMotionVec);
-        Log_LowPassMotionVec.copyTo(cacheHead.LowPass_ObjectMotionVec);
-        if (DEBUG) cout << "Low Pass Total Motion Vec: " << Log_LowPassMotionVec<< " >> " << norm(Log_LowPassMotionVec)<< endl;
     }
+
+    if (DEBUG && VISUAL){
+//            imshow("KLT matches", img);
+        cv::Mat masked_img;
+        img.copyTo(masked_img,cacheHead.MotionMask);
+        imshow("masked KLT matches", masked_img);
+    }
+
+    total_motionVec /= count;
+    if (DEBUG)
+        cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
+    total_motionVec.copyTo(ObjectMotionVec);
+    // TODO: find a safe way to do it
+    ObjectMotionVec.copyTo(cacheHead.ObjectMotionVec);
+
+    // low pass filtering (sliding window average)
+    cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
+    for (int i=0;i<ZEDCACHESIZE-1;i++){
+        if (!cacheHead.ObjectMotionVec.empty()){
+            lp_total+= cacheHead.ObjectMotionVec;
+        }
+    }
+    lp_total /= ZEDCACHESIZE-1;
+    lp_total.copyTo(Log_LowPassMotionVec);
+    Log_LowPassMotionVec.copyTo(cacheHead.LowPass_ObjectMotionVec);
+    if (DEBUG) cout << "Low Pass Total Motion Vec: " << Log_LowPassMotionVec<< " >> " << norm(Log_LowPassMotionVec)<< endl;
+
 }

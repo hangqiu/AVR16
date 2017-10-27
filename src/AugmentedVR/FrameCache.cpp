@@ -6,7 +6,9 @@
 #include <include/globals.hpp>
 #include <cv.hpp>
 #include <include/UtilsPC.hpp>
+#include <sys/time.h>
 #include "FrameCache.hpp"
+
 using namespace sl;
 using namespace std;
 
@@ -49,8 +51,9 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
 #endif
     NewFrame.FrameLock.lock();
     NewFrame.ZEDTS = mZEDCam->getCameraTimestamp();
-    LatestTS = NewFrame.ZEDTS;
-    NewFrame.frameTS = NewFrame.ZEDTS - startTS;
+    LatestZEDTS = NewFrame.ZEDTS;
+    NewFrame.frameTS = (NewFrame.ZEDTS - startTS)/1000;
+    LatestFrameTS = NewFrame.frameTS;
     NewFrame.frameSeq = seq;
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -397,6 +400,14 @@ void  FrameCache::getCurrentFrame(AVRFrame & ret){
     theBigLock.unlock();
 }
 
+void  FrameCache::getCurrentFrame_PointCloud(cv::Mat & ret){
+    theBigLock.lock();
+    CurrentFrame.getPointCloud(ret);
+    theBigLock.unlock();
+}
+
+
+
 void  FrameCache::getNextFrame(AVRFrame & ret){
     theBigLock.lock();
     ret.setFrom(NextFrame);
@@ -425,10 +436,18 @@ void FrameCache::updateLastFrameFeature(){
     theBigLock.unlock();
 }
 
-unsigned long long int FrameCache::getLatestTS()  {
+unsigned long long int FrameCache::getLatestZEDTS()  {
     unsigned long long int ret;
     theBigLock.lock();
-    ret = LatestTS;
+    ret = LatestZEDTS;
+    theBigLock.unlock();
+    return ret;
+}
+
+unsigned long long int FrameCache::getLatestFrameTS()  {
+    unsigned long long int ret;
+    theBigLock.lock();
+    ret = LatestFrameTS;
     theBigLock.unlock();
     return ret;
 }

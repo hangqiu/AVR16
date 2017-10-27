@@ -79,6 +79,9 @@ public:
 //    landmark_matchinfo matched_scene;
     cv::Mat sceneTransformMat;
 
+    void getPointCloud(cv::Mat & ret);
+
+    int getFrameTS();
 
     void updateMotionData();
 

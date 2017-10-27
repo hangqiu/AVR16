@@ -55,7 +55,7 @@ public:
 
     void readFrame(int frameSeq, cv::Mat & ret);
     void readTcw(int frameSeq, cv::Mat& ret);
-    long readTimeStamp(int frameSeq);
+    unsigned long long int readTimeStamp(int frameSeq);
     void readPC(int frameSeq, cv::Mat&ret);
     void readDynamicPC(int frameSeq, cv::Mat&ret);
     void readObjectMotionVec(int frameSeq, cv::Mat&ret);

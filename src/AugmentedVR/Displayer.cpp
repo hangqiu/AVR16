@@ -100,15 +100,16 @@ void Displayer::showCurFrameWithPC(){
     processKey(key);
 }
 
-void Displayer::showCurFrame(){
+char Displayer::showCurFrame(){
     AVRFrame currFrame;
     VNode[0]->getCurrentAVRFrame(currFrame);
-    if (currFrame.FrameLeft.empty()) return;
+    if (currFrame.FrameLeft.empty()) return '0';
     char winName[100] = "Current Left Frame";
 //    cv::namedWindow(winName, CV_WINDOW_NORMAL|CV_GUI_NORMAL);
     cv::imshow(winName, currFrame.FrameLeft);
     char key = cv::waitKey(20);
     processKey(key);
+    return key;
 }
 
 

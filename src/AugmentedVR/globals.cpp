@@ -17,16 +17,19 @@ bool ReuseMap = false;
 //bool ReuseMap = true;
 
 int DEBUG = 0;
-//bool VISUAL = false;
-bool VISUAL = true;
+bool VISUAL = false;
+//bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 bool PCVISUAL = true;
 
+//bool SHOW_CAMMOTION = true;
+bool SHOW_CAMMOTION = false;
+
 bool DYNAMICS = false;
 
-//bool PAUSE_FLAG = false;
-bool PAUSE_FLAG = true;
+bool PAUSE_FLAG = false;
+//bool PAUSE_FLAG = true;
 
 //const int NUM_CAMERAS = 2;
 const int FPS = 15;
@@ -43,8 +46,8 @@ int TRACK_FREQ = 30;
 
 int MAX_COUNT = 500;
 
-bool SHOW_CAMMOTION = true;
-int DUTYCYCLE = 1; // x frames per processing
+
+//int DUTYCYCLE = 1; // x frames per processing
 
 double PCConnectionThresh = 0.02;
 double MOTIONTHRESH_PERPIXEL = 0.05; //meters
@@ -84,7 +87,7 @@ string commPath = "/home/hang/AVRComm/";
 //string AddressA = "http://204.57.7.36:";
 string AddressA = "http://192.168.0.166:";
 string Port = "34568";
-string AddressB = "http://192.168.0.103:";
+string AddressB = "http://192.168.0.187:";
 /// laptop 187
 string MyAddress = AddressB;
 string MyPort = Port;

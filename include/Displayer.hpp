@@ -63,7 +63,7 @@ public:
 
     void showSplitScreen(cv::Mat PC1, cv::Mat PC2);
 
-    void showCurFrame();
+    char showCurFrame();
 
     void showCurFrameWithPC();
 

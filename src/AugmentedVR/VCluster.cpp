@@ -70,6 +70,9 @@ void VCluster::run(){
     timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
     timeval tInit;
     gettimeofday(&tInit, NULL);
+    double prepFrameTime=0;
+    double slamTime=0;
+    double totalTime=0;
 #endif
     //loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
@@ -80,7 +83,7 @@ void VCluster::run(){
         //Resize and imshow
         cout << endl << "FrameID: " << FRAME_ID << endl;
 
-        if (VISUAL) mDisplayer->showCurFrame();
+        if (VISUAL) key = mDisplayer->showCurFrame();
 
 #ifdef EVAL
         gettimeofday(&tFetchStart, NULL);
@@ -237,10 +240,117 @@ void VCluster::postProcess(){
 #endif
 }
 
+
+
+void VCluster::TXRX(){
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+    // sending objects
+    if (TX && SEND) {
+//        mSender->writeFullFrame_PC_TCW_Time();
+        mSender->writePC_TCW_Time();
+    }
+    cv::Mat Trc, trc, RxFrame;
+    if (RX){
+        timeval tTXStart, tTXEnd;
+        gettimeofday(&tTXStart, NULL);
+
+
+        /// receiving objects
+        if (!(mReceiver->AskForLatestPC_TCW_TIME(VNode[0]))){
+            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
+            return;
+        }
+        gettimeofday(&tTXEnd, NULL);
+
+        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+    }
+}
+
+
+void VCluster::TXRX_viaDisk(){
+
+#ifdef EVAL
+
+    timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
+    timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
+#endif
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+
+    // sending objects
+    if (TX && SEND) {
+#ifdef EVAL
+        gettimeofday(&tTXStart, NULL);
+#endif
+        mSender->writeFrameInSeparateFile();
+#ifdef EVAL
+        gettimeofday(&tTXEnd, NULL);
+        cout << "TimeStamp: " << double(tTXEnd.tv_sec-tInit.tv_sec)*1000 + double(tTXEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
+        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+#endif
+    }
+
+    /// ensure atomic reception
+    cv::Mat RxFrame, RxPC, RxTCW, RxDynamicPC;
+    if (RX){
+        // receiving objects
+        // searcing for synced frame
+        frameSeqRx ++;
+        timeRx = mReceiver->readTimeStamp(frameSeqRx);
+
+        /// time sync module
+        unsigned long long int CurrTS = VNode[0]->getCurrentAVRFrame_TimeStamp();
+
+
+
+        while( timeRx < CurrTS || timeRx==0){
+            frameSeqRx++;
+            cout << "reading frame: "  << frameSeqRx;
+            cout << "rx ts: " << timeRx << ", cur ts: " << CurrTS << endl;
+            timeRx = mReceiver->readTimeStamp(frameSeqRx);
+        }
+
+        if (timeRx - CurrTS > 300){
+            cout << "current frame lagging behind\n";
+            cout << "rx ts: " << timeRx << ", cur ts: " << CurrTS << endl;
+            return;
+        }
+
+        mReceiver->readPC(frameSeqRx,RxPC);
+        if (RxPC.empty()) {
+            cerr << "VCluster::TXRX() can't load rx PC " << frameSeqRx << endl;
+            return;
+        }
+        mReceiver->readTcw(frameSeqRx,RxTCW);
+        if (RxTCW.empty()) {
+            cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
+            return;
+        }
+        /// basic info complete
+        RxPC.copyTo(VNode[0]->RxPC);
+        RxTCW.copyTo(VNode[0]->RxTCW);
+
+        /// not care whether others are atomic fow now
+        mReceiver->readFrame(frameSeqRx, VNode[0]->RxFrame);
+        if (VNode[0]->RxFrame.empty()){
+            cerr << "VCluster::TXRX() can't load rx frame " << frameSeqRx << endl;
+            return;
+        }
+        if (DYNAMICS){
+            mReceiver->readDynamicPC(frameSeqRx,VNode[0]->RxDynamicPC);
+            mReceiver->readLowPassObjectMotionVec(frameSeqRx, VNode[0]->RxMotionVec);
+            if (VNode[0]->RxDynamicPC.empty()){
+                cerr << "VCluster::TXRX() can't load rx dynamic frame " << frameSeqRx << endl;
+                return;
+            }
+        }
+
+    }
+}
+
 void VCluster::visualize(){
     // need to show PC from Last Frame, cause buffer are freed for pre-fetching
     // Point Cloud Stiching
-    if (SHOW_PC && VISUAL) {
+    if (VISUAL && SHOW_PC ) {
 //        mDisplayer->showCurFrame();
         AVRFrame currFrame;
         VNode[0]->getCurrentAVRFrame(currFrame);
@@ -304,7 +414,7 @@ void VCluster::visualize(){
                 mDisplayer->showPC(nonOverlapingPC);
 //                    mDisplayer->showPC(VNode[0]->transRxPC);
             }
-                //        if (VISUAL && SHOW_PC) mDisplayer->showImgWithPC(RxFrame,  &(VNode[0]->transRxDynamicPC), "rx trans PC");
+            //        if (VISUAL && SHOW_PC) mDisplayer->showImgWithPC(RxFrame,  &(VNode[0]->transRxDynamicPC), "rx trans PC");
 //            }
         }
         else{
@@ -314,98 +424,5 @@ void VCluster::visualize(){
 
 //            mDisplayer->showPC(VNode[0]->pointcloud_sl_gpu);
         }
-    }
-}
-
-void VCluster::TXRX(){
-    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
-    // sending objects
-    if (TX && SEND) {
-//        mSender->writeFullFrame_PC_TCW_Time();
-        mSender->writePC_TCW_Time();
-    }
-    cv::Mat Trc, trc, RxFrame;
-    if (RX){
-        timeval tTXStart, tTXEnd;
-        gettimeofday(&tTXStart, NULL);
-
-
-        /// receiving objects
-        if (!(mReceiver->AskForLatestPC_TCW_TIME(VNode[0]))){
-            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
-            return;
-        }
-        gettimeofday(&tTXEnd, NULL);
-
-        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
-    }
-}
-
-
-void VCluster::TXRX_viaDisk(){
-
-#ifdef EVAL
-
-    timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
-    timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
-#endif
-    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
-
-    // sending objects
-    if (TX && SEND) {
-#ifdef EVAL
-        gettimeofday(&tTXStart, NULL);
-#endif
-        mSender->writeFrameInSeparateFile();
-#ifdef EVAL
-        gettimeofday(&tTXEnd, NULL);
-        cout << "TimeStamp: " << double(tTXEnd.tv_sec-tInit.tv_sec)*1000 + double(tTXEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
-#endif
-    }
-
-    /// ensure atomic reception
-    cv::Mat RxFrame, RxPC, RxTCW, RxDynamicPC;
-    if (RX){
-        // receiving objects
-        // searcing for synced frame
-        frameSeqRx ++;
-        timeRx = mReceiver->readTimeStamp(frameSeqRx);
-//        // time sync module
-//        while( timeRx < VNode[0]->getCurrentAVRFrame().frameTS){
-//            frameSeqRx++;
-//            cout << "reading frame: "  << frameSeqRx << endl;
-//            timeRx = mReceiver->readTimeStamp(frameSeqRx);
-//        }
-
-        mReceiver->readPC(frameSeqRx,RxPC);
-        if (RxPC.empty()) {
-            cerr << "VCluster::TXRX() can't load rx PC " << frameSeqRx << endl;
-            return;
-        }
-        mReceiver->readTcw(frameSeqRx,RxTCW);
-        if (RxTCW.empty()) {
-            cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
-            return;
-        }
-        /// basic info complete
-        RxPC.copyTo(VNode[0]->RxPC);
-        RxTCW.copyTo(VNode[0]->RxTCW);
-
-        /// not care whether others are atomic fow now
-        mReceiver->readFrame(frameSeqRx, VNode[0]->RxFrame);
-        if (VNode[0]->RxFrame.empty()){
-            cerr << "VCluster::TXRX() can't load rx frame " << frameSeqRx << endl;
-            return;
-        }
-        if (DYNAMICS){
-            mReceiver->readDynamicPC(frameSeqRx,VNode[0]->RxDynamicPC);
-            mReceiver->readLowPassObjectMotionVec(frameSeqRx, VNode[0]->RxMotionVec);
-            if (VNode[0]->RxDynamicPC.empty()){
-                cerr << "VCluster::TXRX() can't load rx dynamic frame " << frameSeqRx << endl;
-                return;
-            }
-        }
-
     }
 }

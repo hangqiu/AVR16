@@ -157,7 +157,7 @@ void ObjReceiver::readTcw(int frameSeq, cv::Mat& ret){
 
 
 
-long ObjReceiver::readTimeStamp(int frameSeq){
+unsigned long long int ObjReceiver::readTimeStamp(int frameSeq){
 //    char tmp_str[50];
 //    sprintf(tmp_str, "timeFrame%d", frameSeq);
 //    int ret;
@@ -165,11 +165,11 @@ long ObjReceiver::readTimeStamp(int frameSeq){
 
     char tmpstr[100];
     sprintf(tmpstr, "/cam%d/timeFrame%d.yml", RxCamId, frameSeq);
-    int ret;
+    double ret;
     TcwFile.open(commPath+tmpstr, cv::FileStorage::READ);
     TcwFile[TIMESTAMP] >> ret;
     TcwFile.release();
-    return (long)ret;
+    return (unsigned long long int)ret;
 }
 void ObjReceiver::readPC(int frameSeq, cv::Mat&ret){
 //    char tmp_str[50];

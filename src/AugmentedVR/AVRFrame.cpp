@@ -6,6 +6,7 @@
 #include <include/globals.hpp>
 #include <include/UtilsPC.hpp>
 #include "AVRFrame.hpp"
+#include <sys/time.h>
 
 AVRFrame::AVRFrame(){
     FrameLeft = cv::Mat();
@@ -122,6 +123,20 @@ bool AVRFrame::isEmpty(){
     return FrameLeft.empty();
 }
 
+
+void AVRFrame::getPointCloud(cv::Mat & ret){
+    FrameLock.lock();
+    pointcloud.copyTo(ret);
+    FrameLock.unlock();
+}
+
+int AVRFrame::getFrameTS(){
+    FrameLock.lock();
+    int ret = frameTS;
+    FrameLock.unlock();
+    return ret;
+}
+
 void AVRFrame::detectNewFeature(){
 
     cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,20,0.03);
@@ -137,7 +152,8 @@ void AVRFrame::CacheExistingFeature(){
     tracked_status = status;
     tracked_error = error;
 }
-
+/// detect new feature and cache existing feature
+/// Warning: watch out the period of execution should be the same as the cachesize to ensure cachehead always has the same tracked feature
 void AVRFrame::updateFeature(){
     FrameLock.lock();
     CacheExistingFeature();
@@ -217,15 +233,15 @@ void AVRFrame::tranformPointCloud_via_TransformationMat(){
     int width = FrameLeft.size().width;
     int height = FrameLeft.size().height;
     cv::Size outputSize(width,height);
-#ifdef EVAL
-    timeval start, end;
-    gettimeofday(&start, NULL);
-#endif
+//#ifdef EVAL
+//    timeval start, end;
+//    gettimeofday(&start, NULL);
+//#endif
     cv::warpPerspective(pointcloud,transformedPointcloud,sceneTransformMat,outputSize);
-#ifdef EVAL
-    gettimeofday(&end, NULL);
-    cout << "   CPU warpperspective: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-#endif
+//#ifdef EVAL
+//    gettimeofday(&end, NULL);
+//    cout << "   CPU warpperspective: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+//#endif
 
     // TODO: use tlc only for now
     // watch out, orbslam and zed have different default coordinate frame positive difrection

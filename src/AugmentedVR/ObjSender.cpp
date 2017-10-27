@@ -153,7 +153,8 @@ void ObjSender::writeCurrentTimeStamp(){
     char tmpstr[100];
     sprintf(tmpstr, "/cam%d/timeFrame%d.yml", myAVR->CamId, currFrame.frameSeq);
     TcwFile.open(commPath+tmpstr, cv::FileStorage::WRITE);
-    TcwFile << TIMESTAMP << (int)currFrame.frameTS;
+    double ts = (double)currFrame.frameTS;
+    TcwFile << TIMESTAMP << ts;
     TcwFile.release();
 }
 
