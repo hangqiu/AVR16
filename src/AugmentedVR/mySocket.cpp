@@ -179,10 +179,7 @@ void mySocket::Accept(){
 
 
 ////code reused from Beej's
-//void sigchld_handler(int s) {
-//    while (waitpid(-1, NULL, WNOHANG) > 0)
-//        ;
-//}
+
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
