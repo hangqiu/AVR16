@@ -84,15 +84,17 @@ const int NUM_CAMERAS = 1;
 
 /// Comm
 string commPath = "/home/hang/AVRComm/";
-//string AddressA = "http://204.57.7.36:";
+////string AddressA = "http://204.57.7.36:";
 string AddressA = "http://192.168.0.166:";
-string Port = "34568";
+string PortA = "34568";
 string AddressB = "http://192.168.0.187:";
+string PortB = "34569";
+
 /// laptop 187
 string MyAddress = AddressB;
-string MyPort = Port;
+string MyPort = PortB;
 string ServerAddress = AddressA;
-string ServerPort = Port;
+string ServerPort = PortA;
 /// desktop 166
 //string MyAddress = AddressA;
 //string MyPort = Port;

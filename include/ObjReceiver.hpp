@@ -11,6 +11,7 @@
 #include <cpprest/json.h>
 #include "cpprest/http_client.h"
 #include "stdafx.hpp"
+#include "mySocket.hpp"
 
 using namespace std;
 using namespace web;
@@ -44,11 +45,17 @@ class ObjReceiver {
     http_client* client;
     cv::FileStorage V2VBuffer;
 
+    mySocket mSock;
+    int sockfd;
 
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
     ~ObjReceiver();
+
+    void initMySocket();
+    void initCPPREST();
+    void ReceivePointCloudStream();
 
     struct WholeFrameWithMetaData readWholeFrameWithFullMetaData(int frameSeq);
     struct WholeFrameWithMetaData readWholeFrameFromSeparateFiles(int frameSeq);
@@ -62,7 +69,7 @@ public:
     void readLowPassObjectMotionVec(int frameSeq,cv::Mat&ret);
 
     http_response CheckResponse(const http_response &response);
-    bool AskForLatestPC_TCW_TIME(AugmentedVR *Node);
+    bool AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node);
 
 };
 

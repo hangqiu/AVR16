@@ -150,17 +150,15 @@ bool AugmentedVR::PrepareNextFrame() {
 
 #ifdef PIPELINE
     thread prefetch(&AugmentedVR::grabNextZEDFrameOffline,this);
+//    thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
 #else
     if (!grabNextZEDFrameOffline()) return false;
+//    FeedSlamNextFrame();
 #endif
-
-    // create next frame for slam as well...
-    // use gray to save conversion time.
-    // thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
-    FeedSlamNextFrame();
 
 #ifdef PIPELINE
     prefetch.join();
+//    feedslam.join();
 #endif
     return true;
 }

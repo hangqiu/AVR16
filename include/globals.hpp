@@ -19,9 +19,9 @@
 //#include "opencv2/xfeatures2d.hpp"
 
 
-#define EVAL
+//#define EVAL
 //#define SIMPLEEVAL
-//#define PIPELINE
+#define PIPELINE
 
 #define PI 3.14159265
 

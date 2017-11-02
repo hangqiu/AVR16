@@ -7,6 +7,7 @@
 #include <cpprest/json.h>
 #include "cpprest/http_client.h"
 #include "stdafx.hpp"
+#include "mySocket.hpp"
 
 using namespace std;
 using namespace web;
@@ -18,6 +19,36 @@ using namespace concurrency::streams;
 
 ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) : myAVR(myAVR), RxCamId(CamId), commPath(commPath) {
 
+
+    initMySocket();
+
+//    initCPPREST();
+
+}
+
+ObjReceiver::~ObjReceiver() {
+//    TcwFile.release();
+//    PCFile.release();
+    delete client;
+    delete &mSock;
+}
+
+void ObjReceiver::initMySocket(){
+    mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
+    thread *streamer = new std::thread(&ObjReceiver::ReceivePointCloudStream, this);
+
+}
+
+void ObjReceiver::ReceivePointCloudStream(){
+    char buf[100];
+    while (true){
+        mSock.Receive(buf,100);
+        cout << buf << endl;
+    }
+}
+
+void ObjReceiver::initCPPREST(){
+
     utility::string_t port = U(ServerPort.c_str());
     utility::string_t address = U(ServerAddress.c_str());
     address.append(port);
@@ -25,13 +56,6 @@ ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) :
     // connect to the base address
     client = new http_client(uri.to_uri());
 }
-
-ObjReceiver::~ObjReceiver() {
-//    TcwFile.release();
-//    PCFile.release();
-    delete client;
-}
-
 
 http_response ObjReceiver::CheckResponse(const http_response &response)
 {
@@ -43,7 +67,7 @@ http_response ObjReceiver::CheckResponse(const http_response &response)
 }
 
 
-bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
+bool ObjReceiver::AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node){
     char dir[100];
     sprintf(dir, "/%d", 1000000);
 
@@ -88,11 +112,6 @@ bool ObjReceiver::AskForLatestPC_TCW_TIME(AugmentedVR *Node){
 //              return response.extract_string();
 //
 //          })
-
-
-
-
-
 }
 
 

@@ -9,6 +9,7 @@
 #include <opencv2/core/persistence.hpp>
 #include "AugmentedVR.hpp"
 #include "ObjSenderHandler.hpp"
+#include "mySocket.hpp"
 
 /*<< Defines the server. >>*/
 //struct hello_world;
@@ -31,6 +32,9 @@ private:
     string commPath;
 
     std::unique_ptr<ObjSenderHandler> g_httpHandler;
+
+    mySocket mSock;
+
 public:
 
 
@@ -39,7 +43,11 @@ public:
 
     ~ObjSender();
 
+    void initMySocket();
+    void initCPPREST();
+
     void httpServerRun(string address, string port);
+    void StreamPointCloud();
 
     void writeCurrentFrame();
     void writeCurrentTcw();

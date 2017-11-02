@@ -5,6 +5,7 @@
 #include "ObjSender.hpp"
 #include "stdafx.hpp"
 #include "ObjSenderHandler.hpp"
+#include "mySocket.hpp"
 
 using namespace std;
 
@@ -14,6 +15,40 @@ using namespace utility;
 using namespace http::experimental::listener;
 
 ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPath(commPath) {
+//    initCPPREST();
+    initMySocket();
+
+}
+
+ObjSender::~ObjSender() {
+//    TcwFile.release();
+//
+//    PCFile.release();
+    g_httpHandler->close().wait();
+    delete &mSock;
+}
+
+void ObjSender::initMySocket(){
+    ///init my own socket, no need for http, too slow
+    mSock.Bind(MyPort.c_str());
+    mSock.Listen();
+    thread* streamer = new std::thread(&ObjSender::StreamPointCloud,this);
+}
+
+
+void ObjSender::StreamPointCloud(){
+    mSock.Accept();
+    char message[100];
+    int i=0;
+    while(true){
+
+        sprintf(message, "%d", i);
+        mSock.Send(message, 100);
+        i++;
+    }
+}
+
+void ObjSender::initCPPREST(){
     //init http server, need to be run in separate thread
     utility::string_t port = U(MyPort.c_str());
 
@@ -28,18 +63,7 @@ ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPa
     g_httpHandler->open().wait();
 
     ucout << utility::string_t(U("Listening for requests at: ")) << addr << std::endl;
-
 }
-
-ObjSender::~ObjSender() {
-//    TcwFile.release();
-//
-//    PCFile.release();
-    g_httpHandler->close().wait();
-}
-
-
-
 
 
 void ObjSender::writeFrameInSeparateFile(){

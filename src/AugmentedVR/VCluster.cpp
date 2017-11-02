@@ -93,7 +93,7 @@ void VCluster::run(){
         timeval tTotalStart, tTotalEnd;
         gettimeofday(&tTotalStart, NULL);
 #endif
-
+        /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 #ifdef PIPELINE
         thread CPU_download(&VCluster::PreProcess, this);
@@ -108,7 +108,12 @@ void VCluster::run(){
 
         prepFrameTime += double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000;
 #endif
-        VNode[0]->trackCam();
+        // create next frame for slam as well...
+        // use gray to save conversion time.
+        // thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
+
+        VNode[0]->FeedSlamNextFrame();
+
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
         cout << "TimeStamp: " << double(tSlamEnd.tv_sec-tInit.tv_sec)*1000 + double(tSlamEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -194,6 +199,9 @@ bool VCluster::PreProcess(){
 #endif
     VNode[0]->calcOpticalFlow();
     if (!(VNode[0]->PrepareNextFrame())) return false;
+
+
+
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -220,6 +228,8 @@ void VCluster::compressDynamic(){
 //}
 
 void VCluster::postProcess(){
+
+    VNode[0]->trackCam();
     if (DECOUPLE2IMG) VNode[0]->mIo->writeCurrentStereoFrame();
 #ifdef EVAL
     timeval start, end;
@@ -231,7 +241,7 @@ void VCluster::postProcess(){
 //    compressDynamic();
 //    segmentation();
 //    TXRX();
-    TXRX_viaDisk();
+//    TXRX_viaDisk();
     visualize();
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -251,18 +261,18 @@ void VCluster::TXRX(){
     }
     cv::Mat Trc, trc, RxFrame;
     if (RX){
-        timeval tTXStart, tTXEnd;
-        gettimeofday(&tTXStart, NULL);
+//        timeval tTXStart, tTXEnd;
+//        gettimeofday(&tTXStart, NULL);
 
 
         /// receiving objects
-        if (!(mReceiver->AskForLatestPC_TCW_TIME(VNode[0]))){
+        if (!(mReceiver->AskForLatestPC_TCW_TIME_CPPREST(VNode[0]))){
             cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
             return;
         }
-        gettimeofday(&tTXEnd, NULL);
-
-        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+//        gettimeofday(&tTXEnd, NULL);
+//
+//        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
     }
 }
 
