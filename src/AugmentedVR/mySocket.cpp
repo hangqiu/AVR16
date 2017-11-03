@@ -35,7 +35,8 @@ void mySocket::Close(){
 int mySocket::Bind(const char * port){
     int yes = 1;
 
-    struct addrinfo hints, * serverinfo,*p;
+    struct addrinfo hints={0};
+    struct addrinfo *serverinfo,*p;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
@@ -89,8 +90,8 @@ void mySocket::Listen(){
 
 int mySocket::Connect(const char* ip, const char* port){
     struct sockaddr_storage my_addr;
-
-    struct addrinfo hints, * servinfo,*p;
+    struct addrinfo hints={0};
+    struct addrinfo * servinfo,*p;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
