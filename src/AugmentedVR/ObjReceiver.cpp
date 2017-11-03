@@ -43,7 +43,9 @@ void ObjReceiver::ReceivePointCloudStream(){
     char buf[100];
     while (true){
         mSock.Receive(buf,100);
-        cout << buf << endl;
+        cout << "Received" << buf << endl;
+        mSock.Send(buf,100);
+        cout << "ACKing" << buf << endl;
     }
 }
 
