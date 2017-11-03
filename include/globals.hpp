@@ -21,7 +21,7 @@
 
 //#define EVAL
 //#define SIMPLEEVAL
-#define PIPELINE
+//#define PIPELINE
 
 #define PI 3.14159265
 

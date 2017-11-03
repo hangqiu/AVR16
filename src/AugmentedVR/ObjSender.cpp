@@ -54,10 +54,13 @@ void ObjSender::StreamPointCloud(){
     char message[100];
     int i=0;
     while(true){
-
         sprintf(message, "%d", i);
         mSock.Send(message, 100);
+        cout << "Sent " << i << endl;
         i++;
+        char tmp[100];
+        mSock.Receive(tmp,100);
+        cout << "Got ACK" << tmp << endl;
     }
 }
 

@@ -17,8 +17,8 @@ bool ReuseMap = false;
 //bool ReuseMap = true;
 
 int DEBUG = 0;
-bool VISUAL = false;
-//bool VISUAL = true;
+//bool VISUAL = false;
+bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 bool PCVISUAL = true;
@@ -28,8 +28,8 @@ bool SHOW_CAMMOTION = false;
 
 bool DYNAMICS = false;
 
-bool PAUSE_FLAG = false;
-//bool PAUSE_FLAG = true;
+//bool PAUSE_FLAG = false;
+bool PAUSE_FLAG = true;
 
 //const int NUM_CAMERAS = 2;
 const int FPS = 15;
@@ -85,21 +85,21 @@ const int NUM_CAMERAS = 1;
 /// Comm
 string commPath = "/home/hang/AVRComm/";
 ////string AddressA = "http://204.57.7.36:";
-string AddressA = "http://192.168.0.166:";
+string AddressA = "192.168.0.166";
 string PortA = "34568";
-string AddressB = "http://192.168.0.187:";
+string AddressB = "192.168.0.187";
 string PortB = "34569";
 
 /// laptop 187
-string MyAddress = AddressB;
-string MyPort = PortB;
-string ServerAddress = AddressA;
-string ServerPort = PortA;
+//string MyAddress = AddressB;
+//string MyPort = PortB;
+//string ServerAddress = AddressA;
+//string ServerPort = PortA;
 /// desktop 166
-//string MyAddress = AddressA;
-//string MyPort = Port;
-//string ServerAddress = AddressB;
-//string ServerPort = Port;
+string MyAddress = AddressA;
+string MyPort = PortA;
+string ServerAddress = AddressB;
+string ServerPort = PortB;
 /// store video or webcam
 bool OFFLINE = true;
 
