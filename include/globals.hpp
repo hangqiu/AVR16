@@ -69,6 +69,7 @@ extern int dby;
 extern int dbw;
 extern int dbh;
 
+extern string SEQNO;
 extern string FRAME;
 extern string TCW;
 extern string PC;

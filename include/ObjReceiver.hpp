@@ -43,6 +43,7 @@ class ObjReceiver {
     string commPath;
 
     http_client* client;
+
     cv::FileStorage V2VBuffer;
 
     mySocket mSock;

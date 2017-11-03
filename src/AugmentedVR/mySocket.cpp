@@ -12,7 +12,7 @@ mySocket::~mySocket(){
 }
 
 
-void mySocket::Send(char* content, int size){
+void mySocket::Send(const char* content, unsigned long size){
     if (send(connSock, content, size, 0) == -1) {
         perror("send");
     }

@@ -49,6 +49,7 @@ public:
     void httpServerRun(string address, string port);
     void StreamPointCloud();
 
+    void PrepSenderBuffer();
     void writeCurrentFrame();
     void writeCurrentTcw();
     void writeCurrentTimeStamp();

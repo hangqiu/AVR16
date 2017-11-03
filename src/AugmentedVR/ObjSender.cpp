@@ -52,15 +52,19 @@ void ObjSender::StreamPointCloud(){
     }
     mSock.Accept();
     char message[100];
-    int i=0;
+
+    int LastAckedFrameID=0;
     while(true){
-        sprintf(message, "%d", i);
-        mSock.Send(message, 100);
-        cout << "Sent " << i << endl;
-        i++;
-        char tmp[100];
-        mSock.Receive(tmp,100);
-        cout << "Got ACK" << tmp << endl;
+        if (LastAckedFrameID<FRAME_ID-1){
+            PrepSenderBuffer();
+            string buf = SenderBuffer.releaseAndGetString();
+            mSock.Send(buf.c_str(), buf.length());
+            cout << "Sent " << FRAME_ID-1 << " in total (char)"<< buf.length()<< endl;
+            char tmp[100];
+            mSock.Receive(tmp,100);
+            LastAckedFrameID = stoi(tmp);
+            cout << "Got ACK in string: " << tmp << ", in int: " << LastAckedFrameID << endl;
+        }
     }
 }
 
@@ -92,6 +96,20 @@ void ObjSender::writeFrameInSeparateFile(){
 //    writeLowPassObjectMotionVec();
 }
 
+
+void ObjSender::PrepSenderBuffer(){
+    AVRFrame currFrame;
+    myAVR->getCurrentAVRFrame(currFrame);
+    char tmpstr[100];
+    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
+    SenderBuffer << SEQNO << currFrame.frameSeq;
+    SenderBuffer << FRAME << currFrame.FrameLeft;
+    SenderBuffer << TCW << currFrame.CamMotionMat;
+    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
+    SenderBuffer << PC << currFrame.pointcloud;
+}
 
 char* ObjSender::writeFullFrame_PC_TCW_Time_Memory(){
     char tmpstr[100];

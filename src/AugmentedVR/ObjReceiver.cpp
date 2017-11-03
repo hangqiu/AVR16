@@ -40,12 +40,16 @@ void ObjReceiver::initMySocket(){
 }
 
 void ObjReceiver::ReceivePointCloudStream(){
-    char buf[100];
+    char buf[10000];
     while (true){
-        mSock.Receive(buf,100);
-        cout << "Received" << buf << endl;
-        mSock.Send(buf,100);
-        cout << "ACKing" << buf << endl;
+        mSock.Receive(buf,10000);
+        V2VBuffer.open(buf, cv::FileStorage::READ + cv::FileStorage::MEMORY);
+        int recvId;
+        V2VBuffer[SEQNO] >> recvId;
+        cout << "Received Frame" << recvId << endl;
+        std::string ackId = std::to_string(recvId);
+        mSock.Send(ackId.c_str(),100);
+        cout << "ACKed" << buf << endl;
     }
 }
 

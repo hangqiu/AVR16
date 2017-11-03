@@ -69,6 +69,7 @@ int dby = 550;
 int dbw = 50;
 int dbh = 50;
 
+string SEQNO = "ID";
 string FRAME = "Frame";
 string TCW = "Tcw";
 string PC = "PC";
@@ -91,15 +92,15 @@ string AddressB = "192.168.0.187";
 string PortB = "34569";
 
 /// laptop 187
-//string MyAddress = AddressB;
-//string MyPort = PortB;
-//string ServerAddress = AddressA;
-//string ServerPort = PortA;
+string MyAddress = AddressB;
+string MyPort = PortB;
+string ServerAddress = AddressA;
+string ServerPort = PortA;
 /// desktop 166
-string MyAddress = AddressA;
-string MyPort = PortA;
-string ServerAddress = AddressB;
-string ServerPort = PortB;
+//string MyAddress = AddressA;
+//string MyPort = PortA;
+//string ServerAddress = AddressB;
+//string ServerPort = PortB;
 /// store video or webcam
 bool OFFLINE = true;
 

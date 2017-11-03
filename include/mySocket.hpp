@@ -28,7 +28,7 @@ public:
 
     mySocket();
     ~mySocket();
-    void Send(char *content, int size);
+    void Send(const char *content, unsigned long size);
 
     int Receive(char *buf, int size);
 
