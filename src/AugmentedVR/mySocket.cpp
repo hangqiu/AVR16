@@ -23,6 +23,7 @@ int mySocket::Receive(char* buf, int size){
     if ((numbytes = recv(connSock, buf, size, 0)) == -1) {
         perror("recv");
     }
+    buf[numbytes]='\0';
     return numbytes;
 }
 void mySocket::Close(){

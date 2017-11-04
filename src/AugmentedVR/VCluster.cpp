@@ -240,7 +240,7 @@ void VCluster::postProcess(){
     VNode[0]->analyze();
 //    compressDynamic();
 //    segmentation();
-//    TXRX();
+    TXRX();
 //    TXRX_viaDisk();
     visualize();
 #ifdef EVAL
@@ -264,12 +264,13 @@ void VCluster::TXRX(){
 //        timeval tTXStart, tTXEnd;
 //        gettimeofday(&tTXStart, NULL);
 
-
+//        thread streamer(&ObjReceiver::ReceivePointCloudStream,mReceiver);
+        mReceiver->ReceivePointCloudStream();
         /// receiving objects
-        if (!(mReceiver->AskForLatestPC_TCW_TIME_CPPREST(VNode[0]))){
-            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
-            return;
-        }
+//        if (!(mReceiver->AskForLatestPC_TCW_TIME_CPPREST(VNode[0]))){
+//            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
+//            return;
+//        }
 //        gettimeofday(&tTXEnd, NULL);
 //
 //        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;

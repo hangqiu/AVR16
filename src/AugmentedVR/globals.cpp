@@ -17,8 +17,8 @@ bool ReuseMap = false;
 //bool ReuseMap = true;
 
 int DEBUG = 0;
-//bool VISUAL = false;
-bool VISUAL = true;
+bool VISUAL = false;
+//bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 bool PCVISUAL = true;
