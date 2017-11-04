@@ -50,7 +50,7 @@ void ObjReceiver::ReceivePointCloudStream(){
 
 //    cout << buf << endl;
 
-    int bufSize = 10;
+    int bufSize = 15;
     char seqsizebuf[bufSize+1];
     mSock.Receive(seqsizebuf,bufSize);
     int seqbufsize = stoi(seqsizebuf);
@@ -70,28 +70,29 @@ void ObjReceiver::ReceivePointCloudStream(){
     int ts = stoi(tsbuf);
     cout << ts << endl;
 
-    int tcwbufsize = 64;
+//    int tcwbufsize = 64;
 
-//    char tcwsizebuf[bufSize+1];
-//    mSock.Receive(tcwsizebuf,bufSize);
-//    int tcwbufsize = stoi(tcwsizebuf);
-//    cout << tcwbufsize<< endl;
+    char tcwsizebuf[bufSize+1];
+    mSock.Receive(tcwsizebuf,bufSize);
+    int tcwbufsize = stoi(tcwsizebuf);
+    cout << tcwbufsize<< endl;
     char buf[tcwbufsize+1];
     mSock.Receive(buf,tcwbufsize);
     cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
     cout << tcw << endl;
 
 ////    int pcsize = myAVR->height*myAVR->width*sizeof(float);
-//    char pcsizebuf[bufSize+1];
-//    mSock.Receive(pcsizebuf,bufSize);
-//    int pcbufsize = stoi(pcsizebuf);
-//    cout << pcbufsize<< endl;
+    char pcsizebuf[bufSize+1];
+    mSock.Receive(pcsizebuf,bufSize);
+    int pcbufsize = stol(pcsizebuf);
+    cout << pcbufsize<< endl;
+    char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
-//    mSock.Receive(pcbuf,pcbufsize);
-//    cv::Mat pc = cv::Mat(myAVR->height,myAVR->width,CV_32FC4, (void*)pcbuf);
-//    debugPC(pc);
+    mSock.ReceiveAll(pcbuf,pcbufsize);
+    cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
+    debugPC(pc);
 
-
+    free(pcbuf);
 
 
 
@@ -102,9 +103,9 @@ void ObjReceiver::ReceivePointCloudStream(){
 //    int recvId;
 //    V2VBuffer[SEQNO] >> recvId;
 //    cout << "Received Frame" << recvId << endl;
-    std::string ackId = std::to_string(seq);
-    mSock.Send(ackId.c_str(),100);
-    cout << "ACKed" << ackId << endl;
+//    std::string ackId = std::to_string(seq);
+//    mSock.Send(ackId.c_str(),100);
+//    cout << "ACKed" << ackId << endl;
 
 }
 

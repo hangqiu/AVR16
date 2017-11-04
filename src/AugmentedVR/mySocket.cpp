@@ -23,9 +23,26 @@ int mySocket::Receive(char* buf, int size){
     if ((numbytes = recv(connSock, buf, size, 0)) == -1) {
         perror("recv");
     }
+    if (numbytes != size){
+        perror("received less than speced\n");
+    }
     buf[numbytes]='\0';
     return numbytes;
 }
+
+int mySocket::ReceiveAll(char* buf, int size){
+    int numbytes;
+    if ((numbytes = recv(connSock, buf, size, MSG_WAITALL)) == -1) {
+        perror("recv");
+    }
+    if (numbytes != size){
+        perror("received less than speced\n");
+    }
+    buf[numbytes]='\0';
+    return numbytes;
+}
+
+
 void mySocket::Close(){
     close(connSock);
     close(bindSock);

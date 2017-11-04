@@ -31,6 +31,7 @@ public:
     void Send(const char *content, unsigned long size);
 
     int Receive(char *buf, int size);
+    int ReceiveAll(char *buf, int size);
 
     void Close();
 
