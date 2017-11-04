@@ -272,6 +272,9 @@ public:
 
     void getCurrentAVRFrame(AVRFrame &ret);
 
+    void getLastAVRFrame(AVRFrame &ret);
+
+
     void getCurrentAVRFrame_PointCloud(cv::Mat &ret);
 
     unsigned long long int getCurrentAVRFrame_TimeStamp();

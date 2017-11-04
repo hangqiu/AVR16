@@ -17,6 +17,7 @@ using namespace http::experimental::listener;
 ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPath(commPath) {
 //    initCPPREST();
     initMySocket();
+    sendFlag = false;
 
 }
 
@@ -27,21 +28,14 @@ ObjSender::~ObjSender() {
     g_httpHandler->close().wait();
     delete &mSock;
 }
-
-void ObjSender::initMySocket(){
-    ///init my own socket, no need for http, too slow
-    mSock.Bind(MyPort.c_str());
-    mSock.Listen();
-    thread* streamer = new std::thread(&ObjSender::StreamPointCloud,this);
-}
-
-
 void sigchld_handler(int s) {
     while (waitpid(-1, NULL, WNOHANG) > 0)
         ;
 }
-
-void ObjSender::StreamPointCloud(){
+void ObjSender::initMySocket(){
+    ///init my own socket, no need for http, too slow
+    mSock.Bind(MyPort.c_str());
+    mSock.Listen();
     struct sigaction sa;
     sa.sa_handler = sigchld_handler; // reap all dead processes
     sigemptyset(&sa.sa_mask);
@@ -51,21 +45,87 @@ void ObjSender::StreamPointCloud(){
         exit(1);
     }
     mSock.Accept();
-    char message[100];
+//    thread* streamer = new std::thread(&ObjSender::StreamPointCloud,this);
+}
 
-    int LastAckedFrameID=0;
-    while(true){
-        if (LastAckedFrameID<FRAME_ID-1){
-            PrepSenderBuffer();
-            string buf = SenderBuffer.releaseAndGetString();
-            mSock.Send(buf.c_str(), buf.length());
-            cout << "Sent " << FRAME_ID-1 << " in total (char)"<< buf.length()<< endl;
-            char tmp[100];
-            mSock.Receive(tmp,100);
-            LastAckedFrameID = stoi(tmp);
-            cout << "Got ACK in string: " << tmp << ", in int: " << LastAckedFrameID << endl;
-        }
+
+
+
+void ObjSender::StreamPointCloud(){
+    int LastAckedFrameID=-1;
+    if (LastAckedFrameID<FRAME_ID-3){
+        cv::FileStorage fs;
+        AVRFrame Frame;
+        myAVR->getLastAVRFrame(Frame);
+//        cv::Mat tcw;
+//        int frameseq = Frame.frameSeq;
+//        int ts = int(Frame.frameTS);
+//        Frame.CamMotionMat.copyTo(tcw);
+//        char tmpstr[100];
+//        sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+//                FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), Frame.frameSeq);
+//        fs.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
+//        fs.open(commPath+tmpstr, cv::FileStorage::WRITE | cv::FileStorage::MEMORY | cv::FileStorage::FORMAT_YAML);/// when memory is specified, filename is just the format
+//        fs << SEQNO << frameseq << TCW<< tcw << TIMESTAMP << ts;
+//        fs << "id" << 5;
+//
+//        cv::String buf = fs.releaseAndGetString();
+//        cout << buf << endl;
+//
+//        cv::FileStorage rfs(buf, cv::FileStorage::READ+cv::FileStorage::MEMORY);
+//        int seq;
+//        rfs[SEQNO] >> seq;
+//        cout << seq << endl;
+//        cout << "Sent " << int(fs[SEQNO]) << endl;
+//        buf.erase(buf.begin(),buf.begin()+buf.find("%YAML"));
+//        buf.shrink_to_fit();
+//        cout << buf << endl;
+//        cout << "Total length " << buf.length() <<endl;
+//        string bufsize = std::to_string(buf.length());
+//        bufsize.append("\0");
+//        mSock.Send(bufsize.c_str(), 10);
+//        mSock.Send((char*)(buf.c_str()), 168);
+
+        int txSize;
+//        string txSizeString;
+        string seq = std::to_string(Frame.frameSeq);
+        txSize = seq.length()+1;
+        cout << txSize << endl;
+        int bufsize =10;
+        string txSizeString = std::to_string(txSize);
+        mSock.Send(txSizeString.c_str(), bufsize);
+        mSock.Send(seq.c_str(), txSize);
+
+        string ts = std::to_string(Frame.frameTS);
+        txSize = ts.length()+1;
+        cout << txSize << endl;
+        string txSizeStr = std::to_string(txSize);
+        mSock.Send(txSizeStr.c_str(), bufsize);
+        mSock.Send(ts.c_str(), txSize);
+
+        txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
+        cout << txSize << endl;
+//        string txsizestr = std::to_string(txSize);
+//        cout << Frame.CamMotionMat.type();
+//        mSock.Send(txSizeString.c_str(), bufsize);
+        mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
+
+//        txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize()+1;
+//        cout << txSize << endl;
+//        mSock.Send(std::to_string(txSize).c_str(), bufsize);
+//        mSock.Send((const char*)Frame.pointcloud.data, txSize);
+
+
+
+
+
+        char tmp[100];
+        mSock.Receive(tmp,100);
+        cout << "Got ACK in string: " << tmp;
+        LastAckedFrameID = stoi(tmp);
+        cout << ", in int: " << LastAckedFrameID << endl;
     }
+//    exit(0);
 }
 
 void ObjSender::initCPPREST(){
@@ -97,6 +157,24 @@ void ObjSender::writeFrameInSeparateFile(){
 }
 
 
+void ObjSender::PrepFileStorageBuffer(cv::FileStorage & buf){
+    AVRFrame Frame;
+    myAVR->getLastAVRFrame(Frame);
+    cv::Mat tcw;
+    int frameseq = Frame.frameSeq;
+    int ts = int(Frame.frameTS);
+    Frame.CamMotionMat.copyTo(tcw);
+    char tmpstr[100];
+    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), Frame.frameSeq);
+    buf.open(commPath+tmpstr, cv::FileStorage::WRITE | cv::FileStorage::MEMORY | cv::FileStorage::FORMAT_YAML);/// when memory is specified, filename is just the format
+    buf << SEQNO.c_str() << frameseq;
+//    SenderBuffer << FRAME << currFrame.FrameLeft;
+    buf << TCW.c_str() << tcw;
+    buf << TIMESTAMP.c_str() << ts;
+//    SenderBuffer << PC << currFrame.pointcloud;
+}
+
 void ObjSender::PrepSenderBuffer(){
     AVRFrame currFrame;
     myAVR->getCurrentAVRFrame(currFrame);
@@ -105,10 +183,10 @@ void ObjSender::PrepSenderBuffer(){
             FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
     SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
     SenderBuffer << SEQNO << currFrame.frameSeq;
-    SenderBuffer << FRAME << currFrame.FrameLeft;
+//    SenderBuffer << FRAME << currFrame.FrameLeft;
     SenderBuffer << TCW << currFrame.CamMotionMat;
     SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
-    SenderBuffer << PC << currFrame.pointcloud;
+//    SenderBuffer << PC << currFrame.pointcloud;
 }
 
 char* ObjSender::writeFullFrame_PC_TCW_Time_Memory(){

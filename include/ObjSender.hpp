@@ -35,6 +35,8 @@ private:
 
     mySocket mSock;
 
+    bool sendFlag;
+
 public:
 
 
@@ -50,6 +52,7 @@ public:
     void StreamPointCloud();
 
     void PrepSenderBuffer();
+    void PrepFileStorageBuffer(cv::FileStorage & buf);
     void writeCurrentFrame();
     void writeCurrentTcw();
     void writeCurrentTimeStamp();

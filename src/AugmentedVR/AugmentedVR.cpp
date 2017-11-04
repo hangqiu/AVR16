@@ -133,6 +133,10 @@ void AugmentedVR::getCurrentAVRFrame(AVRFrame &ret){
     frameCache.getCurrentFrame(ret);
 }
 
+void AugmentedVR::getLastAVRFrame(AVRFrame &ret){
+    frameCache.getLastFrame(ret);
+}
+
 void AugmentedVR::getCurrentAVRFrame_PointCloud(cv::Mat &ret){
     frameCache.getCurrentFrame_PointCloud(ret);
 }

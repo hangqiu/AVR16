@@ -35,7 +35,7 @@ ObjReceiver::~ObjReceiver() {
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-    thread *streamer = new std::thread(&ObjReceiver::ReceivePointCloudStream, this);
+//    thread *streamer = new std::thread(&ObjReceiver::ReceivePointCloudStream, this);
 
 }
 
