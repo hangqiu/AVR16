@@ -266,7 +266,8 @@ void VCluster::TXRX(){
 //        timeval tTXStart, tTXEnd;
 //        gettimeofday(&tTXStart, NULL);
 
-
+//        thread streamer(&ObjReceiver::ReceivePointCloudStream,mReceiver);
+        mReceiver->ReceivePointCloudStream();
         /// receiving objects
 //        if (!(mReceiver->AskForLatestPC_TCW_TIME_CPPREST(VNode[0]))){
 //            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;

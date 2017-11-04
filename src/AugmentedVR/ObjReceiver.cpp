@@ -5,6 +5,7 @@
 #include "ObjReceiver.hpp"
 #include <opencv2/core/mat.hpp>
 #include <cpprest/json.h>
+#include <include/UtilsPC.hpp>
 #include "cpprest/http_client.h"
 #include "stdafx.hpp"
 #include "mySocket.hpp"
@@ -40,17 +41,71 @@ void ObjReceiver::initMySocket(){
 }
 
 void ObjReceiver::ReceivePointCloudStream(){
-    char buf[10000];
-    while (true){
-        mSock.Receive(buf,10000);
-        V2VBuffer.open(buf, cv::FileStorage::READ + cv::FileStorage::MEMORY);
-        int recvId;
-        V2VBuffer[SEQNO] >> recvId;
-        cout << "Received Frame" << recvId << endl;
-        std::string ackId = std::to_string(recvId);
-        mSock.Send(ackId.c_str(),100);
-        cout << "ACKed" << buf << endl;
-    }
+//    char bufsize[100];
+//    mSock.Receive(bufsize,10);
+//    int bufSize = stoi(bufsize);
+//    cout <<"Next buf length" << bufSize << endl;
+
+
+
+//    cout << buf << endl;
+
+    int bufSize = 10;
+    char seqsizebuf[bufSize+1];
+    mSock.Receive(seqsizebuf,bufSize);
+    int seqbufsize = stoi(seqsizebuf);
+    cout << seqbufsize << endl;
+    char seqbuf[seqbufsize+1];
+    mSock.Receive(seqbuf,seqbufsize);
+    int seq = stoi(seqbuf);
+    cout << seq << endl;
+
+
+    char tssizebuf[bufSize+1];
+    mSock.Receive(tssizebuf,bufSize);
+    int tsbufsize = stoi(tssizebuf);
+    cout << tsbufsize<< endl;
+    char tsbuf[tsbufsize+1];
+    mSock.Receive(tsbuf,tsbufsize);
+    int ts = stoi(tsbuf);
+    cout << ts << endl;
+
+    int tcwbufsize = 64;
+
+//    char tcwsizebuf[bufSize+1];
+//    mSock.Receive(tcwsizebuf,bufSize);
+//    int tcwbufsize = stoi(tcwsizebuf);
+//    cout << tcwbufsize<< endl;
+    char buf[tcwbufsize+1];
+    mSock.Receive(buf,tcwbufsize);
+    cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
+    cout << tcw << endl;
+
+////    int pcsize = myAVR->height*myAVR->width*sizeof(float);
+//    char pcsizebuf[bufSize+1];
+//    mSock.Receive(pcsizebuf,bufSize);
+//    int pcbufsize = stoi(pcsizebuf);
+//    cout << pcbufsize<< endl;
+//    char pcbuf[pcbufsize+1];
+//    mSock.Receive(pcbuf,pcbufsize);
+//    cv::Mat pc = cv::Mat(myAVR->height,myAVR->width,CV_32FC4, (void*)pcbuf);
+//    debugPC(pc);
+
+
+
+
+
+
+
+
+//    V2VBuffer.open(buf, cv::FileStorage::READ + cv::FileStorage::MEMORY);
+//    int recvId;
+//    V2VBuffer[SEQNO] >> recvId;
+//    cout << "Received Frame" << recvId << endl;
+    std::string ackId = std::to_string(seq);
+    mSock.Send(ackId.c_str(),100);
+    cout << "ACKed" << ackId << endl;
+
 }
 
 void ObjReceiver::initCPPREST(){
