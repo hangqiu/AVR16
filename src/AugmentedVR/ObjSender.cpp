@@ -91,7 +91,7 @@ void ObjSender::StreamPointCloud(){
         string seq = std::to_string(Frame.frameSeq);
         txSize = seq.length()+1;
         cout << txSize << endl;
-        int bufsize =10;
+        int bufsize =15;
         string txSizeString = std::to_string(txSize);
         mSock.Send(txSizeString.c_str(), bufsize);
         mSock.Send(seq.c_str(), txSize);
@@ -105,25 +105,26 @@ void ObjSender::StreamPointCloud(){
 
         txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
         cout << txSize << endl;
-//        string txsizestr = std::to_string(txSize);
-//        cout << Frame.CamMotionMat.type();
-//        mSock.Send(txSizeString.c_str(), bufsize);
+        string txsizestr = std::to_string(txSize);
+        cout << Frame.CamMotionMat.type() << endl;
+        mSock.Send(txsizestr.c_str(), bufsize);
         mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
 
-//        txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize()+1;
-//        cout << txSize << endl;
-//        mSock.Send(std::to_string(txSize).c_str(), bufsize);
-//        mSock.Send((const char*)Frame.pointcloud.data, txSize);
+        txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize();
+        cout << Frame.pointcloud.type()<< endl;
+        cout << txSize << endl;
+        mSock.Send(std::to_string(txSize).c_str(), bufsize);
+        mSock.Send((const char*)Frame.pointcloud.data, txSize);
 
-
-
-
-
-        char tmp[100];
-        mSock.Receive(tmp,100);
-        cout << "Got ACK in string: " << tmp;
-        LastAckedFrameID = stoi(tmp);
-        cout << ", in int: " << LastAckedFrameID << endl;
+//
+//
+//
+//
+//        char tmp[100];
+//        mSock.Receive(tmp,100);
+//        cout << "Got ACK in string: " << tmp;
+//        LastAckedFrameID = stoi(tmp);
+//        cout << ", in int: " << LastAckedFrameID << endl;
     }
 //    exit(0);
 }
