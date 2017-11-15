@@ -57,37 +57,8 @@ void ObjSender::StreamPointCloud(){
         cv::FileStorage fs;
         AVRFrame Frame;
         myAVR->getLastAVRFrame(Frame);
-//        cv::Mat tcw;
-//        int frameseq = Frame.frameSeq;
-//        int ts = int(Frame.frameTS);
-//        Frame.CamMotionMat.copyTo(tcw);
-//        char tmpstr[100];
-//        sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
-//                FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), Frame.frameSeq);
-//        fs.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
-//        fs.open(commPath+tmpstr, cv::FileStorage::WRITE | cv::FileStorage::MEMORY | cv::FileStorage::FORMAT_YAML);/// when memory is specified, filename is just the format
-//        fs << SEQNO << frameseq << TCW<< tcw << TIMESTAMP << ts;
-//        fs << "id" << 5;
-//
-//        cv::String buf = fs.releaseAndGetString();
-//        cout << buf << endl;
-//
-//        cv::FileStorage rfs(buf, cv::FileStorage::READ+cv::FileStorage::MEMORY);
-//        int seq;
-//        rfs[SEQNO] >> seq;
-//        cout << seq << endl;
-//        cout << "Sent " << int(fs[SEQNO]) << endl;
-//        buf.erase(buf.begin(),buf.begin()+buf.find("%YAML"));
-//        buf.shrink_to_fit();
-//        cout << buf << endl;
-//        cout << "Total length " << buf.length() <<endl;
-//        string bufsize = std::to_string(buf.length());
-//        bufsize.append("\0");
-//        mSock.Send(bufsize.c_str(), 10);
-//        mSock.Send((char*)(buf.c_str()), 168);
 
         int txSize;
-//        string txSizeString;
         string seq = std::to_string(Frame.frameSeq);
         txSize = seq.length()+1;
         cout << txSize << endl;
@@ -110,23 +81,23 @@ void ObjSender::StreamPointCloud(){
         mSock.Send(txsizestr.c_str(), bufsize);
         mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
 
+        timeval tFetchEnd,tFetchStart;
+        gettimeofday(&tFetchStart,NULL);
+        cout << "TimeStamp Start: " << tFetchStart.tv_sec << "sec" << tFetchStart.tv_usec << "usec";
+//        cout << "TimeStamp Start: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
+
         txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize();
         cout << Frame.pointcloud.type()<< endl;
         cout << txSize << endl;
         mSock.Send(std::to_string(txSize).c_str(), bufsize);
         mSock.Send((const char*)Frame.pointcloud.data, txSize);
 
-//
-//
-//
-//
-//        char tmp[100];
-//        mSock.Receive(tmp,100);
-//        cout << "Got ACK in string: " << tmp;
-//        LastAckedFrameID = stoi(tmp);
-//        cout << ", in int: " << LastAckedFrameID << endl;
+        gettimeofday(&tFetchEnd,NULL);
+        cout << "TimeStamp End: " << tFetchEnd.tv_sec << "sec" << tFetchEnd.tv_usec << "usec";
+//        cout << "TimeStamp End: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
+        cout << "PC TX: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
+
     }
-//    exit(0);
 }
 
 void ObjSender::initCPPREST(){
