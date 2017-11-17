@@ -53,6 +53,7 @@ public:
 
     cv::Mat TranslationMat_Curr2CacheHead; // tlc
     cv::Mat RotationMat_Curr2CacheHead; // Rlc
+    cv::Mat TransformationMat_Curr2CacheHead; // Tlc
 
     cv::Mat transformedPointcloud;
 
@@ -65,7 +66,9 @@ public:
     cv::Mat PCMotionVec; // matrix of pc motion
 
     cv::Mat ObjectMotionVec; // matrix of average object motion vec
+    cv::Mat FilteredObjectMotionVec; // matrix of average object motion vec
     cv::Mat LowPass_ObjectMotionVec; // matrix of average object motion vec
+    cv::Mat LowPass_FilteredObjectMotionVec;
 
     std::vector<cv::Point2f> keypoints;
     std::vector<uchar> status;
@@ -77,7 +80,8 @@ public:
 //    vector<Point2f> keypoints_cache;
 
 //    landmark_matchinfo matched_scene;
-    cv::Mat sceneTransformMat;
+    cv::Mat sceneTransformMat_Curr2Last;
+    cv::Mat sceneTransformMat_Curr2CacheHead;
 
     void getPointCloud(cv::Mat & ret);
 
@@ -89,7 +93,7 @@ public:
 
     void updatePCMotionVecFromPCandTransformedPC();
 
-    void tranformPointCloud_via_TransformationMat();
+    void tranformPointCloud_via_TransformationMat(cv::Mat &HomographyTransMat_Curr2CacheHead);
 
     void updateMotionMask_via_ThresholdingPCDisplacement();
 

@@ -85,8 +85,8 @@ FILE(GLOB_RECURSE HEADER_FILES "${HEADER_FOLDER}/*.hpp" "${HEADER_FOLDER}/*.h" "
 #message("${CUDA_CUDART_LIBRARY}")
 
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" ) # Release Perf mode. O0 for debug
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -g  -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -g -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ADD_EXECUTABLE(${execName} ${SRC_FILES} ./app/main.cpp)

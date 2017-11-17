@@ -52,8 +52,8 @@ void ObjSender::initMySocket(){
 
 
 void ObjSender::StreamPointCloud(){
-    int LastAckedFrameID=-1;
-    if (LastAckedFrameID<FRAME_ID-3){
+//    int LastAckedFrameID=-1;
+//    if (LastAckedFrameID<FRAME_ID-3){
         cv::FileStorage fs;
         AVRFrame Frame;
         myAVR->getLastAVRFrame(Frame);
@@ -97,7 +97,7 @@ void ObjSender::StreamPointCloud(){
 //        cout << "TimeStamp End: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
         cout << "PC TX: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
 
-    }
+//    }
 }
 
 void ObjSender::initCPPREST(){

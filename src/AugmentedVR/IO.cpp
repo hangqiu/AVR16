@@ -13,22 +13,9 @@
 //}
 
 IO::IO(AugmentedVR *myAVR) : myAVR(myAVR) {
-    char tmp_str[50];
-    sprintf(tmp_str, "/home/nsl/imgs/cam%d/depth.txt", myAVR->CamId);
-    depthFile.open(tmp_str);
-
-    sprintf(tmp_str, "/home/nsl/imgs/cam%d/times.txt", myAVR->CamId);
-    TimeFile.open(tmp_str);
-
-    sprintf(tmp_str, "./FrameInfo%d.txt", myAVR->CamId);
-    logFile.open(tmp_str);
-
-
-//    sprintf(tmp_str, "./imgs/cam%d/Tcw.txt", myAVR->CamId);
-//    TcwFile.open(".yml", cv::FileStorage::WRITE);
-
-
-
+    depthFile.open(commPath + "/depth.txt");
+    TimeFile.open(commPath + "/times.txt");
+    logFile.open(commPath + "/FrameInfo.txt");
 }
 
 IO::~IO() {
@@ -39,13 +26,13 @@ IO::~IO() {
 
 
 void IO::writeCurrentStereoFrame(){
-    cout <<"writing frames " << FRAME_ID << endl;
     AVRFrame currFrame;
     myAVR->getCurrentAVRFrame(currFrame);
+    cout <<"writing frames " << currFrame.frameSeq << endl;
     char tmp_str[50];
-    sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_0/%06d.png", myAVR->CamId, FRAME_ID);
+    sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_0/%06d.png", myAVR->CamId, currFrame.frameSeq);
     imwrite(tmp_str,currFrame.FrameLeft);
-    sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_1/%06d.png", myAVR->CamId, FRAME_ID);
+    sprintf(tmp_str, "/home/nsl/imgs/cam%d/image_1/%06d.png", myAVR->CamId, currFrame.frameSeq);
     imwrite(tmp_str,currFrame.FrameRight);
     TimeFile << currFrame.frameTS << endl;
 }
@@ -59,7 +46,12 @@ void IO::logCurrentFrame(){
             << ": TS: " << currFrame.ZEDTS
             << ": Obj MotionVec: " << currFrame.ObjectMotionVec
             << ": dist: " << norm(currFrame.ObjectMotionVec)
-            << ": LP_MotionVec: " << myAVR-> Log_LowPassMotionVec  //TODO check valid
-            << ": dist: " << norm(myAVR->Log_LowPassMotionVec) << endl;
+            << ": LP_MotionVec: " << currFrame.LowPass_ObjectMotionVec
+            << ": dist: " << norm(currFrame.LowPass_ObjectMotionVec)
+            << ": Filtered Obj MotionVec: " << currFrame.FilteredObjectMotionVec
+            << ": dist: " << norm(currFrame.FilteredObjectMotionVec)
+            << ": Filtered LP_MotionVec: " << currFrame.LowPass_FilteredObjectMotionVec
+            << ": dist: " << norm(currFrame.LowPass_FilteredObjectMotionVec)
+            << endl;
 
 }

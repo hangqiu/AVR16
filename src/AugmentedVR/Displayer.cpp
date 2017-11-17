@@ -182,7 +182,7 @@ void Displayer::showDynamicPC(){
     pushPC_cvMat(currFrame.DynamicPC);
 }
 void Displayer::pushPC_cvMat(cv::Mat &mat){
-    if (DEBUG) debugPC(mat);
+//    if (DEBUG) debugPC(mat);
     sl::Mat PC_gpu;
     PC_gpu.alloc(PCwidth, PCheight, sl::MAT_TYPE_32F_C4, sl::MEM_CPU);
     cvMat2slMat(mat,PC_gpu, sl::MEM_CPU);

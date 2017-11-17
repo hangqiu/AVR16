@@ -53,9 +53,13 @@ public:
 
     void FindHomographyMatrix_Curr2Last();
 
+    void FindHomographyMatrix_Curr2CacheHead();
+
+    void FindHomographyMatrix_A2B(AVRFrame&A,AVRFrame&B, cv::Mat &ret);
+
     void opticalFlowTrack_Curr2Last();
 
-    bool ReachFullMotionBacklog();
+    bool FullBacklogAfterSLAM();
 
     void updatePCDisplacement_Last2FIFOHead();
 
@@ -67,7 +71,7 @@ public:
 
     void updateMotionData_Curr2CacheHead();
 
-    void updateMotionVec_Curr2CacheHead();
+    void updateCurrFrameMotionVec_Curr2CacheHead();
 
 //    AVRFrame getFIFOHead();
     void getFIFOHead(AVRFrame& frame);
@@ -89,6 +93,12 @@ public:
     void updateCurrFrameFeature();
 
     void updateLastFrameFeature();
+
+    void cacheExistingFeatureOfAllCacheFrame();
+
+    void getLowPassMotionVectorForCurrFrame();
+
+    void getLowPassFilteredMotionVectorForCurrFrame();
 };
 
 

@@ -206,7 +206,7 @@ void Tracking::CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectR
 
 }
 
-void Tracking::LoadNextFrame(){
+void Tracking::LoadNextFrameAsCurrentFrame(){
     mImGray = mNextImGray;
     mCurrentFrame = Frame(mNextFrame);
 }
@@ -217,17 +217,7 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
     timeval start, end;
     gettimeofday(&start, NULL);
 #endif
-    LoadNextFrame();
-
-#ifdef EVAL
-    gettimeofday(&end, NULL);
-    cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-    cout << "trackCam >>>>>>> Feature detect and 3d compute: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-    gettimeofday(&start, NULL);
-#endif
-
     Track();
-
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";

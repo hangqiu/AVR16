@@ -169,7 +169,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 }
 
 void System::mTracker_CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp){
+
     mpTracker->CreateNextFrame(imRectLeft, imRectRight, timestamp);
+}
+
+void System::mTracker_LoadNextFrameAsCurrent(){
+    mpTracker->LoadNextFrameAsCurrentFrame();
 }
 
 cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp)

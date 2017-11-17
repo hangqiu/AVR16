@@ -81,7 +81,7 @@ void VCluster::run(){
         FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
         //Resize and imshow
-        cout << endl << "FrameID: " << FRAME_ID << endl;
+        cout << endl << "Next FrameID: " << VNode[0]->TotalFrameSeq << endl;
 
         if (VISUAL) key = mDisplayer->showCurFrame();
 
@@ -108,11 +108,7 @@ void VCluster::run(){
 
         prepFrameTime += double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000;
 #endif
-        // create next frame for slam as well...
-        // use gray to save conversion time.
-        // thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
-
-        VNode[0]->FeedSlamNextFrame();
+        VNode[0]->trackCam(); // in post process now
 
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
@@ -199,9 +195,6 @@ bool VCluster::PreProcess(){
 #endif
     VNode[0]->calcOpticalFlow();
     if (!(VNode[0]->PrepareNextFrame())) return false;
-
-
-
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -229,8 +222,8 @@ void VCluster::compressDynamic(){
 
 void VCluster::postProcess(){
 
-    VNode[0]->trackCam();
-    if (DECOUPLE2IMG) VNode[0]->mIo->writeCurrentStereoFrame();
+//    VNode[0]->trackCam();
+
 #ifdef EVAL
     timeval start, end;
     gettimeofday(&start, NULL);
@@ -248,12 +241,14 @@ void VCluster::postProcess(){
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "postProcess ends: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
+    if (DECOUPLE2IMG) VNode[0]->mIo->writeCurrentStereoFrame();
+    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
 }
 
 
 
 void VCluster::TXRX(){
-    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+
     // sending objects
     if (TX && SEND) {
 //        mSender->writeFullFrame_PC_TCW_Time();

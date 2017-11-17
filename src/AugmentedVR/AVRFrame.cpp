@@ -26,7 +26,7 @@ AVRFrame::AVRFrame(){
     PCMotionVec= cv::Mat(); // matrix of pc motion
     ObjectMotionVec= cv::Mat(); // matrix of average object motion vec
     LowPass_ObjectMotionVec= cv::Mat(); // matrix of average object motion vec
-    sceneTransformMat= cv::Mat();
+    sceneTransformMat_Curr2Last= cv::Mat();
 }
 AVRFrame::~AVRFrame(){
 
@@ -104,7 +104,10 @@ void AVRFrame::setFrom(AVRFrame& frame) {
     frame.MotionMask.copyTo(MotionMask);
     frame.PCMotionVec.copyTo(PCMotionVec);
     frame.ObjectMotionVec.copyTo(ObjectMotionVec);
+    frame.FilteredObjectMotionVec.copyTo(FilteredObjectMotionVec);
     frame.LowPass_ObjectMotionVec.copyTo(LowPass_ObjectMotionVec);
+    frame.LowPass_FilteredObjectMotionVec.copyTo(LowPass_FilteredObjectMotionVec);
+
 
     keypoints = frame.keypoints;
     status = frame.status;
@@ -113,7 +116,8 @@ void AVRFrame::setFrom(AVRFrame& frame) {
     tracked_status = frame.tracked_status;
     tracked_error = frame.tracked_error;
 
-    frame.sceneTransformMat.copyTo(sceneTransformMat);
+    frame.sceneTransformMat_Curr2Last.copyTo(sceneTransformMat_Curr2Last);
+    frame.sceneTransformMat_Curr2CacheHead.copyTo(sceneTransformMat_Curr2CacheHead);
 
     FrameLock.unlock();
     frame.FrameLock.unlock();
@@ -138,27 +142,27 @@ int AVRFrame::getFrameTS(){
 }
 
 void AVRFrame::detectNewFeature(){
-
+    FrameLock.lock();
     cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,20,0.03);
     cv::Size subPixWinSize(10,10);
 
     cv::goodFeaturesToTrack(FrameLeftGray, keypoints, MAX_COUNT, 0.01, 10, cv::Mat(), 3, false, 0.04);
     cornerSubPix(FrameLeftGray, keypoints, subPixWinSize, cv::Size(-1,-1), termcrit);
-
+    FrameLock.unlock();
 }
 
 void AVRFrame::CacheExistingFeature(){
+    FrameLock.lock();
     tracked_keypoints = keypoints;
     tracked_status = status;
     tracked_error = error;
+    FrameLock.unlock();
 }
 /// detect new feature and cache existing feature
 /// Warning: watch out the period of execution should be the same as the cachesize to ensure cachehead always has the same tracked feature
 void AVRFrame::updateFeature(){
-    FrameLock.lock();
     CacheExistingFeature();
     detectNewFeature();
-    FrameLock.unlock();
 }
 
 
@@ -177,7 +181,7 @@ void AVRFrame::updatePCDisplacementFromMotionVec(){
 
     if (DEBUG && VISUAL){
         char tmp[50];
-        sprintf(tmp, "Displacement %d", frameSeq);
+        sprintf(tmp, "Displacement");
         imshow(tmp, PCDisplacement);
         cv::setMouseCallback(tmp, onMouseCallback_DisplayDisplacement, &PCDisplacement);
     }
@@ -223,43 +227,56 @@ void AVRFrame::updateDynamicsFromMotionMask(){
     }
 }
 
-
-void AVRFrame::tranformPointCloud_via_TransformationMat(){
-
-    // perspective transform to get pixel level pointcloud matching from last frame
-
-//    FrameLock.lock();
+void AVRFrame::tranformPointCloud_via_TransformationMat(cv::Mat &HomographyTransMat_Curr2CacheHead){
 
     int width = FrameLeft.size().width;
     int height = FrameLeft.size().height;
     cv::Size outputSize(width,height);
-//#ifdef EVAL
-//    timeval start, end;
-//    gettimeofday(&start, NULL);
-//#endif
-    cv::warpPerspective(pointcloud,transformedPointcloud,sceneTransformMat,outputSize);
-//#ifdef EVAL
-//    gettimeofday(&end, NULL);
-//    cout << "   CPU warpperspective: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//#endif
+    cv::warpPerspective(pointcloud,transformedPointcloud,HomographyTransMat_Curr2CacheHead,outputSize);
 
-    // TODO: use tlc only for now
-    // watch out, orbslam and zed have different default coordinate frame positive difrection
-    // same x, opposite y,z, not true any more?
     /// TODO: double chck the new SDK
     assert(!TranslationMat_Curr2CacheHead.empty());
-    cv::Scalar tlc_vec = cv::Scalar(TranslationMat_Curr2CacheHead.at<float>(0,0),
-                                    TranslationMat_Curr2CacheHead.at<float>(1,0),
-                                    TranslationMat_Curr2CacheHead.at<float>(2,0),0);
-    cv::Mat tlc_mat(height, width, CV_32FC4, tlc_vec);
-    transformedPointcloud = transformedPointcloud+tlc_mat;
+    assert(!RotationMat_Curr2CacheHead.empty());
 
-    if (DEBUG>1){
-        cout << "tlc: " << tlc_mat(cv::Rect(dbx,dby,1,1)) << endl;
-//                cout << "tlc_mat4: " << tlc_mat_4(cv::Rect(dbx,dby,1,1)) << endl;
-        cout << "transformedPC_inLast: " << transformedPointcloud(cv::Rect(dbx,dby,1,1)) << endl;
-    }
-
-//    FrameLock.unlock();
-
+    transformPC_Via_TransformationMatrix(TranslationMat_Curr2CacheHead,RotationMat_Curr2CacheHead, transformedPointcloud, transformedPointcloud);
 }
+
+//void AVRFrame::tranformPointCloud_via_TranslationMat(){
+//
+//    // perspective transform to get pixel level pointcloud matching from last frame
+//
+////    FrameLock.lock();
+//
+//    int width = FrameLeft.size().width;
+//    int height = FrameLeft.size().height;
+//    cv::Size outputSize(width,height);
+////#ifdef EVAL
+////    timeval start, end;
+////    gettimeofday(&start, NULL);
+////#endif
+//    cv::warpPerspective(pointcloud,transformedPointcloud,sceneTransformMat,outputSize);
+////#ifdef EVAL
+////    gettimeofday(&end, NULL);
+////    cout << "   CPU warpperspective: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
+////#endif
+//
+//    // TODO: use tlc only for now
+//    // watch out, orbslam and zed have different default coordinate frame positive difrection
+//    // same x, opposite y,z, not true any more?
+//    /// TODO: double chck the new SDK
+//    assert(!TranslationMat_Curr2CacheHead.empty());
+//    cv::Scalar tlc_vec = cv::Scalar(TranslationMat_Curr2CacheHead.at<float>(0,0),
+//                                    TranslationMat_Curr2CacheHead.at<float>(1,0),
+//                                    TranslationMat_Curr2CacheHead.at<float>(2,0),0);
+//    cv::Mat tlc_mat(height, width, CV_32FC4, tlc_vec);
+//    transformedPointcloud = transformedPointcloud+tlc_mat;
+//
+//    if (DEBUG>1){
+//        cout << "tlc: " << tlc_mat(cv::Rect(dbx,dby,1,1)) << endl;
+////                cout << "tlc_mat4: " << tlc_mat_4(cv::Rect(dbx,dby,1,1)) << endl;
+//        cout << "transformedPC_inLast: " << transformedPointcloud(cv::Rect(dbx,dby,1,1)) << endl;
+//    }
+//
+////    FrameLock.unlock();
+//
+//}

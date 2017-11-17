@@ -124,6 +124,7 @@ public:
 
     void mTracker_CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
 
+    void mTracker_LoadNextFrameAsCurrent();
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);

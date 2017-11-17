@@ -196,7 +196,7 @@ public:
     void initSLAMStereo(string VocFile, string CalibrationFile, bool bReuseMap = false, string mapFile = "default.txt");
     bool PrepareNextFrame();
     bool grabNextZEDFrameOffline();
-    void FeedSlamNextFrame();
+    void FeedSlamTheSlamFrame();
 //    void fetchNUpdateFrameNPointcloud();
     cv::Mat getGrayBBox(cv::Mat img, int select_left, int select_top, int select_width, int select_height);
     landmark_matchinfo find_obj_in_second_scene(cv::Mat img_object, cv::Mat img_scene);
@@ -242,7 +242,7 @@ public:
 
     cv::Mat calcPCDisplacement(int idx);
 
-    void ObjectMotionAnalysis(int idx);
+    void ObjectMotionAnalysis();
 
     void calcOpticalFlow();
 

@@ -65,7 +65,7 @@ public:
 
     // for pipeline
     void CreateNextFrame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
-    void LoadNextFrame();
+    void LoadNextFrameAsCurrentFrame();
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);

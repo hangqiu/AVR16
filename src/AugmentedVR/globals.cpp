@@ -16,12 +16,12 @@ bool COOP = false;
 bool ReuseMap = false;
 //bool ReuseMap = true;
 
-int DEBUG = 0;
-bool VISUAL = false;
-//bool VISUAL = true;
+int DEBUG = 1;
+//bool VISUAL = false;
+bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
-bool PCVISUAL = true;
+bool PCVISUAL = false;
 
 //bool SHOW_CAMMOTION = true;
 bool SHOW_CAMMOTION = false;
@@ -33,7 +33,7 @@ bool PAUSE_FLAG = true;
 
 //const int NUM_CAMERAS = 2;
 const int FPS = 15;
-int ZEDCACHESIZE = 6;
+int ZEDCACHESIZE = 4;
 
 /// Toggles;
 bool SHOW_IMG = true;
@@ -44,13 +44,13 @@ bool SHOW_PC = true;
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;
 
-int MAX_COUNT = 500;
+int MAX_COUNT = 2000;
 
 
 //int DUTYCYCLE = 1; // x frames per processing
 
 double PCConnectionThresh = 0.02;
-double MOTIONTHRESH_PERPIXEL = 0.05; //meters
+double MOTIONTHRESH_PERPIXEL = 0.08; //meters
 int PATCHSIZE = 10; // expand step x pixels
 
 double HEIGHT_THRESH = 2;

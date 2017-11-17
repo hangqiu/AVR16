@@ -10,7 +10,6 @@
 
 
 
-
 void debugCin(){
     char new_key;
     while (true){

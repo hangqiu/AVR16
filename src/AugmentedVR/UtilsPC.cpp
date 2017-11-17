@@ -65,7 +65,7 @@ cv::Mat MatPerElementNorm(cv::Mat MotionVecMat){
 //    return ret;
 //}
 
-void transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived, cv::Mat & ret){
+void transformPC_Via_TransformationMatrix(cv::Mat T, cv::Mat PCReceived, cv::Mat &ret){
     // T is 4 by 4 transformation matix, where 3 by 3 rot, and 1 by 3 translation, last row is 0,0,0,1
     // point cloud is 1 by 4 (x,y,z,rgba)
     assert(T.size().width==4 && T.size().height==4);
@@ -106,7 +106,33 @@ void transformPCViaTransformationMatrix_gpu(cv::Mat T, cv::Mat PCReceived, cv::M
 //    return ret;
 }
 
+void transformPC_Via_TransformationMatrix(cv::Mat tlc, cv::Mat Rlc, cv::Mat PCReceived, cv::Mat &ret){
+    /// extract channels
+    cv::Mat PCChannels[4];
+    for (int i=0;i<4;i++){
+        cv::extractChannel(PCReceived,PCChannels[i],i);
+    }
+
+    cv::Mat interRes[4][4];
+    for (int i=0;i<3;i++){
+        // for each channel
+        for (int j=0;j<3;j++){
+            // watchout: T.at(row,col)
+//            cv::cuda::multiply(PCChannels[i], cv::Scalar(T.at<float>(i,j)), interRes[i][j]);
+//            cout << Rlc.at<float>(j,i) << endl;
+            interRes[i][j] = PCChannels[i] * Rlc.at<float>(j,i);
+        }
+    }
+
+    PCChannels[0] = interRes[0][0] + interRes[1][0] + interRes[2][0] + tlc.at<float>(0,0);
+    PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + tlc.at<float>(1,0);
+    PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + tlc.at<float>(2,0);
+
+    merge(PCChannels,4,ret);
+}
+
 void debugPC(cv::Mat DebugPC){
+    if (!DEBUG) return;
 //    cv::Mat DebugPC = VNode[0]->DynamicPC;
     cout 	<< "PC dims:" << DebugPC.rows
             << ", "<< DebugPC.cols

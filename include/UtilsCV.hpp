@@ -8,6 +8,9 @@
 #include <opencv2/core/types.hpp>
 #include <include/globals.hpp>
 
+
+
+
 void debugCin();
 void debugPauser();
 void processKey(char key);

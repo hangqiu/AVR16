@@ -14,7 +14,7 @@ using namespace std;
 
 FrameCache::FrameCache(){
     CacheSize = ZEDCACHESIZE;
-    assert(CacheSize>4); // must > 4. since simultanesouly processing 4 frames, 3 + ZEDCACHESIZE ensure comparing ZEDCACHESIZE frames back
+//    assert(CacheSize>4); // must > 4. since simultanesouly processing 4 frames, 3 + ZEDCACHESIZE ensure comparing ZEDCACHESIZE frames back
 //    NextFrame = AVRFrame();
 //    SlamFrame = AVRFrame();
 //    CurrentFrame = AVRFrame();
@@ -161,7 +161,7 @@ void FrameCache::getFIFOHead(AVRFrame& frame){
 bool FrameCache::LastFrame2FIFO(){
     if (LastFrame.isEmpty()) return false;
     fifoEndIndex++;
-    if (fifoEndIndex == CacheSize){
+    if (!fullBacklog && fifoEndIndex == CacheSize){
         fullBacklog = true;
     }
     fifoEndIndex%=CacheSize;
@@ -211,6 +211,9 @@ void FrameCache::opticalFlowTrack_Curr2Last(){
     CurrentFrame.FrameLock.lock();
     calcOpticalFlow_Current2Last();
     FindHomographyMatrix_Curr2Last();
+    if (fullBacklog){
+        FindHomographyMatrix_Curr2CacheHead();
+    }
     CurrentFrame.FrameLock.unlock();
     LastFrame.FrameLock.unlock();
     theBigLock.unlock();
@@ -265,8 +268,19 @@ bool FrameCache::calcOpticalFlow_Current2Last() {
     return true;
 }
 
-
 void FrameCache::FindHomographyMatrix_Curr2Last(){
+
+    FindHomographyMatrix_A2B(CurrentFrame,LastFrame, CurrentFrame.sceneTransformMat_Curr2Last);
+}
+
+void FrameCache::FindHomographyMatrix_Curr2CacheHead(){
+
+    FindHomographyMatrix_A2B(CurrentFrame,fifo[fifoStartIndex], CurrentFrame.sceneTransformMat_Curr2CacheHead);
+//    cout << "CurrentFrame.sceneTransformMat_Curr2CacheHead \n";
+//    cout << CurrentFrame.sceneTransformMat_Curr2CacheHead << endl;
+}
+
+void FrameCache::FindHomographyMatrix_A2B(AVRFrame&A,AVRFrame&B, cv::Mat& ret){
 #ifdef EVAL
     timeval start, end;
     gettimeofday(&start, NULL);
@@ -278,17 +292,17 @@ void FrameCache::FindHomographyMatrix_Curr2Last(){
     std::vector<cv::Point2f> obj_corners(4);
     std::vector<cv::Point2f> scene_corners(4);
 
-    for( size_t i = 0; i < CurrentFrame.keypoints.size(); i++ ){
-        if (CurrentFrame.status[i]){
-            good_lastKeypoints.push_back(LastFrame.keypoints[i]);
-            good_Keypoints.push_back(CurrentFrame.keypoints[i]);
+    for( size_t i = 0; i < A.tracked_keypoints.size(); i++ ){
+        if (A.tracked_status[i]){
+            good_lastKeypoints.push_back(B.tracked_keypoints[i]);
+            good_Keypoints.push_back(A.tracked_keypoints[i]);
         }
     }
     cv::Mat H;
     if (!good_Keypoints.empty())
         H = findHomography( good_Keypoints,good_lastKeypoints, cv::RANSAC );
 
-    H.copyTo(CurrentFrame.sceneTransformMat);
+    H.copyTo(ret);
     //    cout << "Homography matrix: " << H << endl
 
 
@@ -304,21 +318,21 @@ void FrameCache::FindHomographyMatrix_Curr2Last(){
     //-- Get the corners from the image_1 ( the object to be "detected" )
     int margin=50;
     obj_corners[0] = cvPoint(margin,margin);
-    obj_corners[1] = cvPoint( CurrentFrame.FrameLeft.cols-margin, margin );
-    obj_corners[2] = cvPoint( CurrentFrame.FrameLeft.cols-margin, CurrentFrame.FrameLeft.rows-margin );
-    obj_corners[3] = cvPoint( margin, CurrentFrame.FrameLeft.rows-margin );
+    obj_corners[1] = cvPoint( A.FrameLeft.cols-margin, margin );
+    obj_corners[2] = cvPoint( A.FrameLeft.cols-margin, A.FrameLeft.rows-margin );
+    obj_corners[3] = cvPoint( margin, A.FrameLeft.rows-margin );
 
     if (DEBUG && VISUAL){
         cv::Mat img, img_cache;
-        CurrentFrame.FrameLeft.copyTo(img);LastFrame.FrameLeft.copyTo(img_cache);
+        A.FrameLeft.copyTo(img);B.FrameLeft.copyTo(img_cache);
         int count = 0;
 
-        for( size_t i = 0; i < CurrentFrame.keypoints.size(); i++ ){
-            if (CurrentFrame.status[i]){
+        for( size_t i = 0; i < A.tracked_keypoints.size(); i++ ){
+            if (A.tracked_status[i]){
                 count ++;
-                circle( img_cache, LastFrame.keypoints[i], 3, cv::Scalar(255,0,0), -1, 8);
-                circle( img_cache, CurrentFrame.keypoints[i], 3, cv::Scalar(0,255,0), -1, 8);
-                line( img_cache, LastFrame.keypoints[i], CurrentFrame.keypoints[i], cv::Scalar(0,0,255));
+                circle( img_cache, B.tracked_keypoints[i], 3, cv::Scalar(255,0,0), -1, 8);
+                circle( img_cache, A.tracked_keypoints[i], 3, cv::Scalar(0,255,0), -1, 8);
+                line( img_cache, B.tracked_keypoints[i], A.tracked_keypoints[i], cv::Scalar(0,0,255));
             }
         }
         if (!H.empty()){
@@ -330,7 +344,7 @@ void FrameCache::FindHomographyMatrix_Curr2Last(){
             line( img_cache, scene_corners[3], scene_corners[0], cv::Scalar( 0, 255, 0), 4 );
         }
         imshow("Cache Tracking in Last Frame", img_cache);
-//        cout << "tracking " << count << " keypoints\n";
+//        cout << "tracking " << count << " tracked_keypoints\n";
     }
 }
 
@@ -339,14 +353,14 @@ void FrameCache::FindHomographyMatrix_Curr2Last(){
 //}
 
 void FrameCache::updateMotionData_Curr2CacheHead(){
-    assert(ReachFullMotionBacklog());
+    assert(FullBacklogAfterSLAM());
 
     CurrentFrame.FrameLock.lock();
     fifo[fifoStartIndex].FrameLock.lock();
     //PC motion
     updateTransformationMatrix_Curr2CacheHead();
-    CurrentFrame.tranformPointCloud_via_TransformationMat();
-    updateMotionVec_Curr2CacheHead();
+    tranformPointCloud_Curr2CacheHead();
+    updateCurrFrameMotionVec_Curr2CacheHead();
     // filter dynamics
     CurrentFrame.MotionAnalysis();
 
@@ -354,13 +368,13 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     CurrentFrame.FrameLock.unlock();
 }
 
-void FrameCache::updateMotionVec_Curr2CacheHead(){
+void FrameCache::updateCurrFrameMotionVec_Curr2CacheHead(){
     CurrentFrame.PCMotionVec = CurrentFrame.transformedPointcloud - fifo[fifoStartIndex].pointcloud;
 }
 
 void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
     // w: world, l: last frame, c: current frame
-    assert(ReachFullMotionBacklog());
+    assert(FullBacklogAfterSLAM());
     if (fifo[fifoStartIndex].CamMotionMat.empty() || CurrentFrame.CamMotionMat.empty()) {
         cerr << "FrameCache::updateTransformationMatrix_Curr2CacheHead: No CamMotionMat\n";
         return;
@@ -375,16 +389,19 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
 
     CurrentFrame.TranslationMat_Curr2CacheHead= Rlw*twc+tlw;
     CurrentFrame.RotationMat_Curr2CacheHead = Rlw*Rwc;
+
     if (DEBUG>1){
         cout << "tlc: \n" << CurrentFrame.TranslationMat_Curr2CacheHead << endl;
         cout << "Rlc: \n" << CurrentFrame.RotationMat_Curr2CacheHead << endl; // to see if Rlc is almost identity matrix
     }
 }
 
+void FrameCache::tranformPointCloud_Curr2CacheHead(){
+    CurrentFrame.tranformPointCloud_via_TransformationMat(CurrentFrame.sceneTransformMat_Curr2CacheHead);
+}
 
 
-
-bool FrameCache::ReachFullMotionBacklog(){
+bool FrameCache::FullBacklogAfterSLAM(){
 //     return fifo.size()==CacheSize && !(fifo[0].CamMotionMat.empty());
     return fullBacklog && !(fifo[fifoStartIndex].CamMotionMat.empty()) && !(CurrentFrame.CamMotionMat.empty());
 }
@@ -436,6 +453,15 @@ void FrameCache::updateLastFrameFeature(){
     theBigLock.unlock();
 }
 
+void FrameCache::cacheExistingFeatureOfAllCacheFrame(){
+    theBigLock.lock();
+    for (int i=0;i<CacheSize;i++) {
+        int idx = (fifoStartIndex + i) % CacheSize;
+        fifo[idx].CacheExistingFeature();
+    }
+    theBigLock.unlock();
+}
+
 unsigned long long int FrameCache::getLatestZEDTS()  {
     unsigned long long int ret;
     theBigLock.lock();
@@ -450,4 +476,54 @@ unsigned long long int FrameCache::getLatestFrameTS()  {
     ret = LatestFrameTS;
     theBigLock.unlock();
     return ret;
+}
+
+void FrameCache::getLowPassMotionVectorForCurrFrame(){
+    // low pass filtering (sliding window average)
+    cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
+    int count =0;
+    for (int i=0;i<ZEDCACHESIZE;i++){
+        if (!fifo[i].ObjectMotionVec.empty() && !cvIsNaN(norm(fifo[i].ObjectMotionVec))){
+            lp_total+= fifo[i].ObjectMotionVec;
+            count ++;
+        }
+    }
+    if (!LastFrame.ObjectMotionVec.empty()&& !cvIsNaN(norm(LastFrame.ObjectMotionVec))){
+        lp_total += LastFrame.ObjectMotionVec;
+        count ++;
+    }
+    if(!CurrentFrame.ObjectMotionVec.empty()&& !cvIsNaN(norm(CurrentFrame.ObjectMotionVec))){
+        lp_total += CurrentFrame.ObjectMotionVec;
+        count ++;
+    }
+    if (count!=0){
+        lp_total /= count;
+        lp_total.copyTo(CurrentFrame.LowPass_ObjectMotionVec);
+        if (DEBUG) cout << "Low Pass Total Motion Vec: " << lp_total<< " >> " << norm(lp_total)<< endl;
+    }
+}
+
+void FrameCache::getLowPassFilteredMotionVectorForCurrFrame(){
+    // low pass filtering (sliding window average)
+    cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
+    int count =0;
+    for (int i=0;i<ZEDCACHESIZE;i++){
+        if (!fifo[i].FilteredObjectMotionVec.empty() && !cvIsNaN(norm(fifo[i].FilteredObjectMotionVec))){
+            lp_total+= fifo[i].FilteredObjectMotionVec;
+            count ++;
+        }
+    }
+    if (!LastFrame.FilteredObjectMotionVec.empty()&& !cvIsNaN(norm(LastFrame.FilteredObjectMotionVec))){
+        lp_total += LastFrame.FilteredObjectMotionVec;
+        count ++;
+    }
+    if(!CurrentFrame.FilteredObjectMotionVec.empty()&& !cvIsNaN(norm(CurrentFrame.FilteredObjectMotionVec))){
+        lp_total += CurrentFrame.FilteredObjectMotionVec;
+        count ++;
+    }
+    if (count!=0){
+        lp_total /= count;
+        lp_total.copyTo(CurrentFrame.LowPass_FilteredObjectMotionVec);
+        if (DEBUG) cout << "Filtered Low Pass Total Motion Vec: " << lp_total<< " >> " << norm(lp_total)<< endl;
+    }
 }

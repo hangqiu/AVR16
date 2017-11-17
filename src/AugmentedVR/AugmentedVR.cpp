@@ -88,7 +88,7 @@ void AugmentedVR::initSLAMStereo(string VocFile, string CalibrationFile, bool bR
     }else{
         mSLAM = new ORB_SLAM2::System(VocFile,CalibrationFile,ORB_SLAM2::System::STEREO,true, bReuseMap);
     }
-    FeedSlamNextFrame();
+    FeedSlamTheSlamFrame();
 }
 
 bool AugmentedVR::grabNextZEDFrameOffline() {
@@ -111,7 +111,7 @@ bool AugmentedVR::grabNextZEDFrameOffline() {
     return true;
 }
 
-void AugmentedVR::FeedSlamNextFrame(){
+void AugmentedVR::FeedSlamTheSlamFrame(){
 #ifdef EVAL
     timeval start,end;
     gettimeofday(&start, NULL);
@@ -147,6 +147,7 @@ unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp(){
 
 void AugmentedVR::SinkFrames(){
     frameCache.SinkFrames();
+    mSLAM->mTracker_LoadNextFrameAsCurrent();
 }
 
 bool AugmentedVR::PrepareNextFrame() {
@@ -157,7 +158,7 @@ bool AugmentedVR::PrepareNextFrame() {
 //    thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
 #else
     if (!grabNextZEDFrameOffline()) return false;
-//    FeedSlamNextFrame();
+    FeedSlamTheSlamFrame();
 #endif
 
 #ifdef PIPELINE
@@ -174,8 +175,9 @@ void AugmentedVR::calcOpticalFlow(){
         return;
     }
 //    if (FRAME_ID%DUTYCYCLE==0){
-    if (FRAME_ID%ZEDCACHESIZE==0){
+    if (TotalFrameSeq%ZEDCACHESIZE==0){
         frameCache.updateLastFrameFeature();
+        frameCache.cacheExistingFeatureOfAllCacheFrame();
     }
     frameCache.opticalFlowTrack_Curr2Last();
 }
@@ -190,7 +192,7 @@ void AugmentedVR::trackCam() {
     (mSLAM->TrackStereo(currFrame.FrameLeft,
                         currFrame.FrameRight,
                         currFrame.frameTS))
-            .copyTo(frameCache.CurrentFrame.CamMotionMat); //TODO: conflict with FeedSlamNextFrame?
+            .copyTo(frameCache.CurrentFrame.CamMotionMat); //TODO: conflict with FeedSlamNextFrame? No
     // for debug only
 //    if(COOP){
 //        CamMotionMat.at<float>(0,3) +=7;
@@ -209,7 +211,7 @@ void AugmentedVR::analyze(){
     timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
     timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
 #endif
-    if (!frameCache.ReachFullMotionBacklog()){
+    if (!frameCache.FullBacklogAfterSLAM()){
         cerr << "AugmentedVR::analyze(): not enough history frames\n";
         return;
     }
@@ -229,7 +231,7 @@ void AugmentedVR::analyze(){
     cout << "analyze>>>>>>PC Motion Filter: " << double(tPCMotionFilterEnd.tv_sec-tPCMotionFilterStart.tv_sec)*1000 + double(tPCMotionFilterEnd.tv_usec-tPCMotionFilterStart.tv_usec) / 1000<< "ms" << endl;
     gettimeofday(&tObjectFilterStart, NULL);
 #endif
-    ObjectMotionAnalysis(ZEDCACHESIZE - 1);
+    ObjectMotionAnalysis();
 #ifdef EVAL
     gettimeofday(&tObjectFilterEnd, NULL);
     cout << "TimeStamp: " << double(tObjectFilterEnd.tv_sec-tInit.tv_sec)*1000 + double(tObjectFilterEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -241,7 +243,7 @@ void AugmentedVR::analyze(){
 
 void AugmentedVR::PCMotionAnalysis() {
     // choose the oldest and cacl the displacement
-    assert(frameCache.ReachFullMotionBacklog());
+    assert(frameCache.FullBacklogAfterSLAM());
     frameCache.updateMotionData_Curr2CacheHead();
 }
 
@@ -276,19 +278,8 @@ void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Trc){
 void AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived, cv::Mat & ret){
     cout << Trc << endl;
     debugPC(PCReceived);
-//    if (DEBUG){
-//        timeval start,end;
-//        gettimeofday(&start, NULL);
-//    }
-    transformPCViaTransformationMatrix_gpu(Trc, PCReceived, ret);
-//    if (DEBUG){
-//        gettimeofday(&end,NULL);
-//        cout << "Transformation time: " << double(end.tv_sec-start.tv_sec)*1000
-//             << double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
-//
-//    }
+    transformPC_Via_TransformationMatrix(Trc, PCReceived, ret);
     debugPC(ret);
-//    return ret;
 }
 cv::Mat AugmentedVR::translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived){
 
@@ -484,78 +475,66 @@ void AugmentedVR::dead_reckoning_onRxDynamicPC(){
 
 
 
-void AugmentedVR::ObjectMotionAnalysis(int idx){
+void AugmentedVR::ObjectMotionAnalysis(){
 
 
     vector<cv::Point2f> points_trans;
-
     cv::Mat img;
-
     AVRFrame cur;
     frameCache.getCurrentFrame(cur);
-    
-    cur.FrameLeft.copyTo(img);
+//    cur.FrameLeft.copyTo(img);
 
 //    img = mSLAM->DrawSlamFrame();
     AVRFrame cacheHead;
     frameCache.getFIFOHead(cacheHead);
+    cacheHead.FrameLeft.copyTo(img);
 
-
-    if (cacheHead.sceneTransformMat.empty() || cacheHead.MotionMask.empty()){
+    if (cur.sceneTransformMat_Curr2CacheHead.empty() || cur.MotionMask.empty()){
         std::cerr << "ObjectMotionAnalysis: Miss\n";
         return;
     }
 
-    if (cacheHead.keypoints.size()!= cur.keypoints.size()){
+    if (cacheHead.tracked_keypoints.size()!= cur.tracked_keypoints.size()){
         std::cerr << "Keypoints Size Mismatch\n";
-        ///todo: how to deal with inconsistent track to cachehead?
         return;
     }
-    perspectiveTransform( cacheHead.keypoints, points_trans, cacheHead.sceneTransformMat);
+    // todo this sceneTransformMat is cur2Last, wrong!!!
+    perspectiveTransform( cur.tracked_keypoints, points_trans, cur.sceneTransformMat_Curr2CacheHead);
 
     cv::Mat total_motionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
     int count = 0;
 
-
+    vector<xyzNorm> mv;
     for( size_t i = 0; i < points_trans.size(); i++ ) {
         cv::Rect rect(0, 0, img.cols, img.rows);
-        if (rect.contains(cur.keypoints[i])  && rect.contains(cacheHead.keypoints[i])) {
+        if (rect.contains(cur.tracked_keypoints[i])  && rect.contains(cacheHead.tracked_keypoints[i])) {
             // check if the point is in range after transformation
-            if (cur.tracked_status[i] && norm(points_trans[i] - cur.keypoints[i]) > 5) {
-
-                if (DEBUG) {
-
-                    circle(img, cacheHead.keypoints[i], 3, cv::Scalar(255, 255, 0), -1, 8);
-                    circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
-                    circle(img, cur.keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
-                    line(img, points_trans[i], cur.keypoints[i], cv::Scalar(0, 0, 255));
-                    line(img, cacheHead.keypoints[i], points_trans[i],
-                         cv::Scalar(0, 255, 255));
-                }
-
-                if (cacheHead.MotionMask.at<uchar>(cacheHead.keypoints[i]) == 255 &&
-                        cacheHead.MotionMask.at<uchar>(cur.keypoints[i]) == 255) {
-
-
-                    //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor(Rect(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i].y,1,1));
-                    //                    cout << lastStereoData[ZEDCACHESIZE-1-idx].PC_noColor.at<Vec3f>(lastStereoData[ZEDCACHESIZE-1-idx].keypoints[i])  << endl;
-                    //                    cout << PC_noColor(Rect(keypoints[i].y,keypoints[i].y,1,1));
-                    //                    cout << PC_noColor.at<Vec3f>(keypoints[i]) << endl;
-
-
+            if (cur.tracked_status[i] && norm(points_trans[i] - cacheHead.tracked_keypoints[i]) > 5) {
+                if (cur.MotionMask.at<uchar>(cacheHead.tracked_keypoints[i]) == 255 &&
+                        cur.MotionMask.at<uchar>(cur.tracked_keypoints[i]) == 255) {
+                    if (DEBUG) {
+                        circle(img, cacheHead.tracked_keypoints[i], 3, cv::Scalar(0, 0, 255), -1, 8);
+                        circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
+                        circle(img, cur.tracked_keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
+                        line(img, points_trans[i], cur.tracked_keypoints[i], cv::Scalar(0, 0, 0));
+                        line(img, cacheHead.tracked_keypoints[i], points_trans[i],
+                             cv::Scalar(0, 0, 0));
+                        cv::putText(img, to_string(i), cur.tracked_keypoints[i], cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,255,255));
+                    }
                     cv::Mat motionVec = cacheHead.PC_noColor(
-                            cv::Rect(cacheHead.keypoints[i].x,
-                                     cacheHead.keypoints[i].y, 1, 1)) -
-                            cur.PC_noColor(cv::Rect(cur.keypoints[i].x, cur.keypoints[i].y, 1, 1));
+                            cv::Rect(int(cacheHead.tracked_keypoints[i].x),
+                                     int(cacheHead.tracked_keypoints[i].y), 1, 1)) -
+                            cur.PC_noColor(cv::Rect(int(cur.tracked_keypoints[i].x), int(cur.tracked_keypoints[i].y), 1, 1));
                     double dist = norm(motionVec);
                     if (cvIsInf(dist) || cvIsNaN(dist)) continue;
-                    if (DEBUG > 1) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;
+                    if (DEBUG) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;
                     total_motionVec += motionVec;
-                    //                    cout << motionVec.type();
-                    //                    cout << PC_noColor.type();
-                    if (DEBUG > 1)
-                        cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec) << endl;
+
                     count++;
+
+                    /// record the motion vector
+                    xyzNorm xyzd = {motionVec.at<float>(0,0), motionVec.at<float>(0,1),motionVec.at<float>(0,2),dist};
+                    mv.push_back(xyzd);
                 }
             }
         }
@@ -564,27 +543,42 @@ void AugmentedVR::ObjectMotionAnalysis(int idx){
     if (DEBUG && VISUAL){
 //            imshow("KLT matches", img);
         cv::Mat masked_img;
-        img.copyTo(masked_img,cacheHead.MotionMask);
+//        img.copyTo(masked_img,cur.MotionMask);
+        img.copyTo(masked_img);
         imshow("masked KLT matches", masked_img);
     }
 
     total_motionVec /= count;
-    if (DEBUG)
-        cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
-    total_motionVec.copyTo(ObjectMotionVec);
-    // TODO: find a safe way to do it
-    ObjectMotionVec.copyTo(cacheHead.ObjectMotionVec);
 
-    // low pass filtering (sliding window average)
-    cv::Mat lp_total(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
-    for (int i=0;i<ZEDCACHESIZE-1;i++){
-        if (!cacheHead.ObjectMotionVec.empty()){
-            lp_total+= cacheHead.ObjectMotionVec;
+//    cv::Mat filteredMotionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
+    float filteredMotionVec[3] = {0.,0.,0.};
+    double avgDist = norm(total_motionVec);
+    int filterCount = 0;
+    for (int i=0;i<mv.size();i++){
+        if (mv[i].norm < avgDist * 1.6 && mv[i].norm > avgDist*0.4){
+            filteredMotionVec[0]+= mv[i].x;
+            filteredMotionVec[1]+= mv[i].y;
+            filteredMotionVec[2]+= mv[i].z;
+            filterCount++;
         }
     }
-    lp_total /= ZEDCACHESIZE-1;
-    lp_total.copyTo(Log_LowPassMotionVec);
-    Log_LowPassMotionVec.copyTo(cacheHead.LowPass_ObjectMotionVec);
-    if (DEBUG) cout << "Low Pass Total Motion Vec: " << Log_LowPassMotionVec<< " >> " << norm(Log_LowPassMotionVec)<< endl;
+    filteredMotionVec[0]/=filterCount;
+    filteredMotionVec[1]/=filterCount;
+    filteredMotionVec[2]/=filterCount;
+    cv::Mat avg_filterMotionVec = cv::Mat(1,1,CV_32FC3,cv::Scalar(filteredMotionVec[0],filteredMotionVec[1],filteredMotionVec[2]));
 
+    if (DEBUG){
+        cout << "Count: " << count << endl;
+        cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
+        cout << "FilterCount: " << filterCount << endl;
+        cout << "Total Filter Motion Vec: " << avg_filterMotionVec << " >> " << norm(avg_filterMotionVec)<< endl;
+    }
+
+    total_motionVec.copyTo(ObjectMotionVec);
+    // TODO: find a safe way to do it
+    ObjectMotionVec.copyTo(frameCache.CurrentFrame.ObjectMotionVec);
+    avg_filterMotionVec.copyTo(frameCache.CurrentFrame.FilteredObjectMotionVec);
+    /// low pass filtering (sliding window average)
+    frameCache.getLowPassMotionVectorForCurrFrame();
+    frameCache.getLowPassFilteredMotionVectorForCurrFrame();
 }
