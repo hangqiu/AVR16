@@ -41,14 +41,6 @@ void ObjReceiver::initMySocket(){
 }
 
 void ObjReceiver::ReceivePointCloudStream(){
-//    char bufsize[100];
-//    mSock.Receive(bufsize,10);
-//    int bufSize = stoi(bufsize);
-//    cout <<"Next buf length" << bufSize << endl;
-
-
-
-//    cout << buf << endl;
 
     int bufSize = 15;
     char seqsizebuf[bufSize+1];
@@ -81,13 +73,11 @@ void ObjReceiver::ReceivePointCloudStream(){
     cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
     cout << tcw << endl;
 
-
+#ifdef EVAL
     timeval tTXEnd, tTXStart;
-
     gettimeofday(&tTXStart, NULL);
     cout << "TimeStamp Start: " << tTXStart.tv_sec << "sec" << tTXStart.tv_usec << "usec" << endl;
-//    cout << "TimeStamp Start: " << double(tTXEnd.tv_usec) / 1000 << "ms: ";
-
+#endif
     char pcsizebuf[bufSize+1];
     mSock.Receive(pcsizebuf,bufSize);
     int pcbufsize = stol(pcsizebuf);
@@ -95,17 +85,25 @@ void ObjReceiver::ReceivePointCloudStream(){
     char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
     mSock.ReceiveAll(pcbuf,pcbufsize);
-
-    gettimeofday(&tTXEnd, NULL);
-    cout << "TimeStamp End: " << tTXEnd.tv_sec << "sec" << tTXEnd.tv_usec << "usec" << endl;
-//    cout << "TimeStamp End: " << double(tTXEnd.tv_usec) / 1000 << "ms: ";
-    cout << "PC RX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
-
     cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
     debugPC(pc);
-
     free(pcbuf);
+#ifdef EVAL
+    gettimeofday(&tTXEnd, NULL);
+    cout << "TimeStamp End: " << tTXEnd.tv_sec << "sec" << tTXEnd.tv_usec << "usec" << endl;
+    cout << "PC RX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+#endif
 
+    char imgsizebuf[bufSize+1];
+    mSock.Receive(pcsizebuf,bufSize);
+    int imgbufsize = stol(imgsizebuf);
+    cout << pcbufsize<< endl;
+    char* imgbuf = (char*)malloc(imgbufsize+1);
+//    char pcbuf[pcbufsize+1];
+    mSock.ReceiveAll(imgbuf,imgbufsize);
+    cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, imgbuf);
+    cv::imshow("received frame", img);
+    free(imgbuf);
 
 
 
