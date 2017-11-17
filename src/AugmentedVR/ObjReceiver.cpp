@@ -81,7 +81,13 @@ void ObjReceiver::ReceivePointCloudStream(){
     cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
     cout << tcw << endl;
 
-////    int pcsize = myAVR->height*myAVR->width*sizeof(float);
+
+    timeval tTXEnd, tTXStart;
+
+    gettimeofday(&tTXStart, NULL);
+    cout << "TimeStamp Start: " << tTXStart.tv_sec << "sec" << tTXStart.tv_usec << "usec" << endl;
+//    cout << "TimeStamp Start: " << double(tTXEnd.tv_usec) / 1000 << "ms: ";
+
     char pcsizebuf[bufSize+1];
     mSock.Receive(pcsizebuf,bufSize);
     int pcbufsize = stol(pcsizebuf);
@@ -89,6 +95,12 @@ void ObjReceiver::ReceivePointCloudStream(){
     char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
     mSock.ReceiveAll(pcbuf,pcbufsize);
+
+    gettimeofday(&tTXEnd, NULL);
+    cout << "TimeStamp End: " << tTXEnd.tv_sec << "sec" << tTXEnd.tv_usec << "usec" << endl;
+//    cout << "TimeStamp End: " << double(tTXEnd.tv_usec) / 1000 << "ms: ";
+    cout << "PC RX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+
     cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
     debugPC(pc);
 
