@@ -53,57 +53,57 @@ void ObjReceiver::ReceivePointCloudStream(){
     cout << seq << endl;
 
 
-    char tssizebuf[bufSize+1];
-    mSock.Receive(tssizebuf,bufSize);
-    int tsbufsize = stoi(tssizebuf);
-    cout << tsbufsize<< endl;
-    char tsbuf[tsbufsize+1];
-    mSock.Receive(tsbuf,tsbufsize);
-    int ts = stoi(tsbuf);
-    cout << ts << endl;
-
-//    int tcwbufsize = 64;
-
-    char tcwsizebuf[bufSize+1];
-    mSock.Receive(tcwsizebuf,bufSize);
-    int tcwbufsize = stoi(tcwsizebuf);
-    cout << tcwbufsize<< endl;
-    char buf[tcwbufsize+1];
-    mSock.Receive(buf,tcwbufsize);
-    cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
-    cout << tcw << endl;
-
-#ifdef EVAL
-    timeval tTXEnd, tTXStart;
-    gettimeofday(&tTXStart, NULL);
-    cout << "TimeStamp Start: " << tTXStart.tv_sec << "sec" << tTXStart.tv_usec << "usec" << endl;
-#endif
-    char pcsizebuf[bufSize+1];
-    mSock.Receive(pcsizebuf,bufSize);
-    int pcbufsize = stol(pcsizebuf);
-    cout << pcbufsize<< endl;
-    char* pcbuf = (char*)malloc(pcbufsize+1);
-//    char pcbuf[pcbufsize+1];
-    mSock.ReceiveAll(pcbuf,pcbufsize);
-    cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
-    debugPC(pc);
-    free(pcbuf);
-#ifdef EVAL
-    gettimeofday(&tTXEnd, NULL);
-    cout << "TimeStamp End: " << tTXEnd.tv_sec << "sec" << tTXEnd.tv_usec << "usec" << endl;
-    cout << "PC RX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
-#endif
-
-    char imgsizebuf[bufSize+1];
-    mSock.Receive(pcsizebuf,bufSize);
-    int imgbufsize = stol(imgsizebuf);
-    cout << pcbufsize<< endl;
-    char* imgbuf = (char*)malloc(imgbufsize+1);
-//    char pcbuf[pcbufsize+1];
-    mSock.ReceiveAll(imgbuf,imgbufsize);
-    cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, imgbuf);
-    cv::imshow("received frame", img);
-    free(imgbuf);
+//    char tssizebuf[bufSize+1];
+//    mSock.Receive(tssizebuf,bufSize);
+//    int tsbufsize = stoi(tssizebuf);
+//    cout << tsbufsize<< endl;
+//    char tsbuf[tsbufsize+1];
+//    mSock.Receive(tsbuf,tsbufsize);
+//    int ts = stoi(tsbuf);
+//    cout << ts << endl;
+//
+////    int tcwbufsize = 64;
+//
+//    char tcwsizebuf[bufSize+1];
+//    mSock.Receive(tcwsizebuf,bufSize);
+//    int tcwbufsize = stoi(tcwsizebuf);
+//    cout << tcwbufsize<< endl;
+//    char buf[tcwbufsize+1];
+//    mSock.Receive(buf,tcwbufsize);
+//    cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
+//    cout << tcw << endl;
+//
+//#ifdef EVAL
+//    timeval tTXEnd, tTXStart;
+//    gettimeofday(&tTXStart, NULL);
+//    cout << "TimeStamp Start: " << tTXStart.tv_sec << "sec" << tTXStart.tv_usec << "usec" << endl;
+//#endif
+//    char pcsizebuf[bufSize+1];
+//    mSock.Receive(pcsizebuf,bufSize);
+//    int pcbufsize = stol(pcsizebuf);
+//    cout << pcbufsize<< endl;
+//    char* pcbuf = (char*)malloc(pcbufsize+1);
+////    char pcbuf[pcbufsize+1];
+//    mSock.ReceiveAll(pcbuf,pcbufsize);
+//    cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
+//    debugPC(pc);
+//    free(pcbuf);
+//#ifdef EVAL
+//    gettimeofday(&tTXEnd, NULL);
+//    cout << "TimeStamp End: " << tTXEnd.tv_sec << "sec" << tTXEnd.tv_usec << "usec" << endl;
+//    cout << "PC RX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+//#endif
+//
+//    char imgsizebuf[bufSize+1];
+//    mSock.Receive(pcsizebuf,bufSize);
+//    int imgbufsize = stol(imgsizebuf);
+//    cout << pcbufsize<< endl;
+//    char* imgbuf = (char*)malloc(imgbufsize+1);
+////    char pcbuf[pcbufsize+1];
+//    mSock.ReceiveAll(imgbuf,imgbufsize);
+//    cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, imgbuf);
+//    cv::imshow("received frame", img);
+//    free(imgbuf);
 
 
 

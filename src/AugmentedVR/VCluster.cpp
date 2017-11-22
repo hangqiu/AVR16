@@ -20,7 +20,9 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
     init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY
     init_parameters.coordinate_units = UNIT_METER; // set meter as the OpenGL world will be in meters
     init_parameters.sdk_verbose = 1;
-    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
+    /// ZED default is the same with ORBSLAM
+//    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
+//    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_LEFT_HANDED_Y_UP; // Unity's coordinate system is right_handed
     init_parameters.svo_input_filename = VPath.c_str();
 
     RuntimeParameters runtime_parameters;

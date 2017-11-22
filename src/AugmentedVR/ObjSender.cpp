@@ -52,44 +52,58 @@ void ObjSender::initMySocket(){
 
 
 void ObjSender::StreamPointCloud(){
-        cv::FileStorage fs;
-        AVRFrame Frame;
-        myAVR->getLastAVRFrame(Frame);
 
-        int txSize;
-        string seq = std::to_string(Frame.frameSeq);
-        txSize = seq.length()+1;
-        cout << txSize << endl;
-        int bufsize =15;
-        string txSizeString = std::to_string(txSize);
-        mSock.Send(txSizeString.c_str(), bufsize);
-        mSock.Send(seq.c_str(), txSize);
 
-        string ts = std::to_string(Frame.frameTS);
-        txSize = ts.length()+1;
-        cout << txSize << endl;
-        string txSizeStr = std::to_string(txSize);
-        mSock.Send(txSizeStr.c_str(), bufsize);
-        mSock.Send(ts.c_str(), txSize);
 
-        txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
-        cout << txSize << endl;
-        string txsizestr = std::to_string(txSize);
-        cout << Frame.CamMotionMat.type() << endl;
-        mSock.Send(txsizestr.c_str(), bufsize);
-        mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
+    bool V2VDEBUG = true;
+
+    cv::FileStorage fs;
+    AVRFrame Frame;
+    myAVR->getLastAVRFrame(Frame);
+
+    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+
+    int bufsize =15;
+    int txSize;
+
+    string seq = std::to_string(Frame.frameSeq);
+    txSize = seq.length()+1;
+    if (V2VDEBUG) cout << "seqSize:"<< txSize << endl;
+    string txSizeString = std::to_string(txSize);
+    mSock.Send(txSizeString.c_str(), bufsize);
+    mSock.Send(seq.c_str(), txSize);
+    if (V2VDEBUG)cout << "seq:" << seq << endl;
+
+    string ts = std::to_string(Frame.frameTS);
+    txSize = ts.length()+1;
+    if (V2VDEBUG)cout << "tsSize:" << txSize << endl;
+    string txSizeStr = std::to_string(txSize);
+    mSock.Send(txSizeStr.c_str(), bufsize);
+    mSock.Send(ts.c_str(), txSize);
+    if (V2VDEBUG)cout << "ts:" << ts << endl;
+
+    txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
+    if (V2VDEBUG)cout << "cammotionmatSize:" << txSize << endl;
+    string txsizestr = std::to_string(txSize);
+//    if (V2VDEBUG)cout << Frame.CamMotionMat.type() << endl;
+    mSock.Send(txsizestr.c_str(), bufsize);
+    mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
+
+    if (V2VDEBUG)cout << "CamMotionMat\n" << Frame.CamMotionMat << endl;
+
 #ifdef EVAL
-        timeval tFetchEnd,tFetchStart;
-        gettimeofday(&tFetchStart,NULL);
+    timeval tFetchEnd,tFetchStart;
+    gettimeofday(&tFetchStart,NULL);
 
-        cout << "TimeStamp Start: " << tFetchStart.tv_sec << "sec" << tFetchStart.tv_usec << "usec";
+    cout << "TimeStamp Start: " << tFetchStart.tv_sec << "sec" << tFetchStart.tv_usec << "usec";
 //        cout << "TimeStamp Start: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
 #endif
-        txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize();
-        cout << Frame.pointcloud.type()<< endl;
-        cout << txSize << endl;
-        mSock.Send(std::to_string(txSize).c_str(), bufsize);
-        mSock.Send((const char*)Frame.pointcloud.data, txSize);
+    txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize();
+//    if (V2VDEBUG)cout << Frame.pointcloud.type()<< endl;
+    if (V2VDEBUG)cout << "PCSize:" << txSize << endl;
+    mSock.Send(std::to_string(txSize).c_str(), bufsize);
+    mSock.Send((const char*)Frame.pointcloud.data, txSize);
+
 #ifdef EVAL
         gettimeofday(&tFetchEnd,NULL);
         cout << "TimeStamp End: " << tFetchEnd.tv_sec << "sec" << tFetchEnd.tv_usec << "usec";
@@ -98,8 +112,8 @@ void ObjSender::StreamPointCloud(){
 #endif
 //    }
     txSize = Frame.FrameLeft.total()*Frame.FrameLeft.elemSize();
-    cout << Frame.FrameLeft.type()<< endl;
-    cout << txSize << endl;
+//    if (V2VDEBUG)cout << Frame.FrameLeft.type()<< endl;
+    if (V2VDEBUG)cout << "FrameSize:" << txSize << endl;
     mSock.Send(std::to_string(txSize).c_str(), bufsize);
     mSock.Send((const char*)Frame.FrameLeft.data, txSize);
 }

@@ -16,15 +16,15 @@ bool COOP = false;
 bool ReuseMap = false;
 //bool ReuseMap = true;
 
-int DEBUG = 1;
+int DEBUG = 0;
 //bool VISUAL = false;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
-bool PCVISUAL = false;
+bool PCVISUAL = true;
 
-//bool SHOW_CAMMOTION = true;
-bool SHOW_CAMMOTION = false;
+bool SHOW_CAMMOTION = true;
+//bool SHOW_CAMMOTION = false;
 
 bool DYNAMICS = false;
 
