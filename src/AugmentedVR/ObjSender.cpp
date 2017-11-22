@@ -49,23 +49,7 @@ void ObjSender::initMySocket(){
 }
 
 
-
-
-void ObjSender::StreamPointCloud(){
-
-
-
-    bool V2VDEBUG = true;
-
-    cv::FileStorage fs;
-    AVRFrame Frame;
-    myAVR->getLastAVRFrame(Frame);
-
-    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
-
-    int bufsize =15;
-    int txSize;
-
+void ObjSender::StreamPointCloud_FrameSeq(AVRFrame & Frame){
     string seq = std::to_string(Frame.frameSeq);
     txSize = seq.length()+1;
     if (V2VDEBUG) cout << "seqSize:"<< txSize << endl;
@@ -73,7 +57,8 @@ void ObjSender::StreamPointCloud(){
     mSock.Send(txSizeString.c_str(), bufsize);
     mSock.Send(seq.c_str(), txSize);
     if (V2VDEBUG)cout << "seq:" << seq << endl;
-
+}
+void ObjSender::StreamPointCloud_TimeStamp(AVRFrame & Frame){
     string ts = std::to_string(Frame.frameTS);
     txSize = ts.length()+1;
     if (V2VDEBUG)cout << "tsSize:" << txSize << endl;
@@ -81,7 +66,8 @@ void ObjSender::StreamPointCloud(){
     mSock.Send(txSizeStr.c_str(), bufsize);
     mSock.Send(ts.c_str(), txSize);
     if (V2VDEBUG)cout << "ts:" << ts << endl;
-
+}
+void ObjSender::StreamPointCloud_TCW(AVRFrame & Frame){
     txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
     if (V2VDEBUG)cout << "cammotionmatSize:" << txSize << endl;
     string txsizestr = std::to_string(txSize);
@@ -90,7 +76,8 @@ void ObjSender::StreamPointCloud(){
     mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
 
     if (V2VDEBUG)cout << "CamMotionMat\n" << Frame.CamMotionMat << endl;
-
+}
+void ObjSender::StreamPointCloud_PC(AVRFrame & Frame){
 #ifdef EVAL
     timeval tFetchEnd,tFetchStart;
     gettimeofday(&tFetchStart,NULL);
@@ -105,17 +92,43 @@ void ObjSender::StreamPointCloud(){
     mSock.Send((const char*)Frame.pointcloud.data, txSize);
 
 #ifdef EVAL
-        gettimeofday(&tFetchEnd,NULL);
+    gettimeofday(&tFetchEnd,NULL);
         cout << "TimeStamp End: " << tFetchEnd.tv_sec << "sec" << tFetchEnd.tv_usec << "usec";
 //        cout << "TimeStamp End: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
         cout << "PC TX: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
 #endif
-//    }
+}
+void ObjSender::StreamPointCloud_Frame(AVRFrame & Frame){
     txSize = Frame.FrameLeft.total()*Frame.FrameLeft.elemSize();
 //    if (V2VDEBUG)cout << Frame.FrameLeft.type()<< endl;
     if (V2VDEBUG)cout << "FrameSize:" << txSize << endl;
     mSock.Send(std::to_string(txSize).c_str(), bufsize);
     mSock.Send((const char*)Frame.FrameLeft.data, txSize);
+}
+void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
+    cv::Mat MotionVecMat;
+    Frame.LowPass_FilteredObjectMotionVec.copyTo(MotionVecMat);
+    txSize = MotionVecMat.total()*MotionVecMat.elemSize();
+    if (V2VDEBUG)cout << "MotionVecMatSize:" << txSize << endl;
+    string txsizestr = std::to_string(txSize);
+//    if (V2VDEBUG)cout << Frame.CamMotionMat.type() << endl;
+    mSock.Send(txsizestr.c_str(), bufsize);
+    mSock.Send((const char*)MotionVecMat.data, txSize);
+
+    if (V2VDEBUG)cout << "MotionVecMat\n" << MotionVecMat << endl;
+}
+
+void ObjSender::StreamPointCloud(){
+    cv::FileStorage fs;
+    AVRFrame Frame;
+    myAVR->getLastAVRFrame(Frame);
+    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+    StreamPointCloud_FrameSeq(Frame);
+    StreamPointCloud_TimeStamp(Frame);
+    StreamPointCloud_TCW(Frame);
+    StreamPointCloud_PC(Frame);
+    StreamPointCloud_Frame(Frame);
+    StreamPointCloud_ObjectMotionVec(Frame);
 }
 
 void ObjSender::initCPPREST(){

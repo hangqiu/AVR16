@@ -16,7 +16,7 @@ bool COOP = false;
 bool ReuseMap = false;
 //bool ReuseMap = true;
 
-int DEBUG = 0;
+int DEBUG = 1;
 //bool VISUAL = false;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;
