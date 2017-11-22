@@ -61,8 +61,7 @@ int AugmentedVR::initZEDCam(int startFrameID){
 
     /// get initial time stamp
     grabNextZEDFrameOffline();
-    startTS = frameCache.getLatestZEDTS();
-    frameCache.setStartTS(startTS);
+
 
     int tmp_id = 0;
     while (tmp_id++ < startFrameID){
@@ -71,6 +70,8 @@ int AugmentedVR::initZEDCam(int startFrameID){
     }
 
     /// Here starts the frame seq 0.
+    startTS = frameCache.getLatestZEDTS();
+    frameCache.setStartTS(startTS);
     TotalFrameSeq = 0;
     grabNextZEDFrameOffline();
 
