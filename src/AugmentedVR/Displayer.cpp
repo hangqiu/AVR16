@@ -107,6 +107,7 @@ char Displayer::showCurFrame(){
     char winName[100] = "Current Left Frame";
 //    cv::namedWindow(winName, CV_WINDOW_NORMAL|CV_GUI_NORMAL);
     cv::imshow(winName, currFrame.FrameLeft);
+    cv::setMouseCallback(winName, onMouseCallback_DisplayVoxel, &(currFrame.PC_noColor));
     char key = cv::waitKey(20);
     processKey(key);
     return key;

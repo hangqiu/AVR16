@@ -94,5 +94,18 @@ cv::Mat getGrayBBox(cv::Mat img, int select_left, int select_top, int select_wid
 //}
 
 
+void detectKLTFeature(cv::Mat & FrameLeftGray, vector<cv::Point2f> & keypoints){
+    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,20,0.03);
+    cv::Size subPixWinSize(10,10);
 
+    cv::goodFeaturesToTrack(FrameLeftGray, keypoints, MAX_COUNT, 0.01, 10, cv::Mat(), 3, false, 0.04);
+    cornerSubPix(FrameLeftGray, keypoints, subPixWinSize, cv::Size(-1,-1), termcrit);
+}
+
+void drawMatchedKeypoints(cv::Mat & img, cv::Point2f& kp1, cv::Point2f& kp2, string txtAtKp1){
+    circle(img, kp1, 3, cv::Scalar(0, 0, 255), -1, 8);
+    circle(img, kp2, 3, cv::Scalar(0, 255, 0), -1, 8);
+    line(img, kp1,kp2, cv::Scalar(0, 0, 0));
+    cv::putText(img, txtAtKp1, kp1, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,255,255));
+}
 

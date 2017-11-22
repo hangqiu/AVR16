@@ -8,6 +8,7 @@
 #include <ctime>
 #include <sys/time.h>
 #include <include/UtilsPC.hpp>
+#include <include/UtilsCV.hpp>
 
 using namespace sl;
 
@@ -248,28 +249,50 @@ void AugmentedVR::PCMotionAnalysis() {
 }
 
 //Return relative transformation matrix from received frame to current frame
-void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Trc){
+//void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Trc){
+//    // w: world, r: received frame, c: current frame
+////    if (TcwReceived.empty()) return cv::Mat;
+//    AVRFrame currFrame;
+//    frameCache.getCurrentFrame(currFrame);
+//    const cv::Mat Rcw = currFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
+//    const cv::Mat tcw = currFrame.CamMotionMat.rowRange(0,3).col(3);
+//    const cv::Mat Rwc = Rcw.t();
+//    const cv::Mat twc = -Rwc*tcw;
+//
+//    const cv::Mat Rrw = TcwReceived.rowRange(0,3).colRange(0,3);
+//    const cv::Mat trw = TcwReceived.rowRange(0,3).col(3);
+//
+//    cv::Mat trc = Rrw*twc+trw;
+//    cv::Mat Rrc = Rrw*Rwc;
+//
+//    Trc = cv::Mat::eye(4,4,CV_32F);
+//    trc.copyTo(Trc.rowRange(0,3).col(3));
+//    Rrc.copyTo(Trc.rowRange(0,3).colRange(0,3));
+//    if (DEBUG){
+//        cout << "Tcw Received: \n" << TcwReceived << endl;
+//        cout << "trc: \n" << trc << endl;
+//        cout << "Rrc: \n" << Rrc << endl; // to see if Rlc is almost identity matrix
+//    }
+////    return trc; // only trc for now, TODO: include Rrc after you can compute perelement 1 by 3 multiplication
+////    return Trc;
+//}
+
+void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Tcr){
     // w: world, r: received frame, c: current frame
 //    if (TcwReceived.empty()) return cv::Mat;
     AVRFrame currFrame;
     frameCache.getCurrentFrame(currFrame);
-    const cv::Mat Rcw = currFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
-    const cv::Mat tcw = currFrame.CamMotionMat.rowRange(0,3).col(3);
-    const cv::Mat Rwc = Rcw.t();
-    const cv::Mat twc = -Rwc*tcw;
 
-    const cv::Mat Rrw = TcwReceived.rowRange(0,3).colRange(0,3);
-    const cv::Mat trw = TcwReceived.rowRange(0,3).col(3);
+    cv::Mat Tcw;
+    currFrame.CamMotionMat.copyTo(Tcw);
+    Tcr = Tcw * TcwReceived.inv();
 
-    cv::Mat trc = Rrw*twc+trw;
-    cv::Mat Rrc = Rrw*Rwc;
-
-    Trc = cv::Mat::eye(4,4,CV_32F);
-    trc.copyTo(Trc.rowRange(0,3).col(3));
-    Rrc.copyTo(Trc.rowRange(0,3).colRange(0,3));
+    cv::Mat tcr= Tcr.rowRange(0,3).col(3);
+    cv::Mat Rcr = Tcr.rowRange(0,3).colRange(0,3);
     if (DEBUG){
-        cout << "trc: \n" << trc << endl;
-        cout << "Rrc: \n" << Rrc << endl; // to see if Rlc is almost identity matrix
+        cout << "Tcw Received: \n" << TcwReceived << endl;
+        cout << "tcr: \n" << tcr  << endl;
+        cout << "Rcr: \n" << Rcr << endl; // to see if Rlc is almost identity matrix
     }
 //    return trc; // only trc for now, TODO: include Rrc after you can compute perelement 1 by 3 multiplication
 //    return Trc;
@@ -278,6 +301,7 @@ void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Trc){
 void AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived, cv::Mat & ret){
     cout << Trc << endl;
     debugPC(PCReceived);
+//    shiftPC(PCReceived,cv::Scalar(5.,0.,0.));
     transformPC_Via_TransformationMatrix(Trc, PCReceived, ret);
     debugPC(ret);
 }
@@ -513,13 +537,14 @@ void AugmentedVR::ObjectMotionAnalysis(){
                 if (cur.MotionMask.at<uchar>(cacheHead.tracked_keypoints[i]) == 255 &&
                         cur.MotionMask.at<uchar>(cur.tracked_keypoints[i]) == 255) {
                     if (DEBUG) {
-                        circle(img, cacheHead.tracked_keypoints[i], 3, cv::Scalar(0, 0, 255), -1, 8);
-                        circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
-                        circle(img, cur.tracked_keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
-                        line(img, points_trans[i], cur.tracked_keypoints[i], cv::Scalar(0, 0, 0));
-                        line(img, cacheHead.tracked_keypoints[i], points_trans[i],
-                             cv::Scalar(0, 0, 0));
-                        cv::putText(img, to_string(i), cur.tracked_keypoints[i], cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,255,255));
+                        drawMatchedKeypoints(img,cacheHead.tracked_keypoints[i],cur.tracked_keypoints[i], to_string(i));
+//                        circle(img, cacheHead.tracked_keypoints[i], 3, cv::Scalar(0, 0, 255), -1, 8);
+//                        circle(img, points_trans[i], 3, cv::Scalar(255, 0, 0), -1, 8);
+//                        circle(img, cur.tracked_keypoints[i], 3, cv::Scalar(0, 255, 0), -1, 8);
+//                        line(img, points_trans[i], cur.tracked_keypoints[i], cv::Scalar(0, 0, 0));
+//                        line(img, cacheHead.tracked_keypoints[i], points_trans[i],
+//                             cv::Scalar(0, 0, 0));
+//                        cv::putText(img, to_string(i), cur.tracked_keypoints[i], cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,255,255));
                     }
                     cv::Mat motionVec = cacheHead.PC_noColor(
                             cv::Rect(int(cacheHead.tracked_keypoints[i].x),
@@ -581,4 +606,39 @@ void AugmentedVR::ObjectMotionAnalysis(){
     /// low pass filtering (sliding window average)
     frameCache.getLowPassMotionVectorForCurrFrame();
     frameCache.getLowPassFilteredMotionVectorForCurrFrame();
+}
+
+
+void AugmentedVR::TransPCvsPC(){
+    AVRFrame cur;
+    frameCache.getCurrentFrame(cur);
+    if (RxTCW.empty() || RxFrame.empty() || transRxPC.empty() || cur.MotionMask.empty()) return;
+    cv::Mat RxFrameGray;
+    cv::cvtColor(RxFrame,RxFrameGray,cv::COLOR_RGB2GRAY);
+    vector<cv::Point2f> kpReceived;
+    std::vector<uchar> status;
+    std::vector<float> error;
+    cv::TermCriteria termcrit(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 20, 0.03);
+    cv::Size  winSize(31, 31);
+
+    cv::calcOpticalFlowPyrLK(cur.FrameLeftGray, RxFrameGray, cur.keypoints, kpReceived,
+                             status, error, winSize, 3, termcrit, 0, 0.001);
+    cv::Mat img;
+    cur.FrameLeft.copyTo(img);
+
+    for (int i=0;i<kpReceived.size();i++){
+        if (status[i] && cur.MotionMask.at<uchar>(cur.keypoints[i])==255 ){
+            drawMatchedKeypoints(img, cur.keypoints[i], kpReceived[i], to_string(i));
+            drawMatchedKeypoints(RxFrame, cur.keypoints[i], kpReceived[i], to_string(i));
+            cv::Scalar diff = cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) - transRxPC.at<cv::Vec4f>(kpReceived[i]);
+            cv::Scalar dff3 = cv::Scalar(diff[0],diff[1],diff[2]);
+            cout << "Point " << i << ": "
+                 << cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) << " - "
+                 << transRxPC.at<cv::Vec4f>(kpReceived[i]) << " = "
+                 << endl
+                 << dff3 << " >>> " << norm(dff3) << endl;
+            imshow("TranPCvsPC_Curr", img);
+            imshow("TranPCvsPC_Rx", RxFrame);
+        }
+    }
 }

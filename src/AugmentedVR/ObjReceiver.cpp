@@ -42,36 +42,40 @@ void ObjReceiver::initMySocket(){
 
 void ObjReceiver::ReceivePointCloudStream(){
 
+    bool V2VDEBUG = false;
     int bufSize = 15;
     char seqsizebuf[bufSize+1];
     mSock.Receive(seqsizebuf,bufSize);
     int seqbufsize = stoi(seqsizebuf);
-    cout << seqbufsize << endl;
+    if (V2VDEBUG) cout << "seqbufsize:" << seqbufsize << endl;
     char seqbuf[seqbufsize+1];
     mSock.Receive(seqbuf,seqbufsize);
     int seq = stoi(seqbuf);
-    cout << seq << endl;
+    if (V2VDEBUG)cout <<  "seq:" << seq << endl;
+    myAVR->RxSeq = seq;
 
 
     char tssizebuf[bufSize+1];
     mSock.Receive(tssizebuf,bufSize);
     int tsbufsize = stoi(tssizebuf);
-    cout << tsbufsize<< endl;
+    if (V2VDEBUG)cout << "tsbufsize:" << tsbufsize<< endl;
     char tsbuf[tsbufsize+1];
     mSock.Receive(tsbuf,tsbufsize);
     int ts = stoi(tsbuf);
-    cout << ts << endl;
+    if (V2VDEBUG)cout << "ts:" << ts << endl;
+    myAVR->RxTimeStamp = ts;
 
 //    int tcwbufsize = 64;
 
     char tcwsizebuf[bufSize+1];
     mSock.Receive(tcwsizebuf,bufSize);
     int tcwbufsize = stoi(tcwsizebuf);
-    cout << tcwbufsize<< endl;
+    if (V2VDEBUG)cout << "tcwbufsize:" << tcwbufsize<< endl;
     char buf[tcwbufsize+1];
     mSock.Receive(buf,tcwbufsize);
     cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
-    cout << tcw << endl;
+    tcw.copyTo(myAVR->RxTCW);
+    if (V2VDEBUG)cout << "tcw\n"  << tcw << endl;
 
 #ifdef EVAL
     timeval tTXEnd, tTXStart;
@@ -81,12 +85,16 @@ void ObjReceiver::ReceivePointCloudStream(){
     char pcsizebuf[bufSize+1];
     mSock.Receive(pcsizebuf,bufSize);
     int pcbufsize = stol(pcsizebuf);
-    cout << pcbufsize<< endl;
+    if (V2VDEBUG)cout << "pcbufsize:" << pcbufsize<< endl;
     char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
     mSock.ReceiveAll(pcbuf,pcbufsize);
     cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
-    debugPC(pc);
+    if (!pc.empty()){
+        myAVR->RxPC = cv::Mat();
+        pc.copyTo(myAVR->RxPC);
+    }
+//    debugPC(pc);
     free(pcbuf);
 #ifdef EVAL
     gettimeofday(&tTXEnd, NULL);
@@ -95,27 +103,19 @@ void ObjReceiver::ReceivePointCloudStream(){
 #endif
 
     char imgsizebuf[bufSize+1];
-    mSock.Receive(pcsizebuf,bufSize);
+    mSock.Receive(imgsizebuf,bufSize);
     int imgbufsize = stol(imgsizebuf);
-    cout << pcbufsize<< endl;
+    if (V2VDEBUG)cout << "imgsizebuf:"<< imgsizebuf<< endl;
     char* imgbuf = (char*)malloc(imgbufsize+1);
 //    char pcbuf[pcbufsize+1];
     mSock.ReceiveAll(imgbuf,imgbufsize);
-    cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, imgbuf);
-    cv::imshow("received frame", img);
+    cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_8UC4, imgbuf);
+    if (!img.empty()){
+        myAVR->RxFrame = cv::Mat();
+        img.copyTo(myAVR->RxFrame);
+    }
+    if (V2VDEBUG)cv::imshow("received frame", img);
     free(imgbuf);
-
-
-
-
-
-//    V2VBuffer.open(buf, cv::FileStorage::READ + cv::FileStorage::MEMORY);
-//    int recvId;
-//    V2VBuffer[SEQNO] >> recvId;
-//    cout << "Received Frame" << recvId << endl;
-//    std::string ackId = std::to_string(seq);
-//    mSock.Send(ackId.c_str(),100);
-//    cout << "ACKed" << ackId << endl;
 
 }
 

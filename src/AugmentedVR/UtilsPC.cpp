@@ -65,10 +65,10 @@ cv::Mat MatPerElementNorm(cv::Mat MotionVecMat){
 //    return ret;
 //}
 
-void transformPC_Via_TransformationMatrix(cv::Mat T, cv::Mat PCReceived, cv::Mat &ret){
+void transformPC_Via_TransformationMatrix(cv::Mat& Trc, cv::Mat& PCReceived, cv::Mat &ret){
     // T is 4 by 4 transformation matix, where 3 by 3 rot, and 1 by 3 translation, last row is 0,0,0,1
     // point cloud is 1 by 4 (x,y,z,rgba)
-    assert(T.size().width==4 && T.size().height==4);
+    assert(Trc.size().width==4 && Trc.size().height==4);
     // extract channels
     cv::Mat PCChannels[4];
 //    cv::Mat ret;
@@ -81,7 +81,7 @@ void transformPC_Via_TransformationMatrix(cv::Mat T, cv::Mat PCReceived, cv::Mat
 //    PCChannels[1] = -PCChannels[1];
 //    PCChannels[2] = -PCChannels[2];
 
-    cout << T << endl;
+    cout << Trc << endl;
 
     cv::Mat interRes[4][4];
     for (int i=0;i<3;i++){
@@ -89,14 +89,14 @@ void transformPC_Via_TransformationMatrix(cv::Mat T, cv::Mat PCReceived, cv::Mat
         for (int j=0;j<3;j++){
             // watchout: T.at(row,col)
 //            cv::cuda::multiply(PCChannels[i], cv::Scalar(T.at<float>(i,j)), interRes[i][j]);
-            cout << T.at<float>(j,i) << endl;
-            interRes[i][j] = PCChannels[i] * T.at<float>(j,i);
+            cout << Trc.at<float>(j,i) << endl;
+            interRes[i][j] = PCChannels[i] * Trc.at<float>(j,i);
         }
     }
 
-    PCChannels[0] = interRes[0][0] + interRes[1][0] + interRes[2][0] + T.at<float>(0,3);
-    PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + T.at<float>(1,3);
-    PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + T.at<float>(2,3);
+    PCChannels[0] = interRes[0][0] + interRes[1][0] + interRes[2][0] + Trc.at<float>(0,3);
+    PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + Trc.at<float>(1,3);
+    PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + Trc.at<float>(2,3);
     //set coord sys back
 //    PCChannels[0] = -PCChannels[0];
 //    PCChannels[1] = -PCChannels[1];
@@ -106,29 +106,11 @@ void transformPC_Via_TransformationMatrix(cv::Mat T, cv::Mat PCReceived, cv::Mat
 //    return ret;
 }
 
-void transformPC_Via_TransformationMatrix(cv::Mat tlc, cv::Mat Rlc, cv::Mat PCReceived, cv::Mat &ret){
-    /// extract channels
-    cv::Mat PCChannels[4];
-    for (int i=0;i<4;i++){
-        cv::extractChannel(PCReceived,PCChannels[i],i);
-    }
-
-    cv::Mat interRes[4][4];
-    for (int i=0;i<3;i++){
-        // for each channel
-        for (int j=0;j<3;j++){
-            // watchout: T.at(row,col)
-//            cv::cuda::multiply(PCChannels[i], cv::Scalar(T.at<float>(i,j)), interRes[i][j]);
-//            cout << Rlc.at<float>(j,i) << endl;
-            interRes[i][j] = PCChannels[i] * Rlc.at<float>(j,i);
-        }
-    }
-
-    PCChannels[0] = interRes[0][0] + interRes[1][0] + interRes[2][0] + tlc.at<float>(0,0);
-    PCChannels[1] = interRes[0][1] + interRes[1][1] + interRes[2][1] + tlc.at<float>(1,0);
-    PCChannels[2] = interRes[0][2] + interRes[1][2] + interRes[2][2] + tlc.at<float>(2,0);
-
-    merge(PCChannels,4,ret);
+void transformPC_Via_TransformationMatrix(cv::Mat& tlc, cv::Mat& Rlc, cv::Mat& PCReceived, cv::Mat &ret){
+    cv::Mat Tlc = cv::Mat::eye(4,4,CV_32F);
+    tlc.copyTo(Tlc.rowRange(0,3).col(3));
+    Rlc.copyTo(Tlc.rowRange(0,3).colRange(0,3));
+    transformPC_Via_TransformationMatrix(Tlc,PCReceived,ret);
 }
 
 void debugPC(cv::Mat DebugPC){
@@ -145,4 +127,5 @@ void debugPC(cv::Mat DebugPC){
     cout    << "NonZero elements: " << cv::countNonZero(DebugPCChan) << endl; // can only count single channel matrix
 //                cout << cv::countNonZero(mask);
     cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
+    cout << "Value in the middle, " << DebugPC.at<cv::Vec4f>(DebugPC.cols/2,DebugPC.rows/2) << endl;
 }
