@@ -49,6 +49,9 @@ class ObjReceiver {
     mySocket mSock;
     int sockfd;
 
+    bool V2VDEBUG = false;
+    int bufSize = 15;
+
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
@@ -56,7 +59,6 @@ public:
 
     void initMySocket();
     void initCPPREST();
-    void ReceivePointCloudStream();
 
     struct WholeFrameWithMetaData readWholeFrameWithFullMetaData(int frameSeq);
     struct WholeFrameWithMetaData readWholeFrameFromSeparateFiles(int frameSeq);
@@ -71,6 +73,15 @@ public:
 
     http_response CheckResponse(const http_response &response);
     bool AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node);
+
+    /// in use
+    void ReceivePointCloudStream();
+    void ReceivePointCloudStream_FrameSeq();
+    void ReceivePointCloudStream_TimeStamp();
+    void ReceivePointCloudStream_TCW();
+    void ReceivePointCloudStream_PC();
+    void ReceivePointCloudStream_Frame();
+    void ReceivePointCloudStream_ObjectMotionVec();
 
 };
 

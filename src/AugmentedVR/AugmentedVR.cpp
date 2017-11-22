@@ -523,7 +523,6 @@ void AugmentedVR::ObjectMotionAnalysis(){
         std::cerr << "Keypoints Size Mismatch\n";
         return;
     }
-    // todo this sceneTransformMat is cur2Last, wrong!!!
     perspectiveTransform( cur.tracked_keypoints, points_trans, cur.sceneTransformMat_Curr2CacheHead);
 
     cv::Mat total_motionVec(1,1,CV_32FC3,cv::Scalar(0.,0.,0.));
@@ -642,4 +641,10 @@ void AugmentedVR::TransPCvsPC(){
             imshow("TranPCvsPC_Rx", RxFrame);
         }
     }
+
+
+    /// time diff
+    cout << "Current TS: " << cur.frameTS << endl;
+    cout << "Rx TS:" << RxTimeStamp << endl;
+    cout << "TS diff: " << int(cur.frameTS)-RxTimeStamp << endl;
 }

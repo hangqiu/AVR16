@@ -37,6 +37,11 @@ private:
 
     bool sendFlag;
 
+    bool V2VDEBUG = true;
+
+    int bufsize =15;
+    size_t txSize;
+
 public:
 
 
@@ -49,7 +54,7 @@ public:
     void initCPPREST();
 
     void httpServerRun(string address, string port);
-    void StreamPointCloud();
+
 
     void PrepSenderBuffer();
     void PrepFileStorageBuffer(cv::FileStorage & buf);
@@ -69,7 +74,14 @@ public:
 
     void writeFrameInSeparateFile();
 
-
+    /// in use
+    void StreamPointCloud();
+    void StreamPointCloud_FrameSeq(AVRFrame & Frame);
+    void StreamPointCloud_TimeStamp(AVRFrame & Frame);
+    void StreamPointCloud_TCW(AVRFrame & Frame);
+    void StreamPointCloud_PC(AVRFrame & Frame);
+    void StreamPointCloud_Frame(AVRFrame & Frame);
+    void StreamPointCloud_ObjectMotionVec(AVRFrame & Frame);
 };
 
 
