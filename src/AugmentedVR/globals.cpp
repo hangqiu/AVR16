@@ -28,8 +28,8 @@ bool SHOW_CAMMOTION = true;
 
 bool DYNAMICS = false;
 
-//bool PAUSE_FLAG = false;
-bool PAUSE_FLAG = true;
+bool PAUSE_FLAG = false;
+//bool PAUSE_FLAG = true;
 
 //const int NUM_CAMERAS = 2;
 const int FPS = 15;
@@ -92,15 +92,15 @@ string AddressB = "192.168.0.187";
 string PortB = "34569";
 
 /// laptop 187
-string MyAddress = AddressB;
-string MyPort = PortB;
-string ServerAddress = AddressA;
-string ServerPort = PortA;
+//string MyAddress = AddressB;
+//string MyPort = PortB;
+//string ServerAddress = AddressA;
+//string ServerPort = PortA;
 /// desktop 166
-//string MyAddress = AddressA;
-//string MyPort = PortA;
-//string ServerAddress = AddressB;
-//string ServerPort = PortB;
+string MyAddress = AddressA;
+string MyPort = PortA;
+string ServerAddress = AddressB;
+string ServerPort = PortB;
 /// store video or webcam
 bool OFFLINE = true;
 

@@ -251,28 +251,16 @@ void VCluster::postProcess(){
 
 void VCluster::TXRX(){
 
-    // sending objects
     if (TX && SEND) {
-//        mSender->writeFullFrame_PC_TCW_Time();
-//        mSender->writePC_TCW_Time();
-//        thread streamer(&ObjSender::StreamPointCloud,mSender);
+        /// sending objects
         mSender->StreamPointCloud();
     }
     cv::Mat Trc, trc, RxFrame;
     if (RX){
-//        timeval tTXStart, tTXEnd;
-//        gettimeofday(&tTXStart, NULL);
-
-//        thread streamer(&ObjReceiver::ReceivePointCloudStream,mReceiver);
-        mReceiver->ReceivePointCloudStream();
         /// receiving objects
-//        if (!(mReceiver->AskForLatestPC_TCW_TIME_CPPREST(VNode[0]))){
-//            cerr << "VCluster::TXRX() can't load latest rx frame " << endl;
-//            return;
-//        }
-//        gettimeofday(&tTXEnd, NULL);
-//
-//        cout << "TXRX >>>>> TX: " <<double(tTXEnd.tv_sec-tTXStart.tv_sec)*1000 + double(tTXEnd.tv_usec-tTXStart.tv_usec) / 1000<< "ms"<< endl;
+        mReceiver->ReceivePointCloudStream();
+
+
     }
 }
 
@@ -372,6 +360,8 @@ void VCluster::visualize(){
         }
         else if (RX) {
             if (VNode[0]->trackGood() && !(VNode[0]->RxTCW.empty())){
+
+
                 /// calculating rela position
                 cv::Mat Trc;
                 VNode[0]->calcRelaCamPos(VNode[0]->RxTCW, Trc);
@@ -381,6 +371,9 @@ void VCluster::visualize(){
                 if (DYNAMICS){
                     VNode[0]->transformRxPCtoMyFrameCoord(Trc, VNode[0]->RxDynamicPC, VNode[0]->transRxDynamicPC);
                 }
+
+                /// received frame feature matching with curr frame, eval only
+                VNode[0]->TransPCvsPC();
             }
             /// Dead-Reckoning
 //            else{

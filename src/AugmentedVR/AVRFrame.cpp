@@ -7,6 +7,7 @@
 #include <include/UtilsPC.hpp>
 #include "AVRFrame.hpp"
 #include <sys/time.h>
+#include <include/UtilsCV.hpp>
 
 AVRFrame::AVRFrame(){
     FrameLeft = cv::Mat();
@@ -143,11 +144,7 @@ int AVRFrame::getFrameTS(){
 
 void AVRFrame::detectNewFeature(){
     FrameLock.lock();
-    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,20,0.03);
-    cv::Size subPixWinSize(10,10);
-
-    cv::goodFeaturesToTrack(FrameLeftGray, keypoints, MAX_COUNT, 0.01, 10, cv::Mat(), 3, false, 0.04);
-    cornerSubPix(FrameLeftGray, keypoints, subPixWinSize, cv::Size(-1,-1), termcrit);
+    detectKLTFeature(FrameLeftGray,keypoints);
     FrameLock.unlock();
 }
 
@@ -179,12 +176,12 @@ void AVRFrame::updatePCDisplacementFromMotionVec(){
     assert(!PCMotionVec.empty());
     PCDisplacement = MatPerElementNorm(PCMotionVec);
 
-    if (DEBUG && VISUAL){
-        char tmp[50];
-        sprintf(tmp, "Displacement");
-        imshow(tmp, PCDisplacement);
-        cv::setMouseCallback(tmp, onMouseCallback_DisplayDisplacement, &PCDisplacement);
-    }
+//    if (DEBUG && VISUAL){
+//        char tmp[50];
+//        sprintf(tmp, "Displacement");
+//        imshow(tmp, PCDisplacement);
+//        cv::setMouseCallback(tmp, onMouseCallback_DisplayDisplacement, &PCDisplacement);
+//    }
 }
 
 void AVRFrame::updateMotionMask_via_ThresholdingPCDisplacement(){

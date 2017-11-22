@@ -157,6 +157,7 @@ public: //TODO change to private and add agetter seter
     cv::Mat RxMotionVec; // motion vector of object received
 
     int RxTimeStamp;
+    int RxSeq;
     cv::Mat RxFrame;
     cv::Mat RxPC;
     cv::Mat RxDynamicPC; // transfromed txceived PC
@@ -203,9 +204,6 @@ public:
 
     void filterPCMotionVec();
     void updateLastStereoData();
-
-    void shiftPC(cv::Mat pc1,cv::Scalar vec);
-
 
     void trackCam();
 
@@ -280,6 +278,8 @@ public:
     unsigned long long int getCurrentAVRFrame_TimeStamp();
 
     bool trackGood();
+
+    void TransPCvsPC();
 };
 
 
