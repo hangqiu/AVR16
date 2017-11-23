@@ -30,14 +30,19 @@ ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) :
 ObjReceiver::~ObjReceiver() {
 //    TcwFile.release();
 //    PCFile.release();
+    if (Parallel_TXRX){
+        end = true;
+        delete streamer;
+    }
     delete client;
     delete &mSock;
 }
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-//    thread *streamer = new std::thread(&ObjReceiver::ReceivePointCloudStream, this);
-
+    if (Parallel_TXRX){
+        streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
+    }
 }
 
 
@@ -50,7 +55,8 @@ void ObjReceiver::ReceivePointCloudStream_FrameSeq(){
     mSock.Receive(seqbuf,seqbufsize);
     int seq = stoi(seqbuf);
     if (V2VDEBUG)cout <<  "seq:" << seq << endl;
-    myAVR->RxSeq = seq;
+//    myAVR->RxSeq = seq;
+    myAVR->RxBuffer.put_Seq(seq);
 }
 void ObjReceiver::ReceivePointCloudStream_TimeStamp(){
     char tssizebuf[bufSize+1];
@@ -61,7 +67,8 @@ void ObjReceiver::ReceivePointCloudStream_TimeStamp(){
     mSock.Receive(tsbuf,tsbufsize);
     int ts = stoi(tsbuf);
     if (V2VDEBUG)cout << "ts:" << ts << endl;
-    myAVR->RxTimeStamp = ts;
+//    myAVR->RxTimeStamp = ts;
+    myAVR->RxBuffer.put_TimeStamp(ts);
 }
 void ObjReceiver::ReceivePointCloudStream_TCW(){
     char tcwsizebuf[bufSize+1];
@@ -71,8 +78,9 @@ void ObjReceiver::ReceivePointCloudStream_TCW(){
     char buf[tcwbufsize+1];
     mSock.Receive(buf,tcwbufsize);
     cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
-    tcw.copyTo(myAVR->RxTCW);
     if (V2VDEBUG)cout << "tcw\n"  << tcw << endl;
+//    tcw.copyTo(myAVR->RxTCW);
+    myAVR->RxBuffer.put_TCW(tcw);
 }
 void ObjReceiver::ReceivePointCloudStream_PC(){
 #ifdef EVAL
@@ -89,8 +97,9 @@ void ObjReceiver::ReceivePointCloudStream_PC(){
     mSock.ReceiveAll(pcbuf,pcbufsize);
     cv::Mat pc = cv::Mat(myAVR->height,myAVR->width, CV_32FC4, pcbuf);
     if (!pc.empty()){
-        myAVR->RxPC = cv::Mat();
-        pc.copyTo(myAVR->RxPC);
+//        myAVR->RxPC = cv::Mat();
+//        pc.copyTo(myAVR->RxPC);
+        myAVR->RxBuffer.put_PC(pc);
     }
 //    debugPC(pc);
     free(pcbuf);
@@ -110,8 +119,9 @@ void ObjReceiver::ReceivePointCloudStream_Frame(){
     mSock.ReceiveAll(imgbuf,imgbufsize);
     cv::Mat img = cv::Mat(myAVR->height,myAVR->width, CV_8UC4, imgbuf);
     if (!img.empty()){
-        myAVR->RxFrame = cv::Mat();
-        img.copyTo(myAVR->RxFrame);
+//        myAVR->RxFrame = cv::Mat();
+//        img.copyTo(myAVR->RxFrame);
+        myAVR->RxBuffer.put_FrameLeft(img);
     }
     if (V2VDEBUG)cv::imshow("received frame", img);
     free(imgbuf);
@@ -125,6 +135,7 @@ void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
     mSock.Receive(buf,mvbufsize);
     cv::Mat mv = cv::Mat(1,1,CV_32FC3, (void*)buf);
     mv.copyTo(myAVR->RxMotionVec);
+    myAVR->RxBuffer.put_MotionVec(mv);
     if (V2VDEBUG)cout << "mv\n"  << mv << endl;
 }
 
@@ -135,6 +146,13 @@ void ObjReceiver::ReceivePointCloudStream(){
     ReceivePointCloudStream_PC();
     ReceivePointCloudStream_Frame();
     ReceivePointCloudStream_ObjectMotionVec();
+    myAVR->RxBuffer.finishReceivingFrame();
+}
+
+void ObjReceiver::ReceiveLoop(){
+    while(!end){
+        ReceivePointCloudStream();
+    }
 }
 
 void ObjReceiver::initCPPREST(){
@@ -157,52 +175,52 @@ http_response ObjReceiver::CheckResponse(const http_response &response)
 }
 
 
-bool ObjReceiver::AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node){
-    char dir[100];
-    sprintf(dir, "/%d", 1000000);
-
-
-    return client->request(methods::GET, U(dir))
-          .then([](http_response response){
-              ucout << "waiting for payload..."<< endl;
-              return response.content_ready();
-          })
-          .then([this, Node](http_response getresponse){
-              if (getresponse.status_code()==status_codes::OK){
-                  try{
-//                concurrency::streams::ostream stream;
-//                concurrency::streams::container_buffer<std::string> inStringBuffer;
-//                getresponse.body().read_to_end(inStringBuffer);
-//                const string &res = inStringBuffer.collection();
-//                V2VBuffer.open(res.c_str(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
-                      V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
-                  }catch(...) { //slutils::cv::Exception
-//                      cout << e.what();
-                      return false;
-                  }
-
-                  //        V2VBuffer[FRAME] >> Node->RxFrame;
-                  /// atomic reception
-                  cv::Mat RxPC, RxTCW;
-
-                  V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
-                  V2VBuffer[PC] >> RxPC;
-                  V2VBuffer[TCW] >> RxTCW;
-
-                  if (RxPC.empty() || RxTCW.empty()) return false;
-
-                  RxPC.copyTo(Node->RxPC);
-                  RxTCW.copyTo(Node->RxTCW);
-                  return true;
-              }else{
-                  return false;
-              }
-          }).wait();
-//          .then([=](http_response response){
-//              return response.extract_string();
+//bool ObjReceiver::AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node){
+//    char dir[100];
+//    sprintf(dir, "/%d", 1000000);
 //
+//
+//    return client->request(methods::GET, U(dir))
+//          .then([](http_response response){
+//              ucout << "waiting for payload..."<< endl;
+//              return response.content_ready();
 //          })
-}
+//          .then([this, Node](http_response getresponse){
+//              if (getresponse.status_code()==status_codes::OK){
+//                  try{
+////                concurrency::streams::ostream stream;
+////                concurrency::streams::container_buffer<std::string> inStringBuffer;
+////                getresponse.body().read_to_end(inStringBuffer);
+////                const string &res = inStringBuffer.collection();
+////                V2VBuffer.open(res.c_str(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+//                      V2VBuffer.open(getresponse.extract_string().get(), cv::FileStorage::READ + cv::FileStorage::MEMORY);
+//                  }catch(...) { //slutils::cv::Exception
+////                      cout << e.what();
+//                      return false;
+//                  }
+//
+//                  //        V2VBuffer[FRAME] >> Node->RxFrame;
+//                  /// atomic reception
+//                  cv::Mat RxPC, RxTCW;
+//
+//                  V2VBuffer[TIMESTAMP] >> Node->RxTimeStamp;
+//                  V2VBuffer[PC] >> RxPC;
+//                  V2VBuffer[TCW] >> RxTCW;
+//
+//                  if (RxPC.empty() || RxTCW.empty()) return false;
+//
+//                  RxPC.copyTo(Node->RxPC);
+//                  RxTCW.copyTo(Node->RxTCW);
+//                  return true;
+//              }else{
+//                  return false;
+//              }
+//          }).wait();
+////          .then([=](http_response response){
+////              return response.extract_string();
+////
+////          })
+//}
 
 
 

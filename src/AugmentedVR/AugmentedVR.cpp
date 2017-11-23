@@ -612,13 +612,12 @@ void AugmentedVR::ObjectMotionAnalysis(){
     frameCache.getLowPassFilteredMotionVectorForCurrFrame();
 }
 
-
-void AugmentedVR::TransPCvsPC(){
+void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, int rxTS){
     AVRFrame cur;
     frameCache.getCurrentFrame(cur);
-    if (RxTCW.empty() || RxFrame.empty() || transRxPC.empty() || cur.MotionMask.empty()) return;
+    if (rxTcw.empty() || rxFrame.empty() || transRxPC.empty() || cur.MotionMask.empty()) return;
     cv::Mat RxFrameGray;
-    cv::cvtColor(RxFrame,RxFrameGray,cv::COLOR_RGB2GRAY);
+    cv::cvtColor(rxFrame,RxFrameGray,cv::COLOR_RGB2GRAY);
     vector<cv::Point2f> kpReceived;
     std::vector<uchar> status;
     std::vector<float> error;
@@ -633,7 +632,7 @@ void AugmentedVR::TransPCvsPC(){
     for (int i=0;i<kpReceived.size();i++){
         if (status[i] && cur.MotionMask.at<uchar>(cur.keypoints[i])==255 ){
             drawMatchedKeypoints(img, cur.keypoints[i], kpReceived[i], to_string(i));
-            drawMatchedKeypoints(RxFrame, cur.keypoints[i], kpReceived[i], to_string(i));
+            drawMatchedKeypoints(rxFrame, cur.keypoints[i], kpReceived[i], to_string(i));
             cv::Scalar diff = cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) - transRxPC.at<cv::Vec4f>(kpReceived[i]);
             cv::Scalar dff3 = cv::Scalar(diff[0],diff[1],diff[2]);
             cout << "Point " << i << ": "
@@ -642,13 +641,88 @@ void AugmentedVR::TransPCvsPC(){
                  << endl
                  << dff3 << " >>> " << norm(dff3) << endl;
             imshow("TranPCvsPC_Curr", img);
-            imshow("TranPCvsPC_Rx", RxFrame);
+            imshow("TranPCvsPC_Rx", rxFrame);
         }
     }
 
 
     /// time diff
-    cout << "Current TS: " << cur.frameTS << endl;
-    cout << "Rx TS:" << RxTimeStamp << endl;
-    cout << "TS diff: " << int(cur.frameTS)-RxTimeStamp << endl;
+    if (DEBUG){
+
+        cout << "Current TS: " << cur.frameTS << endl;
+        cout << "Rx TS:" << rxTS << endl;
+        cout << "TS diff: " << int(cur.frameTS)-rxTS << endl;
+        debugPC(transRxPC);
+    }
+    LatencyCompensation(rxMV, transRxPC, int(cur.frameTS)-rxTS);
+    if (DEBUG)debugPC(transRxPC);
+}
+
+//void AugmentedVR::TransPCvsPC(){
+//    AVRFrame cur;
+//    frameCache.getCurrentFrame(cur);
+//    if (RxTCW.empty() || RxFrame.empty() || transRxPC.empty() || cur.MotionMask.empty()) return;
+//    cv::Mat RxFrameGray;
+//    cv::cvtColor(RxFrame,RxFrameGray,cv::COLOR_RGB2GRAY);
+//    vector<cv::Point2f> kpReceived;
+//    std::vector<uchar> status;
+//    std::vector<float> error;
+//    cv::TermCriteria termcrit(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 20, 0.03);
+//    cv::Size  winSize(31, 31);
+//
+//    cv::calcOpticalFlowPyrLK(cur.FrameLeftGray, RxFrameGray, cur.keypoints, kpReceived,
+//                             status, error, winSize, 3, termcrit, 0, 0.001);
+//    cv::Mat img;
+//    cur.FrameLeft.copyTo(img);
+//
+//    for (int i=0;i<kpReceived.size();i++){
+//        if (status[i] && cur.MotionMask.at<uchar>(cur.keypoints[i])==255 ){
+//            drawMatchedKeypoints(img, cur.keypoints[i], kpReceived[i], to_string(i));
+//            drawMatchedKeypoints(RxFrame, cur.keypoints[i], kpReceived[i], to_string(i));
+//            cv::Scalar diff = cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) - transRxPC.at<cv::Vec4f>(kpReceived[i]);
+//            cv::Scalar dff3 = cv::Scalar(diff[0],diff[1],diff[2]);
+//            cout << "Point " << i << ": "
+//                 << cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) << " - "
+//                 << transRxPC.at<cv::Vec4f>(kpReceived[i]) << " = "
+//                 << endl
+//                 << dff3 << " >>> " << norm(dff3) << endl;
+//            imshow("TranPCvsPC_Curr", img);
+//            imshow("TranPCvsPC_Rx", RxFrame);
+//        }
+//    }
+//
+//
+//    /// time diff
+//    if (DEBUG){
+//
+//        cout << "Current TS: " << cur.frameTS << endl;
+//        cout << "Rx TS:" << RxTimeStamp << endl;
+//        cout << "TS diff: " << int(cur.frameTS)-RxTimeStamp << endl;
+//        debugPC(transRxPC);
+//    }
+//    LatencyCompensation(RxMotionVec, transRxPC, int(cur.frameTS)-RxTimeStamp);
+//    if (DEBUG)debugPC(transRxPC);
+//}
+
+
+void AugmentedVR::LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, int TSdiff){
+    debugPC(PC);
+
+    cv::Mat tmp;
+//    cout << RxMotionVec << endl;
+    double x,y,z;
+    extractChannel(MotionVec,tmp,0);
+    x=tmp.at<float>(0,0);
+    extractChannel(MotionVec,tmp,1);
+    y=tmp.at<float>(0,0);
+    extractChannel(MotionVec,tmp,2);
+    z=tmp.at<float>(0,0);
+    cout << "MotionVec (m/us): " << x <<"," << y<<"," <<z << endl;
+    cv::Scalar mv(x,y,z);
+
+
+    PC += mv*double(TSdiff);
+    cout << "LatencyCompensation: " << mv*double(TSdiff) << endl;
+
+
 }

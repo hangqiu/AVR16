@@ -49,8 +49,11 @@ class ObjReceiver {
     mySocket mSock;
     int sockfd;
 
-    bool V2VDEBUG = false;
+    bool V2VDEBUG = true;
     int bufSize = 15;
+
+    thread *streamer;
+    bool end = false;
 
 public:
 
@@ -75,6 +78,7 @@ public:
     bool AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node);
 
     /// in use
+    void ReceiveLoop();
     void ReceivePointCloudStream();
     void ReceivePointCloudStream_FrameSeq();
     void ReceivePointCloudStream_TimeStamp();
