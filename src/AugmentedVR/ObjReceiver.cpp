@@ -30,16 +30,19 @@ ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) :
 ObjReceiver::~ObjReceiver() {
 //    TcwFile.release();
 //    PCFile.release();
-    end = true;
-    delete streamer;
+    if (Parallel_TXRX){
+        end = true;
+        delete streamer;
+    }
     delete client;
     delete &mSock;
 }
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-    streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
-
+    if (Parallel_TXRX){
+        streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
+    }
 }
 
 

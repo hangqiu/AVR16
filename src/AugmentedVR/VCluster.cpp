@@ -235,8 +235,10 @@ void VCluster::postProcess(){
     VNode[0]->analyze();
 //    compressDynamic();
 //    segmentation();
-    TXRX();
+    if (!Parallel_TXRX){
+        TXRX();
 //    TXRX_viaDisk();
+    }
     visualize();
 #ifdef EVAL
     gettimeofday(&end, NULL);
@@ -257,12 +259,12 @@ void VCluster::TXRX(){
     }
     cv::Mat Trc, trc, RxFrame;
     /// moved to background
-//    if (RX){
-//        /// receiving objects
-//        mReceiver->ReceivePointCloudStream();
-//
-//
-//    }
+    if (RX){
+        /// receiving objects
+        mReceiver->ReceivePointCloudStream();
+
+
+    }
 }
 
 
