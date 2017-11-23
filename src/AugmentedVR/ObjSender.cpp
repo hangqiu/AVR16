@@ -121,7 +121,7 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
 void ObjSender::StreamPointCloud_Async(){
     /// if the channel is in use, skip this frame
     if (Sending) return;
-    if (txstream->joinable()) txstream->join();
+    if (txstream!=NULL && txstream->joinable()) txstream->join();
     txstream = new thread(&ObjSender::StreamPointCloud, this);
 }
 
