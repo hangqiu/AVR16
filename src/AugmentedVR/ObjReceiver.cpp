@@ -40,7 +40,7 @@ ObjReceiver::~ObjReceiver() {
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-    if (Parallel_TXRX){
+    if (Parallel_TXRX && RX){
         streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
     }
 }
