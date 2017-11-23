@@ -550,6 +550,10 @@ void AugmentedVR::ObjectMotionAnalysis(){
                             cv::Rect(int(cacheHead.tracked_keypoints[i].x),
                                      int(cacheHead.tracked_keypoints[i].y), 1, 1)) -
                             cur.PC_noColor(cv::Rect(int(cur.tracked_keypoints[i].x), int(cur.tracked_keypoints[i].y), 1, 1));
+
+                    //// get speed motionvec
+                    motionVec /= double(cur.frameTS-cacheHead.frameTS);
+
                     double dist = norm(motionVec);
                     if (cvIsInf(dist) || cvIsNaN(dist)) continue;
                     if (DEBUG) cout << "Point " << i << ": " << motionVec << " >> " << dist << endl;

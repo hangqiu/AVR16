@@ -121,7 +121,7 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
 void ObjSender::StreamPointCloud(){
     cv::FileStorage fs;
     AVRFrame Frame;
-    myAVR->getLastAVRFrame(Frame);
+    myAVR->getCurrentAVRFrame(Frame);
     if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
     StreamPointCloud_FrameSeq(Frame);
     StreamPointCloud_TimeStamp(Frame);
