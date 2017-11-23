@@ -27,6 +27,7 @@
 #include "globals.hpp"
 #include "IO.hpp"
 #include "FrameCache.hpp"
+#include "PingpongRxBuffer.hpp"
 
 
 #include <queue>
@@ -156,15 +157,18 @@ public: //TODO change to private and add agetter seter
 
     cv::Mat RxMotionVec; // motion vector of object received
 
-    int RxTimeStamp;
-    int RxSeq;
-    cv::Mat RxFrame;
-    cv::Mat RxPC;
-    cv::Mat RxDynamicPC; // transfromed txceived PC
-    cv::Mat RxTCW;
+//    int RxTimeStamp;
+//    int RxSeq;
+//    cv::Mat RxFrame;
+//    cv::Mat RxPC;
+//    cv::Mat RxDynamicPC; // transfromed txceived PC
+//    cv::Mat RxTCW;
 
     cv::Mat transRxPC;
     cv::Mat transRxDynamicPC; // transfromed txceived PC
+
+
+    PingpongRxBuffer RxBuffer;
 
     vector<cv::Point2f> keypoints;
     vector<uchar> status;
@@ -280,6 +284,9 @@ public:
     bool trackGood();
 
     void TransPCvsPC();
+    void TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, int rxTS);
+
+    void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, int TSdiff);
 };
 
 
