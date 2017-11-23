@@ -32,7 +32,7 @@ ObjReceiver::~ObjReceiver() {
 //    PCFile.release();
     if (Parallel_TXRX){
         end = true;
-        delete streamer;
+        if (RX) delete rxstream;
     }
     delete client;
     delete &mSock;
@@ -40,8 +40,10 @@ ObjReceiver::~ObjReceiver() {
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-    if (Parallel_TXRX && RX){
-        streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
+    if (Parallel_TXRX){
+        if (RX){
+            rxstream = new std::thread(&ObjReceiver::ReceiveLoop, this);
+        }
     }
 }
 

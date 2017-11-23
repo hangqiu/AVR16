@@ -42,6 +42,9 @@ private:
     int bufsize =15;
     size_t txSize;
 
+
+    thread *txstream;
+    bool Sending = false;
 public:
 
 
@@ -76,6 +79,7 @@ public:
 
     /// in use
     void StreamPointCloud();
+    void StreamPointCloud_Async();
     void StreamPointCloud_FrameSeq(AVRFrame & Frame);
     void StreamPointCloud_TimeStamp(AVRFrame & Frame);
     void StreamPointCloud_TCW(AVRFrame & Frame);
