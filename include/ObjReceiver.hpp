@@ -52,7 +52,7 @@ class ObjReceiver {
     bool V2VDEBUG = true;
     int bufSize = 15;
 
-    thread *streamer;
+    thread *rxstream;
     bool end = false;
 
 public:

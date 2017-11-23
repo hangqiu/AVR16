@@ -118,17 +118,26 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
     if (V2VDEBUG)cout << "MotionVecMat\n" << MotionVecMat << endl;
 }
 
+void ObjSender::StreamPointCloud_Async(){
+    /// if the channel is in use, skip this frame
+    if (Sending) return;
+    if (txstream->joinable()) txstream->join();
+    txstream = new thread(&ObjSender::StreamPointCloud, this);
+}
+
 void ObjSender::StreamPointCloud(){
     cv::FileStorage fs;
     AVRFrame Frame;
     myAVR->getCurrentAVRFrame(Frame);
     if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+    Sending = true;
     StreamPointCloud_FrameSeq(Frame);
     StreamPointCloud_TimeStamp(Frame);
     StreamPointCloud_TCW(Frame);
     StreamPointCloud_PC(Frame);
     StreamPointCloud_Frame(Frame);
     StreamPointCloud_ObjectMotionVec(Frame);
+    Sending = false;
 }
 
 void ObjSender::initCPPREST(){
