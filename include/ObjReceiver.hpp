@@ -52,6 +52,9 @@ class ObjReceiver {
     bool V2VDEBUG = true;
     int bufSize = 15;
 
+    thread *streamer;
+    bool end = false;
+
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
@@ -75,6 +78,7 @@ public:
     bool AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node);
 
     /// in use
+    void ReceiveLoop();
     void ReceivePointCloudStream();
     void ReceivePointCloudStream_FrameSeq();
     void ReceivePointCloudStream_TimeStamp();

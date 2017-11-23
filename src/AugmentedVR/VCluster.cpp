@@ -256,12 +256,13 @@ void VCluster::TXRX(){
         mSender->StreamPointCloud();
     }
     cv::Mat Trc, trc, RxFrame;
-    if (RX){
-        /// receiving objects
-        mReceiver->ReceivePointCloudStream();
-
-
-    }
+    /// moved to background
+//    if (RX){
+//        /// receiving objects
+//        mReceiver->ReceivePointCloudStream();
+//
+//
+//    }
 }
 
 

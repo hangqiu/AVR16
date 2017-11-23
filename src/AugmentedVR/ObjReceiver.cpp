@@ -30,13 +30,15 @@ ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) :
 ObjReceiver::~ObjReceiver() {
 //    TcwFile.release();
 //    PCFile.release();
+    end = true;
+    delete streamer;
     delete client;
     delete &mSock;
 }
 
 void ObjReceiver::initMySocket(){
     mSock.Connect(ServerAddress.c_str(), ServerPort.c_str());
-//    thread *streamer = new std::thread(&ObjReceiver::ReceivePointCloudStream, this);
+    streamer = new std::thread(&ObjReceiver::ReceiveLoop, this);
 
 }
 
@@ -142,6 +144,12 @@ void ObjReceiver::ReceivePointCloudStream(){
     ReceivePointCloudStream_Frame();
     ReceivePointCloudStream_ObjectMotionVec();
     myAVR->RxBuffer.finishReceivingFrame();
+}
+
+void ObjReceiver::ReceiveLoop(){
+    while(!end){
+        ReceivePointCloudStream();
+    }
 }
 
 void ObjReceiver::initCPPREST(){
