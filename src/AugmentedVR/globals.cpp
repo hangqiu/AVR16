@@ -16,7 +16,7 @@ bool COOP = false;
 bool ReuseMap = false;
 //bool ReuseMap = true;
 
-bool Parallel_TXRX = true;
+bool Parallel_TXRX = false;
 
 int DEBUG = 1;
 //bool VISUAL = false;
@@ -94,15 +94,15 @@ string AddressB = "192.168.0.187";
 string PortB = "34569";
 
 /// laptop 187
-//string MyAddress = AddressB;
-//string MyPort = PortB;
-//string ServerAddress = AddressA;
-//string ServerPort = PortA;
+string MyAddress = AddressB;
+string MyPort = PortB;
+string ServerAddress = AddressA;
+string ServerPort = PortA;
 /// desktop 166
-string MyAddress = AddressA;
-string MyPort = PortA;
-string ServerAddress = AddressB;
-string ServerPort = PortB;
+//string MyAddress = AddressA;
+//string MyPort = PortA;
+//string ServerAddress = AddressB;
+//string ServerPort = PortB;
 /// store video or webcam
 bool OFFLINE = true;
 
