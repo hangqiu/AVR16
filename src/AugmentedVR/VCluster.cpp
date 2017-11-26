@@ -4,6 +4,7 @@
 
 #include <sys/time.h>
 #include <include/UtilsCV.hpp>
+#include <include/UtilsPC.hpp>
 #include "VCluster.hpp"
 using namespace sl;
 
@@ -215,10 +216,19 @@ void VCluster::compressDynamic(){
 }
 
 void VCluster::RoadDetection(){
-    cv::Mat tmp;
+
+    /// merge PC
+    cv::Mat totalPC;
     AVRFrame currFrame;
     VNode[0]->getCurrentAVRFrame(currFrame);
-    currFrame.pointcloud.copyTo(tmp);
+    if (RX){
+        hconcat(currFrame.pointcloud, VNode[0]->transRxPC,totalPC);
+    }else{
+        currFrame.pointcloud.copyTo(totalPC);
+    }
+
+    cv::Mat tmp;
+    removePointCloud_HighLow(totalPC,tmp);
     sl::Mat slpc;
     mCodec->planeSegmentation(tmp, slpc);
     mDisplayer->pushPC_slMat_CPU(slpc);
@@ -243,7 +253,7 @@ void VCluster::postProcess(){
 #endif
     VNode[0]->analyze();
 //    compressDynamic();
-    RoadDetection();
+
 
     TXRX();
 //    TXRX_viaDisk();
@@ -364,7 +374,7 @@ void VCluster::TXRX(){
 void VCluster::visualize(){
     // need to show PC from Last Frame, cause buffer are freed for pre-fetching
     // Point Cloud Stiching
-    if (VISUAL && SHOW_PC ) {
+    if (VISUAL && PCVISUAL ) {
 //        mDisplayer->showCurFrame();
         AVRFrame currFrame;
         VNode[0]->getCurrentAVRFrame(currFrame);
@@ -392,6 +402,8 @@ void VCluster::visualize(){
                 /// received frame feature matching with curr frame, eval only
 //                VNode[0]->TransPCvsPC();
                 VNode[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxMotionVec, rx->RxTimeStamp);
+
+                RoadDetection();
             }
             /// Dead-Reckoning
 //            else{
@@ -428,7 +440,10 @@ void VCluster::visualize(){
         }
         else{
 //            mDisplayer->showPC(currFrame.pointcloud);
+            RoadDetection();
         }
+
+
     }
 }
 //void VCluster::visualize(){

@@ -129,3 +129,14 @@ void debugPC(cv::Mat DebugPC){
     cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
     cout << "Value in the middle, " << DebugPC.at<cv::Vec4f>(DebugPC.cols/2,DebugPC.rows/2) << endl;
 }
+
+
+void removePointCloud_HighLow(cv::Mat &PCIn, cv::Mat & PCOut){
+    cv::Mat tmpMask,tmpPC;
+    /// extract y channel
+    extractChannel(PCIn,tmpPC,1);
+
+    cv::threshold( tmpPC, tmpMask, HEIGHT_THRESH, 255, cv::THRESH_BINARY_INV);
+    tmpMask.convertTo(tmpMask,CV_8U);
+    PCIn.copyTo(PCOut);
+}

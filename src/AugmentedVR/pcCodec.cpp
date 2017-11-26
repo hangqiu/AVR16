@@ -18,7 +18,12 @@ pcCodec::pcCodec(int width, int height) : width(width), height(height) {
 //    point_cloud_xyzrgba_ptr->points.resize(height*width/15);
     point_cloud_xyzrgba_ptr->points.resize(height*width);
     point_cloud_xyz_ptr->points.resize(height*width);
-    point_cloud_xyz_ptr_lowRes->points.resize(height/resRatio*width/resRatio);
+    if (RX){
+
+        point_cloud_xyz_ptr_lowRes->points.resize(height/resRatio*width*2/resRatio);
+    }else{
+        point_cloud_xyz_ptr_lowRes->points.resize(height/resRatio*width/resRatio);
+    }
 
     planeSeg_coefficients_ptr =  pcl::ModelCoefficients::Ptr(new pcl::ModelCoefficients);
     planeSeg_inliers_ptr= pcl::PointIndices::Ptr(new pcl::PointIndices);
@@ -240,6 +245,7 @@ void pcCodec::encode(cv::Mat& pc){
 
 void pcCodec::planeSegmentation(cv::Mat &pc, sl::Mat & slpc){
 //    if (!cv2pcl_xyz(pc)) return;
+
     if (!cv2pcl_xyz_lowRes(pc)) return;
 
     // Create the segmentation object
@@ -249,8 +255,8 @@ void pcCodec::planeSegmentation(cv::Mat &pc, sl::Mat & slpc){
     // Mandatory
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations(1000);
-    seg.setDistanceThreshold (0.1);
+//    seg.setMaxIterations(1000);
+    seg.setDistanceThreshold (0.5);
 
     seg.setInputCloud (point_cloud_xyz_ptr_lowRes );
     seg.segment (*planeSeg_inliers_ptr, *planeSeg_coefficients_ptr);

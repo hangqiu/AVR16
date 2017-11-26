@@ -41,7 +41,7 @@ int ZEDCACHESIZE = 4;
 bool SHOW_IMG = true;
 bool DECOUPLE2IMG = false;
 //bool DECOUPLE2IMG = true;
-bool SHOW_PC = true;
+//bool SHOW_PC = true;
 
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;

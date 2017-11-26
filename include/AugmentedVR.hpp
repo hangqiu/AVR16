@@ -254,11 +254,11 @@ public:
 
     void PC_segmentation();
 
-    void Remove_HighLow();
-
     void PC_segmentation(int idx);
 
     void CheckConnection(int tgt_x, int tgt_y, int cur_x, int cur_y, int idx, std::queue<cv::Point2f> & Q, cv::Mat & checkFlag, cv::Mat & inQueue, float motionThreshold);
+
+    void Remove_HighLow();
 
     void Remove_HighLow(int idx);
 
