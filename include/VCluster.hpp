@@ -47,6 +47,8 @@ public:
 
     void segmentation();
 
+    void RoadDetection();
+
     void initDisplay();
 };
 

@@ -210,10 +210,18 @@ void VCluster::compressDynamic(){
     cv::Mat tmp;
     AVRFrame currFrame;
     VNode[0]->getCurrentAVRFrame(currFrame);
-    currFrame.pointcloud.copyTo(tmp);
+    currFrame.DynamicPC.copyTo(tmp);
     mCodec->encode(tmp);
 }
 
+void VCluster::RoadDetection(){
+//    cout << "compressing \n ";
+    cv::Mat tmp;
+    AVRFrame currFrame;
+    VNode[0]->getCurrentAVRFrame(currFrame);
+    currFrame.pointcloud.copyTo(tmp);
+    mCodec->planeSegmentation(tmp);
+}
 
 //void VCluster::segmentation(){
 ////    cout << "compressing \n ";
@@ -234,7 +242,7 @@ void VCluster::postProcess(){
 #endif
     VNode[0]->analyze();
 //    compressDynamic();
-//    segmentation();
+    RoadDetection();
 
     TXRX();
 //    TXRX_viaDisk();

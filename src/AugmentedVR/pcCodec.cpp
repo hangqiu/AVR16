@@ -177,6 +177,40 @@ void pcCodec::encode(cv::Mat& pc){
 //    return compressedData;
 }
 
+
+
+void pcCodec::planeSegmentation(cv::Mat &pc){
+    if (!cv2pcl_xyz(pc)) return;
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+    // Create the segmentation object
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    // Optional
+    seg.setOptimizeCoefficients (true);
+    // Mandatory
+    seg.setModelType (pcl::SACMODEL_PLANE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setDistanceThreshold (0.01);
+
+    seg.setInputCloud (point_cloud_xyz_ptr );
+    seg.segment (*inliers, *coefficients);
+
+    if (inliers->indices.size () == 0)
+    {
+        PCL_ERROR ("Could not estimate a planar model for the given dataset.");
+        return;
+    }
+
+    std::cerr << "Model coefficients: " << coefficients->values[0] << " "
+              << coefficients->values[1] << " "
+              << coefficients->values[2] << " "
+              << coefficients->values[3] << std::endl;
+
+    std::cerr << "Model inliers: " << inliers->indices.size () << std::endl;
+}
+
+
+
 //void pcCodec::euclideanSegmentation(cv::Mat &pc){
 ////    // Read in the cloud data
 ////    pcl::PCDReader reader;
