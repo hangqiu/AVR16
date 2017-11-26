@@ -65,17 +65,7 @@ void Displayer::exit(){
 //}
 
 
-void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t flag, void* param) {
 
-    cv::Mat* PC =(cv::Mat*)param;
-    if (event == cv::EVENT_LBUTTONDOWN) {
-        if (!(*PC).empty()){
-            cout << "Point: (" << x << "," << y << "), PC: " << (*PC)(Rect(x,y,1,1)) << endl;
-        }else{
-            cout << "Invalid PC\n";
-        }
-    }
-}
 
 void Displayer::showCurDynamicFrame(int idx){
     AVRFrame currFrame;
@@ -117,11 +107,11 @@ char Displayer::showCurFrame(){
 void Displayer::showImgWithPC(cv::Mat& img, cv::Mat* PC, char * winName){
 //    if (VNode[0]->FrameLeft.empty()) return;
 //    char winName[100] = "Current Left Frame";
-    cv::namedWindow(winName);
+//    cv::namedWindow(winName);
     cv::imshow(winName, img);
     cv::setMouseCallback(winName, onMouseCallback_DisplayVoxel, PC);
-    char key = cv::waitKey(20);
-    processKey(key);
+//    char key = cv::waitKey(20);
+//    processKey(key);
 }
 
 void Displayer::processKey(char key){

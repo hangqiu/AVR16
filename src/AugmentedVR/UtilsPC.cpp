@@ -81,7 +81,7 @@ void transformPC_Via_TransformationMatrix(cv::Mat& Trc, cv::Mat& PCReceived, cv:
 //    PCChannels[1] = -PCChannels[1];
 //    PCChannels[2] = -PCChannels[2];
 
-    cout << Trc << endl;
+//    cout << Trc << endl;
 
     cv::Mat interRes[4][4];
     for (int i=0;i<3;i++){
@@ -89,7 +89,7 @@ void transformPC_Via_TransformationMatrix(cv::Mat& Trc, cv::Mat& PCReceived, cv:
         for (int j=0;j<3;j++){
             // watchout: T.at(row,col)
 //            cv::cuda::multiply(PCChannels[i], cv::Scalar(T.at<float>(i,j)), interRes[i][j]);
-            cout << Trc.at<float>(j,i) << endl;
+//            cout << Trc.at<float>(j,i) << endl;
             interRes[i][j] = PCChannels[i] * Trc.at<float>(j,i);
         }
     }
