@@ -189,6 +189,10 @@ void Displayer::pushPC_cvMat(cv::Mat &mat){
 //    PC_gpu.free(MEM_GPU);
 }
 
+void Displayer::pushPC_slMat_CPU(sl::Mat &mat){
+    mGLViewer->updatePointCloud_HostToDevice(mat);
+}
+
 void Displayer::showPC(cv::Mat mat) {
     pushPC_cvMat(mat);
 }

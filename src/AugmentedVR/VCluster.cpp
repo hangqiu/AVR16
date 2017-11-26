@@ -215,12 +215,13 @@ void VCluster::compressDynamic(){
 }
 
 void VCluster::RoadDetection(){
-//    cout << "compressing \n ";
     cv::Mat tmp;
     AVRFrame currFrame;
     VNode[0]->getCurrentAVRFrame(currFrame);
     currFrame.pointcloud.copyTo(tmp);
-    mCodec->planeSegmentation(tmp);
+    sl::Mat slpc;
+    mCodec->planeSegmentation(tmp, slpc);
+    mDisplayer->pushPC_slMat_CPU(slpc);
 }
 
 //void VCluster::segmentation(){
@@ -426,7 +427,7 @@ void VCluster::visualize(){
 //            }
         }
         else{
-            mDisplayer->showPC(currFrame.pointcloud);
+//            mDisplayer->showPC(currFrame.pointcloud);
         }
     }
 }

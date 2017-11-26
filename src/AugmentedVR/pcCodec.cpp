@@ -13,10 +13,15 @@ pcCodec::pcCodec(int width, int height) : width(width), height(height) {
 
     point_cloud_xyzrgba_ptr = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     point_cloud_xyz_ptr = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    point_cloud_xyz_ptr_lowRes = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
 
 //    point_cloud_xyzrgba_ptr->points.resize(height*width/15);
     point_cloud_xyzrgba_ptr->points.resize(height*width);
     point_cloud_xyz_ptr->points.resize(height*width);
+    point_cloud_xyz_ptr_lowRes->points.resize(height/resRatio*width/resRatio);
+
+    planeSeg_coefficients_ptr =  pcl::ModelCoefficients::Ptr(new pcl::ModelCoefficients);
+    planeSeg_inliers_ptr= pcl::PointIndices::Ptr(new pcl::PointIndices);
 }
 
 pcCodec::~pcCodec() {
@@ -86,6 +91,60 @@ bool pcCodec::cv2pcl_xyz(cv::Mat &pc){
             it.x = X;
             it.y = p_cloud[index4 * 4 + 1];
             it.z = p_cloud[index4 * 4 + 2];
+//            it.rgb = data_cloud[index4 * 4 + 3];
+        }
+        index4++;
+    }
+#ifdef EVAL
+    gettimeofday(&end,NULL);
+    cout << "Total conversion time: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000 << "ms" << endl;
+#endif
+//    cout << "finished conversion\n";
+    slpc.free(MEM_CPU);
+    return true;
+}
+
+
+bool pcCodec::cv2pcl_xyz_lowRes(cv::Mat &pc){
+
+
+    if (pc.empty()){
+        cout << "empty pc\n";
+        return false;
+    }
+    if (pc.cols != width || pc.rows != height) {
+        cerr << "Point cloud compression: matrix size doesn't match\n";
+        return false;
+    }
+
+    float* p_cloud;
+    sl::Mat slpc;
+    cvMat2slMat(pc,slpc, sl::MEM_CPU);
+    p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
+    // Fill the buffer
+//    mutex_input.lock(); // To prevent from data corruption
+//    memcpy(data_cloud, p_cloud, width * height * sizeof (float) * 4);
+//    mutex_input.unlock();
+
+//    int index4 = height*width/2;
+    int index4 = 0;
+
+#ifdef EVAL
+    timeval start,end;
+    gettimeofday(&start,NULL);
+#endif
+    // for rbga
+    for (auto &it : point_cloud_xyz_ptr_lowRes->points) {
+        int col = index4 % (width/resRatio);
+        int row = index4 / (width/resRatio);
+        int index = (row*width+col)*resRatio*4;
+        float X = p_cloud[index];
+        if (!isValidMeasure(X)) // Checking if it's a valid point
+            it.x = it.y = it.z = 0;
+        else {
+            it.x = X;
+            it.y = p_cloud[index + 1];
+            it.z = p_cloud[index + 2];
 //            it.rgb = data_cloud[index4 * 4 + 3];
         }
         index4++;
@@ -179,10 +238,10 @@ void pcCodec::encode(cv::Mat& pc){
 
 
 
-void pcCodec::planeSegmentation(cv::Mat &pc){
-    if (!cv2pcl_xyz(pc)) return;
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+void pcCodec::planeSegmentation(cv::Mat &pc, sl::Mat & slpc){
+//    if (!cv2pcl_xyz(pc)) return;
+    if (!cv2pcl_xyz_lowRes(pc)) return;
+
     // Create the segmentation object
     pcl::SACSegmentation<pcl::PointXYZ> seg;
     // Optional
@@ -190,23 +249,56 @@ void pcCodec::planeSegmentation(cv::Mat &pc){
     // Mandatory
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.01);
+    seg.setMaxIterations(1000);
+    seg.setDistanceThreshold (0.1);
 
-    seg.setInputCloud (point_cloud_xyz_ptr );
-    seg.segment (*inliers, *coefficients);
+    seg.setInputCloud (point_cloud_xyz_ptr_lowRes );
+    seg.segment (*planeSeg_inliers_ptr, *planeSeg_coefficients_ptr);
 
-    if (inliers->indices.size () == 0)
+    if (planeSeg_inliers_ptr->indices.size () == 0)
     {
         PCL_ERROR ("Could not estimate a planar model for the given dataset.");
         return;
     }
 
-    std::cerr << "Model coefficients: " << coefficients->values[0] << " "
-              << coefficients->values[1] << " "
-              << coefficients->values[2] << " "
-              << coefficients->values[3] << std::endl;
+    std::cerr << "Model coefficients: " << planeSeg_coefficients_ptr->values[0] << " "
+              << planeSeg_coefficients_ptr->values[1] << " "
+              << planeSeg_coefficients_ptr->values[2] << " "
+              << planeSeg_coefficients_ptr->values[3] << std::endl;
 
-    std::cerr << "Model inliers: " << inliers->indices.size () << std::endl;
+    std::cerr << "Model inliers: " << planeSeg_inliers_ptr->indices.size () << std::endl;
+
+    /// visual debug
+//    sl::Mat slpc;
+    cvMat2slMat(pc,slpc,sl::MEM_CPU);
+    float * p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
+    /// color all low res points
+    int index4 = 0;
+    for (auto &it : point_cloud_xyz_ptr_lowRes->points){
+        int col = index4 % (width/resRatio);
+        int row = index4 / (width/resRatio);
+        int index = (row*width+col)*resRatio*4;
+        p_cloud[index + 3] = 0xFFFFFFFF;
+        index4++;
+    }
+
+
+    /// color plane inliers
+    for (size_t i=0;i<planeSeg_inliers_ptr->indices.size();i++){
+        int col = planeSeg_inliers_ptr->indices[i] % (width/resRatio);
+        int row = planeSeg_inliers_ptr->indices[i] / (width/resRatio);
+        int index = (row*width+col)*resRatio*4;
+        /// color plane inliers
+        p_cloud[index + 3] = 0xFFFF00FF;
+        /// color plane
+        for (int j=1;j<resRatio-1;j++){
+            for (int k=1;k<resRatio-1;k++){
+                int idx = ((row*resRatio+j)*width+col*resRatio+k)*4;
+                p_cloud[idx + 3] = 0xFF0000FF;
+            }
+        }
+    }
+
 }
 
 

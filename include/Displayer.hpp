@@ -57,6 +57,8 @@ public:
 
     void pushPC_cvMat(cv::Mat &mat);
 
+    void pushPC_slMat_CPU(sl::Mat &mat);
+
 //    void debugPC(cv::Mat DebugPC);
 
     void showPC();

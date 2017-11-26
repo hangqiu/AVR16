@@ -58,10 +58,18 @@ class pcCodec {
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr point_cloud_xyzrgba_ptr;
     pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud_xyz_ptr;
+    int resRatio = 20;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud_xyz_ptr_lowRes;
+
+
+    pcl::ModelCoefficients::Ptr planeSeg_coefficients_ptr;
+    pcl::PointIndices::Ptr planeSeg_inliers_ptr;
 
     bool cv2pcl_xyzrgba(cv::Mat &pc);
 
     bool cv2pcl_xyz(cv::Mat &pc);
+
+    bool cv2pcl_xyz_lowRes(cv::Mat &pc);
 
     cv::Mat pcl2cv_xyz(cv::Mat &pc);
 
@@ -75,7 +83,7 @@ public:
 
     void encode(cv::Mat& pc);
 
-    void planeSegmentation(cv::Mat &pc);
+    void planeSegmentation(cv::Mat &pc, sl::Mat & slpc);
 
 //    void euclideanSegmentation(cv::Mat &pc);
 };
