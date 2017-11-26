@@ -109,3 +109,14 @@ void drawMatchedKeypoints(cv::Mat & img, cv::Point2f& kp1, cv::Point2f& kp2, str
     cv::putText(img, txtAtKp1, kp1, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,255,255));
 }
 
+void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t flag, void* param) {
+
+    cv::Mat* PC =(cv::Mat*)param;
+    if (event == cv::EVENT_LBUTTONDOWN) {
+        if (!(*PC).empty()){
+            cout << "Point: (" << x << "," << y << "), PC: " << (*PC)(cv::Rect(x,y,1,1)) << endl;
+        }else{
+            cout << "Invalid PC\n";
+        }
+    }
+}
