@@ -228,9 +228,13 @@ void VCluster::RoadDetection(){
     }
 
     cv::Mat tmp;
-    removePointCloud_HighLow(totalPC,tmp);
+//    removePointCloud_HighLow(totalPC,tmp);
+    totalPC.copyTo(tmp);
     sl::Mat slpc;
-    mCodec->planeSegmentation(tmp, slpc);
+//    mCodec->planeSegmentation(tmp, slpc);
+//    mCodec->planeSegmentation_ManualPlaneModel(tmp, slpc, 0,-1,0,5);
+    mCodec->planeSegmentation_ManualPlaneModel(tmp, slpc, -0.1, -0.924138, 0.17, 1.8);/// FOR PSA ROOF FOOTAGE
+
     mDisplayer->pushPC_slMat_CPU(slpc);
 }
 
@@ -402,8 +406,6 @@ void VCluster::visualize(){
                 /// received frame feature matching with curr frame, eval only
 //                VNode[0]->TransPCvsPC();
                 VNode[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxMotionVec, rx->RxTimeStamp);
-
-                RoadDetection();
             }
             /// Dead-Reckoning
 //            else{
@@ -425,8 +427,10 @@ void VCluster::visualize(){
             /// visualize
             if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
 
-                mDisplayer->showMergedPC(VNode[0]->transRxPC);
+                RoadDetection();
+//                    mDisplayer->showMergedPC(VNode[0]->transRxPC);
             }
+
 
             if(COOP){
                 cv::Mat nonOverlapingPC;

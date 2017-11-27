@@ -85,6 +85,8 @@ public:
 
     void planeSegmentation(cv::Mat &pc, sl::Mat & slpc);
 
+    void planeSegmentation_ManualPlaneModel(cv::Mat &pc, sl::Mat & slpc, float A, float B, float C, float D);
+
 //    void euclideanSegmentation(cv::Mat &pc);
 };
 
