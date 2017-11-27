@@ -341,6 +341,7 @@ void pcCodec::planeSegmentation_ManualPlaneModel(cv::Mat &pc, sl::Mat & slpc, fl
             cout << "inlier" << endl;
             /// color plane inliers
             p_cloud[index + 3] = 0xFFFF00FF;
+//            inliersIdx.push_back(index);
             /// color plane
             for (int j=1;j<resRatio-1;j++){
                 for (int k=1;k<resRatio-1;k++){

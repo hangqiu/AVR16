@@ -21,10 +21,10 @@ using namespace concurrency::streams;
 ObjReceiver::ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath) : myAVR(myAVR), RxCamId(CamId), commPath(commPath) {
 
 
-    initMySocket();
-
+    if (!OfflineTXRX){
+        initMySocket();
 //    initCPPREST();
-
+    }
 }
 
 ObjReceiver::~ObjReceiver() {
@@ -356,4 +356,60 @@ void ObjReceiver::readLowPassObjectMotionVec(int frameSeq, cv::Mat&ret){
     dynamicPCFile[LOWPASSMOTIONVEC]>> ret;
     dynamicPCFile.release();
 //    return ret;
+}
+
+
+void ObjReceiver::ReadFromDisk(int frameSeqRx){
+    cv::Mat RxFrame, RxPC, RxTCW, RxDynamicPC, RxMotionVec;
+    unsigned long long int timeRx = readTimeStamp(frameSeqRx);
+
+//    /// time sync module
+//    unsigned long long int CurrTS = myAVR->getCurrentAVRFrame_TimeStamp();
+//    while( timeRx < CurrTS || timeRx==0){
+//        frameSeqRx++;
+//        cout << "reading frame: "  << frameSeqRx;
+//        cout << "rx ts: " << timeRx << ", cur ts: " << CurrTS << endl;
+//        timeRx = readTimeStamp(frameSeqRx);
+//    }
+//    if (timeRx - CurrTS > 300){
+//        cout << "current frame lagging behind\n";
+//        cout << "rx ts: " << timeRx << ", cur ts: " << CurrTS << endl;
+////        return;
+//    }
+
+
+    readPC(frameSeqRx,RxPC);
+    if (RxPC.empty()) {
+        cerr << "VCluster::TXRX() can't load rx PC " << frameSeqRx << endl;
+//        return;
+    }
+    readTcw(frameSeqRx,RxTCW);
+    if (RxTCW.empty()) {
+        cerr << "VCluster::TXRX() can't load tcw " << frameSeqRx << endl;
+//        return;
+    }
+    /// basic info complete
+    myAVR->RxBuffer.put_PC(RxPC);
+    myAVR->RxBuffer.put_TCW(RxTCW);
+
+    /// not care whether others are atomic fow now
+    readFrame(frameSeqRx, RxFrame);
+    if (RxFrame.empty()){
+        cerr << "VCluster::TXRX() can't load rx frame " << frameSeqRx << endl;
+//        return;
+    }
+    myAVR->RxBuffer.put_FrameLeft(RxFrame);
+    if (DYNAMICS){
+        readDynamicPC(frameSeqRx,RxDynamicPC);
+        readLowPassObjectMotionVec(frameSeqRx, RxMotionVec);
+        if (RxDynamicPC.empty()){
+            cerr << "VCluster::TXRX() can't load rx dynamic frame " << frameSeqRx << endl;
+//            return;
+        }
+        myAVR->RxBuffer.put_dynamicPC(RxDynamicPC);
+        myAVR->RxBuffer.put_MotionVec(RxMotionVec);
+    }
+
+
+    myAVR->RxBuffer.finishReceivingFrame();
 }

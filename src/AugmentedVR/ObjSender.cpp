@@ -16,7 +16,9 @@ using namespace http::experimental::listener;
 
 ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPath(commPath) {
 //    initCPPREST();
-    initMySocket();
+    if (!OfflineTXRX){
+        initMySocket();
+    }
     sendFlag = false;
 
 }
