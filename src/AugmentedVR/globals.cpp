@@ -16,7 +16,7 @@ bool COOP = false;
 bool ReuseMap = false;
 //bool ReuseMap = true;
 
-bool OfflineTXRX = true;
+bool OfflineTXRX = false;
 bool Parallel_TXRX = false;
 
 int DEBUG = 1;

@@ -238,8 +238,8 @@ void VCluster::RoadDetection(){
 //    OccupancyGrid mGrid(1,1,-5.5,5.5,0,20);
 //    mGrid.ConvertPCAndSetOccupancyGrid_ManualPlaneModel(tmp, slpc, -0.1, -0.924138, 0.17, 1.8);/// FOR PSA ROOF FOOTAGE
 
-    PathPlanner mPathPlanner(1,1,-5.5,5.5,0,20);
-    mPathPlanner.PlanPath_AStar_ManualRoadModel(tmp,slpc,7,7,7,15,-0.1, -0.924138, 0.17, 1.8);/// FOR PSA ROOF FOOTAGE
+    PathPlanner mPathPlanner(0.5,0.5,-7,2,-5,40);
+    mPathPlanner.PlanPath_AStar_ManualRoadModel(tmp,slpc,-1,3,-1,30,-0.1, -0.924138, 0.18, 1.5,15,6);/// FOR PSA ROOF FOOTAGE
 
     mDisplayer->pushPC_slMat_CPU(slpc);
 }

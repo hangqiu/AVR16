@@ -4,6 +4,7 @@
 
 #include <queue>
 #include "PathPlanner.hpp"
+#include <complex>
 
 PathPlanner::PathPlanner(double gridWidth, double gridHeight, double XMin, double XMax, double ZMin, double ZMax) {
     mOccupancyGrid = new OccupancyGrid(gridWidth,gridHeight, XMin, XMax, ZMin, ZMax);
@@ -20,8 +21,12 @@ PathPlanner::~PathPlanner() {
     delete mOccupancyGrid;
 }
 
-gridInfo* PathPlanner::createAddGridInfo(int x, int z){
-    gridInfo* tmpNode = new gridInfo;
+gridInfo* PathPlanner::createAddCleanGridInfo(int x, int z){
+    gridInfo* tmpNode = searchGridInfo(x,z);
+    bool newGrid = (tmpNode==NULL);
+    if (newGrid){
+        tmpNode = new gridInfo;
+    }
     tmpNode->myCoords.x = x;
     tmpNode->myCoords.z = z;
     tmpNode->curShortestTime = 999999999;
@@ -31,7 +36,9 @@ gridInfo* PathPlanner::createAddGridInfo(int x, int z){
     tmpNode->considered = false;
     tmpNode->me=tmpNode;
     tmpNode->initialized = false;
-    grids.push_back(tmpNode);
+    if (newGrid){
+        grids.push_back(tmpNode);
+    }
     return tmpNode;
 }
 
@@ -46,8 +53,8 @@ gridInfo* PathPlanner::searchGridInfo(int x, int z){
 }
 
 void iterateNextNode(gridInfo& tmpNode, gridInfo* tmpNextNode, std::priority_queue<gridInfo>& mQueue){
-    int tmpATime = tmpNode.curATime + 1 + tmpNextNode->timeToGoal;
-    int tmpActualShortestTime = tmpNode.curShortestTime + 1;
+    double tmpATime = tmpNode.curShortestTime + 1 + tmpNextNode->timeToGoal;
+    double tmpActualShortestTime = tmpNode.curShortestTime + 1;
 //            int tmpShortestTime = tmpNode->curShortestTime + 1; // BFS assume unit cost
 
     if (tmpATime < tmpNextNode->curATime){
@@ -72,23 +79,77 @@ void iterateNextNode(gridInfo& tmpNode, gridInfo* tmpNextNode, std::priority_que
     }
 }
 
-bool PathPlanner::AStar(int srcX,int srcZ, int dstX, int dstZ){
+
+bool PathPlanner::IsValidGridWayPointWithEnoughSpaceForCar(gridInfo *gridNode){
+
+    double carWidth = 2.5;
+    double carLength = 4.5;
+    int XGrids = int(carWidth/mOccupancyGrid->gridWidth);
+    int ZGrids = int(carLength/mOccupancyGrid->gridHeight);
+    for (int i=0;i<XGrids;i++){
+        for (int j=0;j<ZGrids;j++){
+            if (searchGridInfo(gridNode->myCoords.x+i-XGrids/2,gridNode->myCoords.z+j-ZGrids/2)==NULL){
+                cout <<gridNode->myCoords.x <<"," << gridNode->myCoords.z << "Not a valid waypoint: "
+                     << "not enough space at " << gridNode->myCoords.x+i-XGrids/2 << "," <<gridNode->myCoords.z+j-ZGrids/2 << endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool PathPlanner::IsValidGridWayPointWithEnoughSpaceForCar(int x, int z){
+
+    double carWidth = 2.5;
+    double carLength = 4.5;
+    int XGrids = int(carWidth/mOccupancyGrid->gridWidth);
+    int ZGrids = int(carLength/mOccupancyGrid->gridHeight);
+    for (int i=0;i<XGrids;i++){
+        for (int j=0;j<ZGrids;j++){
+            if (searchGridInfo(x+i-XGrids/2,z+j-ZGrids/2)==NULL){
+                cout <<x <<"," << z << "Not a valid waypoint: "
+                     << "not enough space at " << x+i-XGrids/2 << "," <<z+j-ZGrids/2 << endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void PathPlanner::ResetGrids(){
+    for (int i=0;i<grids.size();i++){
+        delete grids[i];
+    }
+    grids.clear();
+}
+
+bool PathPlanner::AStar(double srcX,double srcZ, double dstX, double dstZ, double HorizonZMax=18, double HorizonZMin=6){
+    int srcXIdx = int((srcX - mOccupancyGrid->XMin) / mOccupancyGrid->gridWidth);
+    int srcZIdx = int((srcZ - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
+    int dstXIdx = int((dstX - mOccupancyGrid->XMin) / mOccupancyGrid->gridWidth);
+    int dstZIdx = int((dstZ - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
+    int HorizonZMaxIdx = int((HorizonZMax - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
+    int HorizonZMinIdx = int((HorizonZMin - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
+    //re-init grids
+    ResetGrids();
     /// fill in the info of each grid
     for (int i=0;i<mOccupancyGrid->XNum;i++){
         for (int j=0;j<mOccupancyGrid->ZNum;j++){
             /// add a node only if the occupancy grid is road, not occupied.
-            if (mOccupancyGrid->OccupancyStatus[i][j] > 0){
-                gridInfo* tmpNode = createAddGridInfo(i,j);
-                tmpNode->timeToGoal = abs(tmpNode->myCoords.x-srcX)+abs(tmpNode->myCoords.z-srcZ);
+            /// or beyond sensing range, which is assumed road
+            if (mOccupancyGrid->OccupancyStatus[i][j] > 0 || j>HorizonZMaxIdx || j< HorizonZMinIdx){
+                gridInfo* tmpNode = createAddCleanGridInfo(i, j);
+                tmpNode->timeToGoal = pow((tmpNode->myCoords.x-dstXIdx)*mOccupancyGrid->gridWidth,2)+
+                                      pow((tmpNode->myCoords.z-dstZIdx)*mOccupancyGrid->gridHeight,2);
                 tmpNode->initialized = true;
-                cout << "valid road grid, " << i << ", " << j << endl;
+//                cout << "valid road grid, " << i << ", " << j << endl;
             }
         }
     }
 
 
     std::priority_queue<gridInfo> mQueue;
-    gridInfo* start = searchGridInfo(srcX,srcZ);
+    gridInfo* start = searchGridInfo(srcXIdx,srcZIdx);
     if (start==NULL){
         cerr << "invalid src grid" << endl;
         return false;
@@ -99,34 +160,47 @@ bool PathPlanner::AStar(int srcX,int srcZ, int dstX, int dstZ){
 
     mQueue.push(*start);
     gridInfo tmpNode;
+    gridInfo* curNode_ptr;
     gridInfo* tmpNextNode;
     while(!mQueue.empty()){
         tmpNode = mQueue.top();
-//        tmpNode.considered = true;
+        curNode_ptr = searchGridInfo(tmpNode.myCoords.x,tmpNode.myCoords.z);
         mQueue.pop();
-        if (tmpNode.myCoords.x == dstX && tmpNode.myCoords.z == dstZ) break; ///found destination
+        if (tmpNode.myCoords.x == dstXIdx && tmpNode.myCoords.z == dstZIdx) break; ///found destination
 
-        tmpNextNode = searchGridInfo(tmpNode.myCoords.x-1,tmpNode.myCoords.z);
-        if (tmpNextNode!=NULL) iterateNextNode(tmpNode,tmpNextNode,mQueue);
-        tmpNextNode = searchGridInfo(tmpNode.myCoords.x,tmpNode.myCoords.z-1);
-        if (tmpNextNode!=NULL) iterateNextNode(tmpNode,tmpNextNode,mQueue);
-        tmpNextNode = searchGridInfo(tmpNode.myCoords.x+1,tmpNode.myCoords.z);
-        if (tmpNextNode!=NULL) iterateNextNode(tmpNode,tmpNextNode,mQueue);
         tmpNextNode = searchGridInfo(tmpNode.myCoords.x,tmpNode.myCoords.z+1);
-        if (tmpNextNode!=NULL) iterateNextNode(tmpNode,tmpNextNode,mQueue);
+        if (tmpNextNode!=NULL && IsValidGridWayPointWithEnoughSpaceForCar(tmpNextNode)) {
+            iterateNextNode(*curNode_ptr,tmpNextNode,mQueue);
+        }
+        tmpNextNode = searchGridInfo(tmpNode.myCoords.x-1,tmpNode.myCoords.z);
+        if (tmpNextNode!=NULL && IsValidGridWayPointWithEnoughSpaceForCar(tmpNextNode)) {
+            iterateNextNode(*curNode_ptr,tmpNextNode,mQueue);
+        }
+        tmpNextNode = searchGridInfo(tmpNode.myCoords.x+1,tmpNode.myCoords.z);
+        if (tmpNextNode!=NULL && IsValidGridWayPointWithEnoughSpaceForCar(tmpNextNode)) {
+            iterateNextNode(*curNode_ptr,tmpNextNode,mQueue);
+        }
 
-//        if (DEBUG) cout << tmpNode.name << " " << tmpNode.curShortestTime << endl;
+        cout << "CurrentNode: (" << tmpNode.myCoords.x << ", " << tmpNode.myCoords.z << "), Shortest Time: " << tmpNode.curShortestTime << endl;
     }
 //    if (DEBUG) cout << tmpNode.name << " " << tmpNode.curShortestTime << endl;
     /// set the route
     ClearRoute();
 
-    gridInfo* curNode = searchGridInfo(dstX,dstZ);
-    while (curNode->myCoords.x != srcX || curNode->myCoords.z != srcZ){
+    /// mark route from dst-- Note: it can only trace backward
+    gridInfo* curNode = searchGridInfo(dstXIdx,dstZIdx);
+    if (curNode==NULL) {
+        cerr << "Dest Idx Invalid" << endl;
+        return false;
+    }
+    while (curNode->myCoords.x != srcXIdx || curNode->myCoords.z != srcZIdx){
         int shortestTime = curNode->curShortestTime;
         route[curNode->myCoords.x][curNode->myCoords.z] = true;
         /// not a full path to src
-        if (curNode->shortestPrev==NULL) return false;
+        if (curNode->shortestPrev==NULL) {
+            cerr << "not a full path to src" << endl;
+            return false;
+        }
         curNode = curNode->shortestPrev;
     }
     return true;
@@ -142,14 +216,31 @@ void PathPlanner::ClearRoute(){
     }
 }
 
-void PathPlanner::PlanPath_AStar_ManualRoadModel(cv::Mat &pc, sl::Mat& slpc, int srcX,int srcZ, int dstX, int dstZ,
-                                                 float A, float B, float C, float D){
+void PathPlanner::PlanPath_AStar_ManualRoadModel(cv::Mat &pc, sl::Mat& slpc, double srcX,double srcZ, double dstX, double dstZ,
+                                                 float A, float B, float C, float D, double HorizonZMax, double HorizonZMin){
+    int srcXIdx = int((srcX - mOccupancyGrid->XMin) / mOccupancyGrid->gridWidth);
+    int HorizonZMaxIdx = int((HorizonZMax - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
+    int HorizonZMinIdx = int((HorizonZMin - mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
 
     mOccupancyGrid->ConvertPCAndSetOccupancyGrid_ManualPlaneModel(pc,slpc,A,B,C,D);
-    if (!AStar(srcX,srcZ,dstX,dstZ)) return;
+    /// a star can only trace backward, so swap src and dst
+    bool foundPath = true;
+    if (!AStar(srcX,srcZ,dstX,dstZ, HorizonZMax, HorizonZMin)) {
+        cerr << "Can't find a path" << endl;
+//        return;
+        foundPath = false;
+    }
 
     /// color route
     float * p_cloud = slpc.getPtr<float>(sl::MEM_CPU); // Get the pointer
+    int routeZIdx = mOccupancyGrid->ZNum;
+    /// search for the nearest blocking grid zidx
+    for (int z=HorizonZMinIdx+1;z<mOccupancyGrid->ZNum;z++){
+        if (mOccupancyGrid->OccupancyStatus[srcXIdx][z] < 0 && z > HorizonZMinIdx && z < HorizonZMaxIdx){
+            routeZIdx = z-int(3/mOccupancyGrid->gridHeight);break;
+        }
+    }
+
     for (int i=0;i<pc.cols;i++){
         for (int j=0;j<pc.rows;j++){
             int index = (j*pc.cols+i)*4;
@@ -158,15 +249,35 @@ void PathPlanner::PlanPath_AStar_ManualRoadModel(cv::Mat &pc, sl::Mat& slpc, int
             float y = p_cloud[index+1];
             float z = p_cloud[index+2];
 
-            int XIdx = int(x-mOccupancyGrid->XMin);
-            int ZIdx = int(z-mOccupancyGrid->ZMin);
+            int XIdx = int((x-mOccupancyGrid->XMin) / mOccupancyGrid->gridWidth);
+            int ZIdx = int((z-mOccupancyGrid->ZMin) / mOccupancyGrid->gridHeight);
             if (XIdx<0 || XIdx >= mOccupancyGrid->XNum || ZIdx < 0 || ZIdx >= mOccupancyGrid->ZNum) continue;
 
-            if (A*x+B*y+C*z+D<0 && route[XIdx][ZIdx]){
-                /// route on road
-                p_cloud[index+3] = 0xFFFF00FF;
+            if (foundPath){
+
+                if (A*x+B*y+C*z+D<0 && route[XIdx][ZIdx]){
+                    /// route on road
+                    /// color a narrower path
+                    double narrowRatio = 10;
+                    if ( (x > mOccupancyGrid->XMin + mOccupancyGrid->gridWidth * (XIdx + 0.5-1/narrowRatio) && x < mOccupancyGrid->XMin + mOccupancyGrid->gridWidth * (XIdx + 0.5+1/narrowRatio)) ||
+                         (z > mOccupancyGrid->ZMin + mOccupancyGrid->gridHeight * (ZIdx + 0.5-1/narrowRatio) && z < mOccupancyGrid->ZMin + mOccupancyGrid->gridHeight * (ZIdx + 0.5+1/narrowRatio)))
+                    {
+                        p_cloud[index+3] = 0xFFFF00FF;
+                    }
+                }
+            }
+            else{
+                if (A*x+B*y+C*z+D<0 && XIdx ==  srcXIdx && ZIdx < routeZIdx){
+                    /// route on road
+                    /// color a narrower path
+                    double narrowRatio = 10;
+                    if ( (x > mOccupancyGrid->XMin + mOccupancyGrid->gridWidth * (XIdx + 0.5-1/narrowRatio) && x < mOccupancyGrid->XMin + mOccupancyGrid->gridWidth * (XIdx + 0.5+1/narrowRatio)) ||
+                         (z > mOccupancyGrid->ZMin + mOccupancyGrid->gridHeight * (ZIdx + 0.5-1/narrowRatio) && z < mOccupancyGrid->ZMin + mOccupancyGrid->gridHeight * (ZIdx + 0.5+1/narrowRatio)))
+                    {
+                        p_cloud[index+3] = 0xFFFF00FF;
+                    }
+                }
             }
         }
     }
-
 }

@@ -47,12 +47,14 @@ void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(cv::Mat &pc, s
         for (int j=0;j<pc.rows;j++){
             int index = (j*pc.cols+i)*4;
             float x = p_cloud[index];
-            if (!isValidMeasure(x)) continue;
             float y = p_cloud[index+1];
             float z = p_cloud[index+2];
+            float rgba = p_cloud[index+3];
+            if (!isValidMeasure(x)) continue;
 
-            int XIdx = int(x-XMin);
-            int ZIdx = int(z-ZMin);
+
+            int XIdx = int((x-XMin) / gridWidth);
+            int ZIdx = int((z-ZMin) / gridHeight);
             if (XIdx<0 || XIdx >= XNum || ZIdx < 0 || ZIdx >= ZNum) continue;
 
             if (A*x+B*y+C*z+D<0){
@@ -74,8 +76,8 @@ void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(cv::Mat &pc, s
             float y = p_cloud[index+1];
             float z = p_cloud[index+2];
 
-            int XIdx = int(x-XMin);
-            int ZIdx = int(z-ZMin);
+            int XIdx = int((x-XMin) / gridWidth);
+            int ZIdx = int((z-ZMin) / gridHeight);
             if (XIdx<0 || XIdx >= XNum || ZIdx < 0 || ZIdx >= ZNum) continue;
 
             if (A*x+B*y+C*z+D<0 && OccupancyStatus[XIdx][ZIdx]>0){

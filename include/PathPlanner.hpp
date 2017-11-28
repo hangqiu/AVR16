@@ -16,19 +16,17 @@ struct coords{
 class gridInfo{
 public:
     coords myCoords;
-    int timeToGoal; // Sunday traffic
+    double timeToGoal;
     bool initialized;
-    int curShortestTime;
-    int curATime;
+    double curShortestTime;
+    double curATime;
     gridInfo* shortestNext;
     gridInfo* shortestPrev;
     bool considered;
     gridInfo* me;
 
     bool operator < ( const gridInfo gridInfoB) const{
-        return this->myCoords.x == gridInfoB.myCoords.x?
-               this->myCoords.z < gridInfoB.myCoords.z:
-               this->myCoords.x < gridInfoB.myCoords.x;
+        return this->curATime > gridInfoB.curATime;
     }
 };
 
@@ -45,21 +43,22 @@ class PathPlanner {
 public:
     PathPlanner(double gridWidth,double gridHeight,double XMin,double XMax,double ZMin,double ZMax);
     ~PathPlanner();
-    gridInfo* createAddGridInfo(int x, int z);
+    gridInfo* createAddCleanGridInfo(int x, int z);
     gridInfo* searchGridInfo(int x, int z);
-    bool AStar(int srcX, int srcZ, int dstX, int dstZ);
-
-    void PlanPath_AStar();
-
-    void PlanPath_AStar(cv::Mat &pc, sl::Mat &slpc, int srcX, int srcZ, int dstX, int dstZ);
-
-    void
-    PlanPath_AStar_ManualRoadModel(cv::Mat &pc, sl::Mat &slpc, int srcX, int srcZ, int dstX, int dstZ, float A, float B,
-                                   float C, float D);
 
     void ClearRoute();
 
-    void SetRoute();
+    void
+    PlanPath_AStar_ManualRoadModel(cv::Mat &pc, sl::Mat &slpc, double srcX, double srcZ, double dstX, double dstZ, float A,
+                                   float B, float C, float D, double HorizonZMax,double HorizonZMin);
+
+    bool AStar(double srcX, double srcZ, double dstX, double dstZ, double HorizonZMax,double HorizonZMin);
+
+    bool IsValidGridWayPointWithEnoughSpaceForCar(gridInfo *gridNode);
+
+    void ResetGrids();
+
+    bool IsValidGridWayPointWithEnoughSpaceForCar(int x, int y);
 };
 
 
