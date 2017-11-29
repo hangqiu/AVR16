@@ -18,14 +18,22 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
     timeRx=0;
 
     InitParameters init_parameters;
-    init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
-    init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY
+//    init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
     init_parameters.coordinate_units = UNIT_METER; // set meter as the OpenGL world will be in meters
     init_parameters.sdk_verbose = 1;
     /// ZED default is the same with ORBSLAM
 //    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
 //    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_LEFT_HANDED_Y_UP; // Unity's coordinate system is right_handed
-    init_parameters.svo_input_filename = VPath.c_str();
+    if(VPath != "live"){
+        /// footage mode
+        cout << "Footage Mode" << endl;
+        init_parameters.svo_input_filename = VPath.c_str();
+        init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY[
+    }else{
+        /// live mode
+        cout << "Live Mode" << endl;
+        init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
+    }
 
     RuntimeParameters runtime_parameters;
 //    runtime_parameters.sensing_mode = SENSING_MODE_FILL;

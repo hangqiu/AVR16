@@ -17,10 +17,10 @@ bool ReuseMap = false;
 //bool ReuseMap = true;
 
 bool OfflineTXRX = false;
-bool Parallel_TXRX = false;
-bool VehicleControl = true;
+bool Parallel_TXRX = true;
+bool VehicleControl = false;
 
-int DEBUG = 1;
+int DEBUG = 0;
 //bool VISUAL = false;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;

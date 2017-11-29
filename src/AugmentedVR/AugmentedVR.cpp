@@ -52,7 +52,7 @@ int AugmentedVR::initZEDCam(int startFrameID){
     cout << "ZED N°" << CamId << " -> Result : " << errorCode2str(err).c_str() << endl;
     if (err != sl::SUCCESS) {
         delete mZEDCam;
-        return 1;
+        std::exit(-1);
     }
     Resolution image_size = mZEDCam->getResolution();
     width = (int)image_size.width;
