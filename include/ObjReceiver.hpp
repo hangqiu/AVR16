@@ -74,6 +74,8 @@ public:
     void readObjectMotionVec(int frameSeq, cv::Mat&ret);
     void readLowPassObjectMotionVec(int frameSeq,cv::Mat&ret);
 
+    void ReadFromDisk(int frameSeqRx);
+
     http_response CheckResponse(const http_response &response);
     bool AskForLatestPC_TCW_TIME_CPPREST(AugmentedVR *Node);
 
