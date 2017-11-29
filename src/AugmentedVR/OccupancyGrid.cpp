@@ -20,12 +20,12 @@ OccupancyGrid::OccupancyGrid(double gridWidth,double gridHeight,double XMin,doub
             OccupancyStatus[i][j]=0;
         }
     }
-
+    roadOutputFile = ofstream("Road.txt");
 
 }
 
 OccupancyGrid::~OccupancyGrid(){
-
+    roadOutputFile.close();
 }
 
 void OccupancyGrid::ClearOccupancyStatus(){
@@ -36,7 +36,7 @@ void OccupancyGrid::ClearOccupancyStatus(){
     }
 }
 
-void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(cv::Mat &pc, sl::Mat &slpc, float A, float B, float C,
+void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(int frameSeq, cv::Mat &pc, sl::Mat &slpc, float A, float B, float C,
                                                                   float D){
     ///reset to 0
     ClearOccupancyStatus();
@@ -68,7 +68,10 @@ void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(cv::Mat &pc, s
     }
 
     /// color road plane as occupancy grid
+    int pointNum = 0;
+    double detectedRoadArea = 0;
     for (int i=0;i<pc.cols;i++){
+        bool gridIsRoad = false;
         for (int j=0;j<pc.rows;j++){
             int index = (j*pc.cols+i)*4;
             float x = p_cloud[index];
@@ -83,9 +86,19 @@ void OccupancyGrid::ConvertPCAndSetOccupancyGrid_ManualPlaneModel(cv::Mat &pc, s
             if (A*x+B*y+C*z+D<0 && OccupancyStatus[XIdx][ZIdx]>0){
                 /// road
                 p_cloud[index+3] = 0xFFFFFFFF;
+                pointNum ++;
+                gridIsRoad = true;
             }
         }
     }
+    for (int i=0;i<XNum;i++) {
+        for (int j = 0; j < ZNum; j++) {
+            if (OccupancyStatus[i][j]>0){
+                detectedRoadArea += gridWidth*gridHeight;
+            }
+        }
+    }
+    roadOutputFile << frameSeq << ", " << detectedRoadArea << "," <<pointNum << endl;
 }
 
 

@@ -18,6 +18,7 @@ bool ReuseMap = false;
 
 bool OfflineTXRX = false;
 bool Parallel_TXRX = false;
+bool VehicleControl = true;
 
 int DEBUG = 1;
 //bool VISUAL = false;

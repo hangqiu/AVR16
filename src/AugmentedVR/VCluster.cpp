@@ -6,7 +6,6 @@
 #include <include/UtilsCV.hpp>
 #include <include/UtilsPC.hpp>
 #include <include/OccupancyGrid.hpp>
-#include <include/PathPlanner.hpp>
 #include "VCluster.hpp"
 using namespace sl;
 
@@ -50,6 +49,9 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
 
     if (VISUAL) mDisplayer = new Displayer(VNode);
 
+    if (VehicleControl) {
+        mPathPlanner = new PathPlanner(0.5,0.5,-7,2,-5,40);
+    }
 
 
 
@@ -237,9 +239,12 @@ void VCluster::RoadDetection(){
 //    mCodec->planeSegmentation_ManualPlaneModel(tmp, slpc, -0.1, -0.924138, 0.17, 1.8);/// FOR PSA ROOF FOOTAGE
 //    OccupancyGrid mGrid(1,1,-5.5,5.5,0,20);
 //    mGrid.ConvertPCAndSetOccupancyGrid_ManualPlaneModel(tmp, slpc, -0.1, -0.924138, 0.17, 1.8);/// FOR PSA ROOF FOOTAGE
-
-    PathPlanner mPathPlanner(0.5,0.5,-7,2,-5,40);
-    mPathPlanner.PlanPath_AStar_ManualRoadModel(tmp,slpc,-1,3,-1,30,-0.1, -0.924138, 0.18, 1.5,15,6);/// FOR PSA ROOF FOOTAGE
+    int HorizonZMin = 6, HorizonZMax = 18;
+    if (RX){
+        HorizonZMin = 6;
+        HorizonZMax = 25;
+    }
+    mPathPlanner->PlanPath_AStar_ManualRoadModel(currFrame.frameSeq, tmp,slpc,-1,4,-2,30,-0.1, -0.924138, 0.2, 1.1,HorizonZMax,HorizonZMin);/// FOR PSA ROOF FOOTAGE, proves to be working on BMW roof mount, pretty robust and consistent
 
     mDisplayer->pushPC_slMat_CPU(slpc);
 }
@@ -390,8 +395,11 @@ void VCluster::visualize(){
             /// visualize
             if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
 
-                RoadDetection();
-//                    mDisplayer->showMergedPC(VNode[0]->transRxPC);
+                if (VehicleControl) {
+                    RoadDetection();
+                }else{
+                    mDisplayer->showMergedPC(VNode[0]->transRxPC);
+                }
             }
 
 
@@ -406,8 +414,11 @@ void VCluster::visualize(){
 //            }
         }
         else{
-//            mDisplayer->showPC(currFrame.pointcloud);
-            RoadDetection();
+            if (VehicleControl){
+                RoadDetection();
+            }else{
+                mDisplayer->showPC(currFrame.pointcloud);
+            }
         }
 
 

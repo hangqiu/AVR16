@@ -12,10 +12,11 @@
 #include "ObjSender.hpp"
 #include "globals.hpp"
 #include "pcCodec.hpp"
+#include "PathPlanner.hpp"
 
 class VCluster {
 private:
-
+    PathPlanner* mPathPlanner;
     Displayer* mDisplayer;
     ObjSender* mSender;
     ObjReceiver* mReceiver;
