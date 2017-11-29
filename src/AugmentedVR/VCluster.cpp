@@ -242,7 +242,7 @@ void VCluster::postProcess(){
 #endif
     VNode[0]->analyze();
 //    compressDynamic();
-    RoadDetection();
+//    RoadDetection();
 
     TXRX();
 //    TXRX_viaDisk();
