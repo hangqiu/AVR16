@@ -20,7 +20,7 @@ ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPa
         initMySocket();
     }
     sendFlag = false;
-
+    txstream = NULL;
 }
 
 ObjSender::~ObjSender() {
@@ -133,11 +133,13 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
 }
 
 void ObjSender::StreamPointCloud_Async(){
-    /// if the channel is in use, skip this frame
-    if (Sending) return;
-//    if (txstream!=NULL && txstream->joinable()) {
-//        txstream->join();
-//    }
+    if (ADAPTIVE_STREAMING){
+        /// if the channel is in use, skip this frame
+        if (Sending) return;
+        if (txstream!=NULL && txstream->joinable()) {
+            txstream->join();
+        }
+    }
     txstream = new thread(&ObjSender::StreamPointCloud, this);
 }
 
