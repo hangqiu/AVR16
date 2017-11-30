@@ -25,13 +25,15 @@ private:
     unsigned long long int timeRx;
 
     std::thread* displayThread;
+    bool live = false;
 
 public://public variables
     AugmentedVR** VNode;
 
 public:
     VCluster();
-    VCluster(bool live, const string mapFile, int argc, char** argv, string VPath);
+    VCluster(const string mapFile, string VPath);
+//    VCluster(bool live, const string mapFile, int argc, char** argv, string VPath);
     ~VCluster();
     void exit();
 

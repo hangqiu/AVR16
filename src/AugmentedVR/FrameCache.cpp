@@ -49,7 +49,8 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     gettimeofday(&start, NULL);
 //    cout << "grabZEDFrameOffline >>>>>>> PC thread starting at: " << double(start.tv_sec)*1000 + double(start.tv_usec) / 1000<< "ms" << endl;
 #endif
-    NewFrame.FrameLock.lock();
+
+    NewFrame.lockFrame();
     NewFrame.ZEDTS = mZEDCam->getCameraTimestamp();
     LatestZEDTS = NewFrame.ZEDTS;
     NewFrame.frameTS = (NewFrame.ZEDTS - startTS)/1000;
@@ -91,7 +92,7 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     cv::cvtColor(NewFrame.FrameLeft, NewFrame.FrameLeftGray, CV_BGR2GRAY);
     cv::cvtColor(NewFrame.FrameRight, NewFrame.FrameRightGray, CV_BGR2GRAY);
 
-    NewFrame.FrameLock.unlock();
+    NewFrame.unlockFrame();
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -207,15 +208,15 @@ bool FrameCache::LastFrame2FIFO(){
 
 void FrameCache::opticalFlowTrack_Curr2Last(){
     theBigLock.lock();
-    LastFrame.FrameLock.lock();
-    CurrentFrame.FrameLock.lock();
+    LastFrame.lockFrame();
+    CurrentFrame.lockFrame();
     calcOpticalFlow_Current2Last();
     FindHomographyMatrix_Curr2Last();
     if (fullBacklog){
         FindHomographyMatrix_Curr2CacheHead();
     }
-    CurrentFrame.FrameLock.unlock();
-    LastFrame.FrameLock.unlock();
+    CurrentFrame.unlockFrame();
+    LastFrame.unlockFrame();
     theBigLock.unlock();
 }
 
@@ -355,8 +356,8 @@ void FrameCache::FindHomographyMatrix_A2B(AVRFrame&A,AVRFrame&B, cv::Mat& ret){
 void FrameCache::updateMotionData_Curr2CacheHead(){
     assert(FullBacklogAfterSLAM());
 
-    CurrentFrame.FrameLock.lock();
-    fifo[fifoStartIndex].FrameLock.lock();
+    CurrentFrame.lockFrame();
+    fifo[fifoStartIndex].unlockFrame();
     //PC motion
     updateTransformationMatrix_Curr2CacheHead();
     tranformPointCloud_Curr2CacheHead();
@@ -364,8 +365,8 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     // filter dynamics
     CurrentFrame.MotionAnalysis();
 
-    fifo[fifoStartIndex].FrameLock.unlock();
-    CurrentFrame.FrameLock.unlock();
+    fifo[fifoStartIndex].lockFrame();
+    CurrentFrame.unlockFrame();
 }
 
 void FrameCache::updateCurrFrameMotionVec_Curr2CacheHead(){
@@ -457,6 +458,7 @@ void FrameCache::cacheExistingFeatureOfAllCacheFrame(){
     theBigLock.lock();
     for (int i=0;i<CacheSize;i++) {
         int idx = (fifoStartIndex + i) % CacheSize;
+        if (idx == -1) break;
         fifo[idx].CacheExistingFeature();
     }
     theBigLock.unlock();

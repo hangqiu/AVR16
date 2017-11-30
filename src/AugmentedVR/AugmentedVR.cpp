@@ -152,23 +152,23 @@ void AugmentedVR::SinkFrames(){
     mSLAM->mTracker_LoadNextFrameAsCurrent();
 }
 
-bool AugmentedVR::PrepareNextFrame() {
-
-
-#ifdef PIPELINE
-    thread prefetch(&AugmentedVR::grabNextZEDFrameOffline,this);
-//    thread feedslam(&AugmentedVR::FeedSlamNextFrame,this);
-#else
-    if (!grabNextZEDFrameOffline()) return false;
-    FeedSlamTheSlamFrame();
-#endif
-
-#ifdef PIPELINE
-    prefetch.join();
+//bool AugmentedVR::PrepareNextFrame() {
+//
+//
+//#ifdef PIPELINE
+//    thread prefetch(&AugmentedVR::grabNextZEDFrameOffline,this);
+//    thread feedslam(&AugmentedVR::FeedSlamTheSlamFrame,this);
+//#else
+//    if (!grabNextZEDFrameOffline()) return false;
+//    FeedSlamTheSlamFrame();
+//#endif
+//
+//#ifdef PIPELINE
+//    prefetch.join();
 //    feedslam.join();
-#endif
-    return true;
-}
+//#endif
+//    return true;
+//}
 
 void AugmentedVR::calcOpticalFlow(){
     if (!initialized){

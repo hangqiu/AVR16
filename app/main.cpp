@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
         cout << "Map File: " << mapFile << endl;
     }
 
-    mV = new VCluster(false, mapFile, argc, argv, VPath[0]);
+    mV = new VCluster(mapFile, VPath[0]);
 
 #ifdef EVAL
     gettimeofday(&tInit, NULL);

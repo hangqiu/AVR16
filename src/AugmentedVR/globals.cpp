@@ -4,8 +4,8 @@
 
 #include <opencv2/core/types.hpp>
 #include "globals.hpp"
+#include <sys/time.h>
 #include <string>
-
 
 
 using namespace std;
@@ -21,6 +21,7 @@ bool Parallel_TXRX = true;
 bool VehicleControl = false;
 
 int DEBUG = 0;
+bool LOCKDEBUG = false;
 //bool VISUAL = false;
 bool VISUAL = true;
 bool DEBUGVISUAL = true;
@@ -57,7 +58,7 @@ double PCConnectionThresh = 0.02;
 double MOTIONTHRESH_PERPIXEL = 0.08; //meters
 int PATCHSIZE = 10; // expand step x pixels
 
-double HEIGHT_THRESH = 2;
+double HEIGHT_THRESH = -2;
 
 bool INIT_FLAG = false;
 //bool EVAL = false;
@@ -130,8 +131,8 @@ int RxCamId = 1;
 //int CamId = 0;
 //int RxCamId = 1;
 
-int startFrameId = 90;
-int lengthInFrame = 100;
+int startFrameId = 0;
+int lengthInFrame = 999999999;
 
 timeval tInit;
 
@@ -194,4 +195,10 @@ void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out){
     merge(PCChannels,3,out);
 }
 
+double timeDifference_msec(timeval& startT, timeval& endT){
+    return double(endT.tv_sec-startT.tv_sec)*1000 + double(endT.tv_usec-startT.tv_usec) / 1000;
+}
 
+double timeDifference_sec(timeval& startT, timeval& endT){
+    return (double(endT.tv_sec-startT.tv_sec)*1000 + double(endT.tv_usec-startT.tv_usec) / 1000) / 1000;
+}

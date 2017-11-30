@@ -84,9 +84,23 @@ AVRFrame::~AVRFrame(){
 //    frame.sceneTransformMat.copyTo(sceneTransformMat);
 //}
 
-void AVRFrame::setFrom(AVRFrame& frame) {
-    frame.FrameLock.lock();
+void AVRFrame::lockFrame(){
     FrameLock.lock();
+    if (LOCKDEBUG){
+        cout << "Frame " << frameSeq << " locked" << endl;
+    }
+}
+
+void AVRFrame::unlockFrame(){
+    FrameLock.unlock();
+    if (LOCKDEBUG){
+        cout << "Frame " <<frameSeq << " unlocked" << endl;
+    }
+}
+
+void AVRFrame::setFrom(AVRFrame& frame) {
+    frame.lockFrame();
+    lockFrame();
 
     ZEDTS = frame.ZEDTS;
     frameTS = frame.frameTS;
@@ -120,8 +134,8 @@ void AVRFrame::setFrom(AVRFrame& frame) {
     frame.sceneTransformMat_Curr2Last.copyTo(sceneTransformMat_Curr2Last);
     frame.sceneTransformMat_Curr2CacheHead.copyTo(sceneTransformMat_Curr2CacheHead);
 
-    FrameLock.unlock();
-    frame.FrameLock.unlock();
+    unlockFrame();
+    frame.unlockFrame();
 }
 
 bool AVRFrame::isEmpty(){
@@ -130,30 +144,30 @@ bool AVRFrame::isEmpty(){
 
 
 void AVRFrame::getPointCloud(cv::Mat & ret){
-    FrameLock.lock();
+    lockFrame();
     pointcloud.copyTo(ret);
-    FrameLock.unlock();
+    unlockFrame();
 }
 
 int AVRFrame::getFrameTS(){
-    FrameLock.lock();
+    lockFrame();
     int ret = frameTS;
-    FrameLock.unlock();
+    unlockFrame();
     return ret;
 }
 
 void AVRFrame::detectNewFeature(){
-    FrameLock.lock();
+    lockFrame();
     detectKLTFeature(FrameLeftGray,keypoints);
-    FrameLock.unlock();
+    unlockFrame();
 }
 
 void AVRFrame::CacheExistingFeature(){
-    FrameLock.lock();
+    lockFrame();
     tracked_keypoints = keypoints;
     tracked_status = status;
     tracked_error = error;
-    FrameLock.unlock();
+    unlockFrame();
 }
 /// detect new feature and cache existing feature
 /// Warning: watch out the period of execution should be the same as the cachesize to ensure cachehead always has the same tracked feature
@@ -201,12 +215,8 @@ void AVRFrame::updateMotionMask_via_ThresholdingPCDisplacement(){
 
 void AVRFrame::removeMotionMaskHighLow(){
     assert(!MotionMask.empty());
-    //    Remove_HighLow
     cv::Mat tmpMask,tmpPC;
-    extractChannel(pointcloud,tmpPC,1);
-
-    cv::threshold( tmpPC, tmpMask, HEIGHT_THRESH, 255, cv::THRESH_BINARY_INV);
-    tmpMask.convertTo(tmpMask,CV_8U);
+    removePointCloud_HighLow(pointcloud,tmpPC,tmpMask);
     MotionMask &= tmpMask;
 }
 

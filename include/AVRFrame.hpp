@@ -10,6 +10,8 @@
 #include <sl/Core.hpp>
 
 class AVRFrame {
+private:
+    mutex FrameLock;
 public:
     AVRFrame();
 //    AVRFrame(const AVRFrame &frame);
@@ -18,6 +20,9 @@ public:
 //    AVRFrame(long ZEDTS, long FrameTS, int frameSeq, cv::Mat &FrameLeft, cv::Mat &FrameRight, cv::Mat &FrameLeftGray,
 //                 cv::Mat &FrameRightGray, cv::Mat &pointcloud, cv::Mat &PC_noColor, sl::Mat pointcloud_sl);
 
+    void lockFrame();
+
+    void unlockFrame();
 
     void setFrom(AVRFrame& frame);
 
@@ -30,7 +35,7 @@ public:
     bool isEmpty();
 
 
-    mutex FrameLock;
+
     //////////////////////////////////basic info/////////////////
     // Frame metaData
     unsigned long long int frameTS;
