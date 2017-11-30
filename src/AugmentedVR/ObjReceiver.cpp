@@ -170,7 +170,7 @@ void ObjReceiver::ReceivePointCloudStream(){
     ReceivePointCloudStream_ObjectMotionVec();
     cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
          << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
-         <<","<< myAVR->getCurrentAVRFrame_TimeStamp_ZEDTS() / 1000 ;
+         <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000 ;
     cout << ", Received Frame, " << seq
          << ", " << ts /1000
          << ", " << tsZED /1000

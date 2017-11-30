@@ -118,5 +118,6 @@ void cvMat2slMat(cv::Mat& input, sl::Mat& output, sl::MEM);
 void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out);
 double timeDifference_msec(timeval& start, timeval& end);
 double timeDifference_sec(timeval& start, timeval& end);
+unsigned long long getCurrentComputerTimeStamp_usec();
 
 #endif //PROJECT_GLOBALS_H
