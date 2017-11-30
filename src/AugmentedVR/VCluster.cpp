@@ -13,19 +13,30 @@ using namespace sl;
 //    if (VISUAL) mDisplayer = new Displayer(VNode);
 //}
 
-VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, string VPath="") {
+VCluster::VCluster(const string mapFile, string VPath="") {
     frameSeqRx = 220;
     timeRx=0;
 
     InitParameters init_parameters;
-    init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
-    init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY
+//    init_parameters.camera_resolution = RESOLUTION::RESOLUTION_HD720;
     init_parameters.coordinate_units = UNIT_METER; // set meter as the OpenGL world will be in meters
     init_parameters.sdk_verbose = 1;
     /// ZED default is the same with ORBSLAM
 //    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
 //    init_parameters.coordinate_system = COORDINATE_SYSTEM::COORDINATE_SYSTEM_LEFT_HANDED_Y_UP; // Unity's coordinate system is right_handed
-    init_parameters.svo_input_filename = VPath.c_str();
+    if(VPath != "live"){
+        /// footage mode
+        cout << "Footage Mode" << endl;
+        init_parameters.svo_input_filename = VPath.c_str();
+        init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY[
+    }else{
+        /// live mode
+        live = true;
+        cout << "Live Mode" << endl;
+        init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
+        init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
+        SHOW_CAMMOTION = false;
+    }
 
     RuntimeParameters runtime_parameters;
 //    runtime_parameters.sensing_mode = SENSING_MODE_FILL;
@@ -63,12 +74,8 @@ VCluster::VCluster(bool live, const string mapFile, int argc, char** argv, strin
 
 void VCluster::run(){
 #ifdef PIPELINE
-    thread analyze;
+    thread CPU_download;
 #endif
-
-
-//    std::thread* pauser = new thread(debugCin);
-//    debugPauser();
 
     char key = ' ';
     int count = 0;
@@ -81,14 +88,24 @@ void VCluster::run(){
     double slamTime=0;
     double totalTime=0;
 #endif
-    //loop until 'q' is pressed
+    ///loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
-    while (key != 'q' && !quit && VNode[0]->TotalFrameSeq < lengthInFrame) {
+    timeval FrameStartT, LastFrameStartT;
+    gettimeofday(&FrameStartT, NULL);
+    gettimeofday(&LastFrameStartT, NULL);
+    cout << "Total: " <<double(FrameStartT.tv_sec-LastFrameStartT.tv_sec)*1000 + double(FrameStartT.tv_usec-LastFrameStartT.tv_usec) / 1000<< "ms"<< endl;
+
+    while (key != 'q' && !quit && (VNode[0]->TotalFrameSeq < lengthInFrame || live )) {
 //        key = waitKey(20);
         FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
-        //Resize and imshow
-        cout << endl << "Next FrameID: " << VNode[0]->TotalFrameSeq << endl;
+        /// calc frame rate
+        gettimeofday(&FrameStartT, NULL);
+        double frameTime = double(FrameStartT.tv_sec-LastFrameStartT.tv_sec)*1000 + double(FrameStartT.tv_usec-LastFrameStartT.tv_usec) / 1000;
+        double frameRate = 1/frameTime *1000;
+        cout << "Total: " << frameTime<< "ms, "<< frameRate << "fps" << endl;
+        LastFrameStartT = FrameStartT;
+
 
         if (VISUAL) key = mDisplayer->showCurFrame();
 
@@ -96,73 +113,41 @@ void VCluster::run(){
         gettimeofday(&tFetchStart, NULL);
         gettimeofday(&tTotalStart, NULL);
 #endif
-#ifdef SIMPLEEVAL
-        timeval tTotalStart, tTotalEnd;
-        gettimeofday(&tTotalStart, NULL);
-#endif
+        if (!VNode[0]->grabNextZEDFrameOffline()) break;
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
+
+        cout << endl << "Next FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp()<<  endl;
+
 #ifdef PIPELINE
-        thread CPU_download(&VCluster::PreProcess, this);
+        if (CPU_download.joinable()) CPU_download.join();
+        CPU_download = thread(&VCluster::PreProcess, this);
 #else
         if (!PreProcess()) break;
 #endif
 #ifdef EVAL
         gettimeofday(&tFetchEnd, NULL);
-        cout << "TimeStamp: " << double(tFetchEnd.tv_sec-tInit.tv_sec)*1000 + double(tFetchEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "run >>>> Prepare Frame: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
+        cout << "TimeStamp: " << timeDifference_msec(tInit,tFetchEnd) << "ms: ";
+        cout << "run >>>> Prepare Frame: " << timeDifference_msec(tFetchStart,tFetchEnd) << "ms" << endl;
         gettimeofday(&tSlamStart, NULL);
-
-        prepFrameTime += double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000;
+        prepFrameTime += timeDifference_msec(tFetchStart,tFetchEnd);
 #endif
-        VNode[0]->trackCam(); // in post process now
+        VNode[0]->trackCam();
 
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
-        cout << "TimeStamp: " << double(tSlamEnd.tv_sec-tInit.tv_sec)*1000 + double(tSlamEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "run >>>> SLAM: " << double(tSlamEnd.tv_sec-tSlamStart.tv_sec)*1000 + double(tSlamEnd.tv_usec-tSlamStart.tv_usec) / 1000<< "ms" << endl;
+        cout << "TimeStamp: " << timeDifference_msec(tInit,tSlamEnd) << "ms: ";
+        cout << "run >>>> SLAM: " << timeDifference_msec(tSlamStart,tSlamEnd) << "ms" << endl;
         gettimeofday(&tCacheStart, NULL);
-        slamTime += double(tSlamEnd.tv_sec-tSlamStart.tv_sec)*1000 + double(tSlamEnd.tv_usec-tSlamStart.tv_usec) / 1000;
+        slamTime += timeDifference_msec(tSlamStart,tSlamEnd);
 #endif
-#ifdef PIPELINE
-        CPU_download.join();
-
-        if (analyze.joinable()){analyze.join();}
-#endif
-
-        /// have to STAGE CURRENT FRAME first! to prevent data race with cpu download thread
-#ifdef EVAL
-        gettimeofday(&tCacheStart, NULL);
-#endif
-
-
-
-#ifdef EVAL
-        gettimeofday(&tCacheEnd, NULL);
-        cout << "TimeStamp: " << double(tCacheEnd.tv_sec-tInit.tv_sec)*1000 + double(tCacheEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "run >>>> Cache to 3rd stage, Postprocess: " << double(tCacheEnd.tv_sec-tCacheStart.tv_sec)*1000 + double(tCacheEnd.tv_usec-tCacheStart.tv_usec) / 1000<< "ms" << endl;
-#endif
-
-#ifdef PIPELINE
-        analyze = thread(&VCluster::postProcess,this);
-#else
         postProcess();
-#endif
-
-
 #ifdef EVAL
         gettimeofday(&tTotalEnd, NULL);
-        cout << "TimeStamp: " << double(tTotalEnd.tv_sec-tInit.tv_sec)*1000 + double(tTotalEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "Total: " <<double(tTotalEnd.tv_sec-tTotalStart.tv_sec)*1000 + double(tTotalEnd.tv_usec-tTotalStart.tv_usec) / 1000<< "ms"<< endl;
-        totalTime += double(tTotalEnd.tv_sec-tTotalStart.tv_sec)*1000 + double(tTotalEnd.tv_usec-tTotalStart.tv_usec) / 1000;
+        cout << "TimeStamp: " << timeDifference_msec(tInit,tTotalEnd)<< "ms: ";
+        cout << "Total: " <<timeDifference_msec(tTotalStart,tTotalEnd)<< "ms"<< endl;
+        totalTime += timeDifference_msec(tTotalStart,tTotalEnd);
         cout << "Avg prep: " << prepFrameTime / count << ", slam: " << slamTime / count << ", total: " << totalTime / count << endl;
-#endif
-#ifdef SIMPLEEVAL
-        gettimeofday(&tTotalEnd, NULL);
-        //cout << "TimeStamp: " << double(tTotalEnd.tv_sec-tInit.tv_sec)*1000 + double(tTotalEnd.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
-        cout << "Total: " <<double(tTotalEnd.tv_sec-tTotalStart.tv_sec)*1000 + double(tTotalEnd.tv_usec-tTotalStart.tv_usec) / 1000<< "ms"<< endl;
-        totalTime += double(tTotalEnd.tv_sec-tTotalStart.tv_sec)*1000 + double(tTotalEnd.tv_usec-tTotalStart.tv_usec) / 1000;
-        cout << "Avg total: " << totalTime / count << endl;
 #endif
     }
 
@@ -170,9 +155,6 @@ void VCluster::run(){
 
         VNode[0]->mSLAM->SaveMap("Slam_latest_Map.bin");
     }
-#ifdef PIPELINE
-    analyze.join();
-#endif
 }
 
 
@@ -200,8 +182,11 @@ bool VCluster::PreProcess(){
     cout << "TimeStamp: " << double(start.tv_sec-tInit.tv_sec)*1000 + double(start.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "PreProcess starts" << endl;
 #endif
-    VNode[0]->calcOpticalFlow();
-    if (!(VNode[0]->PrepareNextFrame())) return false;
+
+
+    VNode[0]->FeedSlamTheSlamFrame();
+
+
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
@@ -266,6 +251,8 @@ void VCluster::postProcess(){
     cout << "TimeStamp: " << double(start.tv_sec-tInit.tv_sec)*1000 + double(start.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "postProcess starts" << endl;
 #endif
+
+    VNode[0]->calcOpticalFlow();
     VNode[0]->analyze();
 //    compressDynamic();
 
@@ -275,7 +262,9 @@ void VCluster::postProcess(){
         TXRX();
     }
 
-    visualize();
+    if (VISUAL){
+        visualize();
+    }
 #ifdef EVAL
     gettimeofday(&end, NULL);
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";

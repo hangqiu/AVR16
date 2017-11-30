@@ -21,7 +21,7 @@
 
 //#define EVAL
 //#define SIMPLEEVAL
-//#define PIPELINE
+#define PIPELINE
 
 #define PI 3.14159265
 
@@ -45,6 +45,7 @@ extern bool Parallel_TXRX;
 extern bool OfflineTXRX;
 extern bool VehicleControl;
 extern int DEBUG;
+extern bool LOCKDEBUG;
 extern bool VISUAL;
 extern bool DEBUGVISUAL;
 extern bool SLAMVISUAL;
@@ -115,5 +116,7 @@ extern bool quit;
 void slMat2cvMat(sl::Mat& input, cv::Mat& output);
 void cvMat2slMat(cv::Mat& input, sl::Mat& output, sl::MEM);
 void stripPointCloudColorChannel(cv::Mat& in, cv::Mat& out);
+double timeDifference_msec(timeval& start, timeval& end);
+double timeDifference_sec(timeval& start, timeval& end);
 
 #endif //PROJECT_GLOBALS_H

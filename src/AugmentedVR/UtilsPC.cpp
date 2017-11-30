@@ -131,12 +131,12 @@ void debugPC(cv::Mat DebugPC){
 }
 
 
-void removePointCloud_HighLow(cv::Mat &PCIn, cv::Mat & PCOut){
-    cv::Mat tmpMask,tmpPC;
+void removePointCloud_HighLow(cv::Mat &PCIn, cv::Mat & PCOut, cv::Mat & FilteringMask){
+    cv::Mat tmpPC;
     /// extract y channel
     extractChannel(PCIn,tmpPC,1);
 
-    cv::threshold( tmpPC, tmpMask, HEIGHT_THRESH, 255, cv::THRESH_BINARY_INV);
-    tmpMask.convertTo(tmpMask,CV_8U);
+    cv::threshold( tmpPC, FilteringMask, HEIGHT_THRESH, 255, cv::THRESH_BINARY_INV);
+    FilteringMask.convertTo(FilteringMask,CV_8U);
     PCIn.copyTo(PCOut);
 }
