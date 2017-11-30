@@ -100,7 +100,6 @@ void VCluster::run(){
         FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
         /// calc frame rate
-        cout << endl << "Next FrameID: " << VNode[0]->TotalFrameSeq << endl;
         gettimeofday(&FrameStartT, NULL);
         double frameTime = double(FrameStartT.tv_sec-LastFrameStartT.tv_sec)*1000 + double(FrameStartT.tv_usec-LastFrameStartT.tv_usec) / 1000;
         double frameRate = 1/frameTime *1000;
@@ -117,6 +116,9 @@ void VCluster::run(){
         if (!VNode[0]->grabNextZEDFrameOffline()) break;
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
+
+        cout << endl << "Next FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp()<<  endl;
+
 #ifdef PIPELINE
         if (CPU_download.joinable()) CPU_download.join();
         CPU_download = thread(&VCluster::PreProcess, this);

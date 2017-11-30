@@ -49,7 +49,7 @@ class ObjReceiver {
     mySocket mSock;
     int sockfd;
 
-    bool V2VDEBUG = true;
+    bool V2VDEBUG = false;
     int bufSize = 15;
 
     thread *rxstream;
@@ -82,8 +82,8 @@ public:
     /// in use
     void ReceiveLoop();
     void ReceivePointCloudStream();
-    void ReceivePointCloudStream_FrameSeq();
-    void ReceivePointCloudStream_TimeStamp();
+    int  ReceivePointCloudStream_FrameSeq();
+    int  ReceivePointCloudStream_TimeStamp();
     void ReceivePointCloudStream_TCW();
     void ReceivePointCloudStream_PC();
     void ReceivePointCloudStream_Frame();

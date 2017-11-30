@@ -22,8 +22,8 @@ bool VehicleControl = false;
 
 int DEBUG = 0;
 bool LOCKDEBUG = false;
-//bool VISUAL = false;
-bool VISUAL = true;
+bool VISUAL = false;
+//bool VISUAL = true;
 bool DEBUGVISUAL = true;
 bool SLAMVISUAL = true;
 bool PCVISUAL = true;

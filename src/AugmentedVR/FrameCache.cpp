@@ -22,7 +22,7 @@ FrameCache::FrameCache(){
     startTS = 0;
     fifoStartIndex = -1;
     fifoEndIndex = -1;
-    fifo = new  AVRFrame[CacheSize];
+    fifo = new AVRFrame[CacheSize];
 }
 FrameCache::FrameCache(int size){
     CacheSize = size;
@@ -357,7 +357,7 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     assert(FullBacklogAfterSLAM());
 
     CurrentFrame.lockFrame();
-    fifo[fifoStartIndex].unlockFrame();
+    fifo[fifoStartIndex].lockFrame();
     //PC motion
     updateTransformationMatrix_Curr2CacheHead();
     tranformPointCloud_Curr2CacheHead();
@@ -365,7 +365,7 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     // filter dynamics
     CurrentFrame.MotionAnalysis();
 
-    fifo[fifoStartIndex].lockFrame();
+    fifo[fifoStartIndex].unlockFrame();
     CurrentFrame.unlockFrame();
 }
 

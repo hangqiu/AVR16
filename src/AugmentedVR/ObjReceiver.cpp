@@ -48,7 +48,7 @@ void ObjReceiver::initMySocket(){
 }
 
 
-void ObjReceiver::ReceivePointCloudStream_FrameSeq(){
+int ObjReceiver::ReceivePointCloudStream_FrameSeq(){
     char seqsizebuf[bufSize+1];
     mSock.Receive(seqsizebuf,bufSize);
     int seqbufsize = stoi(seqsizebuf);
@@ -59,8 +59,10 @@ void ObjReceiver::ReceivePointCloudStream_FrameSeq(){
     if (V2VDEBUG)cout <<  "seq:" << seq << endl;
 //    myAVR->RxSeq = seq;
     myAVR->RxBuffer.put_Seq(seq);
+    return seq;
 }
-void ObjReceiver::ReceivePointCloudStream_TimeStamp(){
+
+int ObjReceiver::ReceivePointCloudStream_TimeStamp(){
     char tssizebuf[bufSize+1];
     mSock.Receive(tssizebuf,bufSize);
     int tsbufsize = stoi(tssizebuf);
@@ -71,6 +73,7 @@ void ObjReceiver::ReceivePointCloudStream_TimeStamp(){
     if (V2VDEBUG)cout << "ts:" << ts << endl;
 //    myAVR->RxTimeStamp = ts;
     myAVR->RxBuffer.put_TimeStamp(ts);
+    return ts;
 }
 void ObjReceiver::ReceivePointCloudStream_TCW(){
     char tcwsizebuf[bufSize+1];
@@ -142,8 +145,9 @@ void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
 }
 
 void ObjReceiver::ReceivePointCloudStream(){
-    ReceivePointCloudStream_FrameSeq();
-    ReceivePointCloudStream_TimeStamp();
+    int seq = ReceivePointCloudStream_FrameSeq();
+    int ts = ReceivePointCloudStream_TimeStamp();
+    cout << "Received Frame, " << seq << ", " << ts << endl;
     ReceivePointCloudStream_TCW();
     ReceivePointCloudStream_PC();
     ReceivePointCloudStream_Frame();
