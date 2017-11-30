@@ -279,7 +279,9 @@ public:
 
     void getCurrentAVRFrame_PointCloud(cv::Mat &ret);
 
-    unsigned long long int getCurrentAVRFrame_TimeStamp();
+    unsigned long long int getCurrentAVRFrame_TimeStamp_FrameTS();
+    unsigned long long int getCurrentAVRFrame_TimeStamp_ZEDTS();
+
 
     bool trackGood();
 

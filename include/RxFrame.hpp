@@ -14,6 +14,7 @@ private:
 public:
     int RxSeq;
     int RxTimeStamp;
+    unsigned long long RxTimeStamp_ZEDTS;
     cv::Mat RxFrameLeft;
     cv::Mat RxTCW;
     cv::Mat RxPC;

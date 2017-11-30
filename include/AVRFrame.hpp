@@ -38,8 +38,8 @@ public:
 
     //////////////////////////////////basic info/////////////////
     // Frame metaData
-    unsigned long long int frameTS;
-    unsigned long long int ZEDTS;
+    unsigned long long frameTS;
+    unsigned long long ZEDTS;
     int frameSeq;
 
     // ZED Data
