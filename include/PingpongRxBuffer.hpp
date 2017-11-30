@@ -24,6 +24,7 @@ public:
 //    void beginReceiving();
     void put_Seq(int seq);
     void put_TimeStamp(int ts);
+    void put_TimeStamp_ZEDTS(unsigned long long ts);
     void put_FrameLeft(cv::Mat & FrameLeft);
     void put_TCW(cv::Mat & TCW);
     void put_PC(cv::Mat & PC);

@@ -143,8 +143,12 @@ void AugmentedVR::getCurrentAVRFrame_PointCloud(cv::Mat &ret){
     frameCache.getCurrentFrame_PointCloud(ret);
 }
 
-unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp(){
-    return frameCache.getLatestFrameTS();
+unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp_FrameTS(){
+    return frameCache.getCurrentFrameTS();
+}
+
+unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp_ZEDTS(){
+    return frameCache.getCurrentZEDTS();
 }
 
 void AugmentedVR::SinkFrames(){

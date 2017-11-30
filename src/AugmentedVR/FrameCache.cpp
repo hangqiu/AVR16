@@ -137,21 +137,20 @@ void FrameCache::SinkFrames(){
 bool FrameCache::NextFrame2SlamFrame(){
     if (NextFrame.isEmpty()) return false;
     SlamFrame.setFrom(NextFrame);
-//    NextFrame.setFrom(AVRFrame());
     return true;
 }
 
 bool FrameCache::SlamFrame2CurrentFrame(){
     if (SlamFrame.isEmpty()) return false;
     CurrentFrame.setFrom(SlamFrame);
-//    SlamFrame.setFrom(AVRFrame());
+    CurrentFrameTS = CurrentFrame.frameTS;
+    CurrentZEDTS = CurrentFrame.ZEDTS;
     return true;
 }
 
 bool FrameCache::CurrentFrame2LastFrame(){
     if (CurrentFrame.isEmpty()) return false;
     LastFrame.setFrom(CurrentFrame);
-//    CurrentFrame.setFrom(AVRFrame());
     return true;
 }
 
@@ -476,6 +475,22 @@ unsigned long long int FrameCache::getLatestFrameTS()  {
     unsigned long long int ret;
     theBigLock.lock();
     ret = LatestFrameTS;
+    theBigLock.unlock();
+    return ret;
+}
+
+unsigned long long int FrameCache::getCurrentZEDTS()  {
+    unsigned long long int ret;
+    theBigLock.lock();
+    ret = CurrentZEDTS;
+    theBigLock.unlock();
+    return ret;
+}
+
+unsigned long long int FrameCache::getCurrentFrameTS()  {
+    unsigned long long int ret;
+    theBigLock.lock();
+    ret = CurrentFrameTS;
     theBigLock.unlock();
     return ret;
 }

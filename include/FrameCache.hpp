@@ -22,6 +22,8 @@ public:
     AVRFrame LastFrame;
     unsigned long long int LatestZEDTS;
     unsigned long long int LatestFrameTS;
+    unsigned long long int CurrentZEDTS;
+    unsigned long long int CurrentFrameTS;
 //    std::vector<AVRFrame> fifo;
     AVRFrame* fifo;
     int fifoStartIndex;
@@ -89,6 +91,8 @@ public:
 
     unsigned long long int getLatestZEDTS() ;
     unsigned long long int getLatestFrameTS();
+    unsigned long long int getCurrentZEDTS();
+    unsigned long long int getCurrentFrameTS();
 
     void updateCurrFrameFeature();
 

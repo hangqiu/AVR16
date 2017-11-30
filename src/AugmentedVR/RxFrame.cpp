@@ -16,6 +16,7 @@ void RxFrame::setFrom(RxFrame& Frame){
 
     RxSeq = Frame.RxSeq;
     RxTimeStamp = Frame.RxTimeStamp;
+    RxTimeStamp_ZEDTS = Frame.RxTimeStamp_ZEDTS;
     Frame.RxFrameLeft.copyTo(RxFrameLeft);
     Frame.RxTCW.copyTo(RxTCW);
     Frame.RxPC.copyTo(RxPC);

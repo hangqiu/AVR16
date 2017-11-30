@@ -90,22 +90,24 @@ void VCluster::run(){
 #endif
     ///loop until 'q' is pressed
     ////////////////////////////////////////////////////////////// main loop/////////////////////////////////////////////////
+#ifdef SIMPLEEVAL
     timeval FrameStartT, LastFrameStartT;
     gettimeofday(&FrameStartT, NULL);
     gettimeofday(&LastFrameStartT, NULL);
-    cout << "Total: " <<double(FrameStartT.tv_sec-LastFrameStartT.tv_sec)*1000 + double(FrameStartT.tv_usec-LastFrameStartT.tv_usec) / 1000<< "ms"<< endl;
-
+    cout << "Total: " <<timeDifference_msec(LastFrameStartT, FrameStartT) << "ms"<< endl;
+#endif
     while (key != 'q' && !quit && (VNode[0]->TotalFrameSeq < lengthInFrame || live )) {
 //        key = waitKey(20);
         FRAME_ID = VNode[0]->TotalFrameSeq;
         count++;
+#ifdef SIMPLEEVAL
         /// calc frame rate
         gettimeofday(&FrameStartT, NULL);
-        double frameTime = double(FrameStartT.tv_sec-LastFrameStartT.tv_sec)*1000 + double(FrameStartT.tv_usec-LastFrameStartT.tv_usec) / 1000;
+        double frameTime = timeDifference_msec(LastFrameStartT, FrameStartT);
         double frameRate = 1/frameTime *1000;
         cout << "Total: " << frameTime<< "ms, "<< frameRate << "fps" << endl;
         LastFrameStartT = FrameStartT;
-
+#endif
 
         if (VISUAL) key = mDisplayer->showCurFrame();
 
@@ -117,7 +119,7 @@ void VCluster::run(){
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
-        cout << endl << "Next FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp()<<  endl;
+        if (!RX) cout << endl << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
 
 #ifdef PIPELINE
         if (CPU_download.joinable()) CPU_download.join();

@@ -81,7 +81,8 @@ public:
     void StreamPointCloud();
     void StreamPointCloud_Async();
     void StreamPointCloud_FrameSeq(AVRFrame & Frame);
-    void StreamPointCloud_TimeStamp(AVRFrame & Frame);
+    void StreamPointCloud_TimeStamp_FrameTS(AVRFrame &Frame);
+    void StreamPointCloud_TimeStamp_ZEDTS(AVRFrame &Frame);
     void StreamPointCloud_TCW(AVRFrame & Frame);
     void StreamPointCloud_PC(AVRFrame & Frame);
     void StreamPointCloud_Frame(AVRFrame & Frame);

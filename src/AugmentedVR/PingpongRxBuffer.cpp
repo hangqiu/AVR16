@@ -24,6 +24,9 @@ void PingpongRxBuffer::put_Seq(int seq){
 void PingpongRxBuffer::put_TimeStamp(int ts){
     NextFrameBufferPtr->RxTimeStamp = ts;
 }
+void PingpongRxBuffer::put_TimeStamp_ZEDTS(unsigned long long ts){
+    NextFrameBufferPtr->RxTimeStamp = ts;
+}
 void PingpongRxBuffer::put_FrameLeft(cv::Mat & FrameLeft){
     FrameLeft.copyTo(NextFrameBufferPtr->RxFrameLeft);
 }
