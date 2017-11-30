@@ -42,6 +42,7 @@ extern bool DECOUPLE2IMG;
 extern bool SHOW_PC;
 extern bool LANDMARK_DISTVECTOR;
 extern bool Parallel_TXRX;
+extern bool ADAPTIVE_STREAMING;
 extern bool OfflineTXRX;
 extern bool VehicleControl;
 extern int DEBUG;

@@ -18,8 +18,8 @@ bool ReuseMap = false;
 
 bool OfflineTXRX = false;
 bool Parallel_TXRX = true;
-bool VehicleControl = false;
 bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
+bool VehicleControl = false;
 
 int DEBUG = 0;
 bool LOCKDEBUG = false;
