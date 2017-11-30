@@ -71,6 +71,9 @@ int AugmentedVR::initZEDCam(int startFrameID){
 
     /// Here starts the frame seq 0.
     startTS = frameCache.getLatestZEDTS();
+    /// re-caliberate the time to absolute timestamp
+    ZEDStartTSOffset = getCurrentComputerTimeStamp_usec()*1000 - mZEDCam->getCurrentTimestamp();
+
     frameCache.setStartTS(startTS);
     TotalFrameSeq = 0;
     grabNextZEDFrameOffline();
@@ -149,6 +152,10 @@ unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp_FrameTS(){
 
 unsigned long long int AugmentedVR::getCurrentAVRFrame_TimeStamp_ZEDTS(){
     return frameCache.getCurrentZEDTS();
+}
+
+unsigned long long int AugmentedVR::getCurrentAVRFrame_AbsoluteTimeStamp(){
+    return frameCache.getCurrentZEDTS() + ZEDStartTSOffset;
 }
 
 void AugmentedVR::SinkFrames(){

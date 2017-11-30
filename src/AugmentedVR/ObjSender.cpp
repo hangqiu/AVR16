@@ -72,7 +72,7 @@ void ObjSender::StreamPointCloud_TimeStamp_FrameTS(AVRFrame &Frame){
 
 
 void ObjSender::StreamPointCloud_TimeStamp_ZEDTS(AVRFrame &Frame){
-    string ts = std::to_string(Frame.ZEDTS);
+    string ts = std::to_string(Frame.ZEDTS + myAVR->ZEDStartTSOffset);
     txSize = ts.length()+1;
     if (V2VDEBUG)cout << "tsSize:" << txSize << endl;
     string txSizeStr = std::to_string(txSize);

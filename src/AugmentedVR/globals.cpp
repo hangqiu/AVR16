@@ -202,3 +202,10 @@ double timeDifference_msec(timeval& startT, timeval& endT){
 double timeDifference_sec(timeval& startT, timeval& endT){
     return (double(endT.tv_sec-startT.tv_sec)*1000 + double(endT.tv_usec-startT.tv_usec) / 1000) / 1000;
 }
+
+unsigned long long getCurrentComputerTimeStamp_usec(){
+    timeval ts;
+    gettimeofday(&ts,NULL);
+    unsigned long long ret = (ts.tv_sec*1000000 + ts.tv_usec);
+    return ret;
+}

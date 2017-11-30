@@ -54,6 +54,7 @@ void FrameCache::GrabNewZEDFrame(AVRFrame& NewFrame, Camera* mZEDCam, int width,
     NewFrame.ZEDTS = mZEDCam->getCameraTimestamp();
     LatestZEDTS = NewFrame.ZEDTS;
     NewFrame.frameTS = (NewFrame.ZEDTS - startTS)/1000;
+//    NewFrame.frameTS = getCurrentComputerTimeStamp_usec();
     LatestFrameTS = NewFrame.frameTS;
     NewFrame.frameSeq = seq;
 #ifdef EVAL
