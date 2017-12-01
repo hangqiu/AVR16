@@ -206,12 +206,12 @@ bool FrameCache::LastFrame2FIFO(){
 
 
 
-void FrameCache::opticalFlowTrack_Curr2Last(){
+void FrameCache::opticalFlowTrack(){
     theBigLock.lock();
     LastFrame.lockFrame();
     CurrentFrame.lockFrame();
     calcOpticalFlow_Current2Last();
-    FindHomographyMatrix_Curr2Last();
+//    FindHomographyMatrix_Curr2Last();
     if (fullBacklog){
         FindHomographyMatrix_Curr2CacheHead();
     }
@@ -269,10 +269,10 @@ bool FrameCache::calcOpticalFlow_Current2Last() {
     return true;
 }
 
-void FrameCache::FindHomographyMatrix_Curr2Last(){
-
-    FindHomographyMatrix_A2B(CurrentFrame,LastFrame, CurrentFrame.sceneTransformMat_Curr2Last);
-}
+//void FrameCache::FindHomographyMatrix_Curr2Last(){
+//
+//    FindHomographyMatrix_A2B(CurrentFrame,LastFrame, CurrentFrame.sceneTransformMat_Curr2Last);
+//}
 
 void FrameCache::FindHomographyMatrix_Curr2CacheHead(){
 
@@ -359,8 +359,8 @@ void FrameCache::updateMotionData_Curr2CacheHead(){
     CurrentFrame.lockFrame();
     fifo[fifoStartIndex].lockFrame();
     //PC motion
-    updateTransformationMatrix_Curr2CacheHead();
-    tranformPointCloud_Curr2CacheHead();
+    if (!updateTransformationMatrix_Curr2CacheHead()) return;
+    if(!tranformPointCloud_Curr2CacheHead())return;
     updateCurrFrameMotionVec_Curr2CacheHead();
     // filter dynamics
     CurrentFrame.MotionAnalysis();
@@ -373,12 +373,12 @@ void FrameCache::updateCurrFrameMotionVec_Curr2CacheHead(){
     CurrentFrame.PCMotionVec = CurrentFrame.transformedPointcloud - fifo[fifoStartIndex].pointcloud;
 }
 
-void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
+bool FrameCache::updateTransformationMatrix_Curr2CacheHead(){
     // w: world, l: last frame, c: current frame
     assert(FullBacklogAfterSLAM());
     if (fifo[fifoStartIndex].CamMotionMat.empty() || CurrentFrame.CamMotionMat.empty()) {
         cerr << "FrameCache::updateTransformationMatrix_Curr2CacheHead: No CamMotionMat\n";
-        return;
+        return false;
     }
     const cv::Mat Rcw = CurrentFrame.CamMotionMat.rowRange(0,3).colRange(0,3);
     const cv::Mat tcw = CurrentFrame.CamMotionMat.rowRange(0,3).col(3);
@@ -395,10 +395,13 @@ void FrameCache::updateTransformationMatrix_Curr2CacheHead(){
         cout << "tlc: \n" << CurrentFrame.TranslationMat_Curr2CacheHead << endl;
         cout << "Rlc: \n" << CurrentFrame.RotationMat_Curr2CacheHead << endl; // to see if Rlc is almost identity matrix
     }
+    return true;
 }
 
-void FrameCache::tranformPointCloud_Curr2CacheHead(){
+bool FrameCache::tranformPointCloud_Curr2CacheHead(){
+    if (CurrentFrame.sceneTransformMat_Curr2CacheHead.empty()) return false;
     CurrentFrame.tranformPointCloud_via_TransformationMat(CurrentFrame.sceneTransformMat_Curr2CacheHead);
+    return true;
 }
 
 

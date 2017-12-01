@@ -40,6 +40,7 @@ int mySocket::ReceiveAll(char* buf, int size){
     }
     if (numbytes != size){
         perror("received less than speced\n");
+        std::cout << numbytes << endl;
     }
     buf[numbytes]='\0';
     return numbytes;

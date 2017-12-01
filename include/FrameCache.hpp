@@ -59,7 +59,7 @@ public:
 
     void FindHomographyMatrix_A2B(AVRFrame&A,AVRFrame&B, cv::Mat &ret);
 
-    void opticalFlowTrack_Curr2Last();
+    void opticalFlowTrack();
 
     bool FullBacklogAfterSLAM();
 
@@ -67,9 +67,9 @@ public:
 
     void SinkFrames();
 
-    void updateTransformationMatrix_Curr2CacheHead();
+    bool updateTransformationMatrix_Curr2CacheHead();
 
-    void tranformPointCloud_Curr2CacheHead();
+    bool tranformPointCloud_Curr2CacheHead();
 
     void updateMotionData_Curr2CacheHead();
 
