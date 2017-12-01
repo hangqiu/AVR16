@@ -117,7 +117,13 @@ void VCluster::run(){
         gettimeofday(&tTotalStart, NULL);
 #endif
         /// break when footage runs out, not break for live mode
-        if (!live && !VNode[0]->grabNextZEDFrameOffline() ) break;
+        if (!VNode[0]->grabNextZEDFrameOffline() ) {
+            if(live){
+                continue;
+            }else{
+                break;
+            }
+        }
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
