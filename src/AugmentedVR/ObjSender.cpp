@@ -135,7 +135,10 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
 void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
-        if (IsSending()) return;
+        if (IsSending()) {
+            cout << "Sending Motion Vec Only for Frame " << FrameToSend.frameSeq << endl;
+            return;
+        }
         if (txstream!=NULL && txstream->joinable()) {
             txstream->join();
         }
