@@ -22,6 +22,7 @@ bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
 bool VehicleControl = false;
 
 int DEBUG = 0;
+bool V2VDEBUG = false;
 bool LOCKDEBUG = false;
 bool VISUAL = false;
 //bool VISUAL = true;

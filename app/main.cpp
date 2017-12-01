@@ -121,6 +121,7 @@ void loadParams(){
         if (toggleName.compare("PAUSE_FLAG")==0) PAUSE_FLAG = toggleValue.compare("true")==0;
         if (toggleName.compare("ZEDCACHESIZE")==0) ZEDCACHESIZE = stoi(toggleValue);
         if (toggleName.compare("MAX_COUNT")==0) MAX_COUNT = stoi(toggleValue);
+        if (toggleName.compare("V2VDEBUG")==0) V2VDEBUG = toggleValue.compare("true")==0;
     }
 
 }
