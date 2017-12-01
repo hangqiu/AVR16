@@ -5,7 +5,7 @@ false
 COOP
 false
 Parallel_TXRX
-false
+true
 ADAPTIVE_STREAMING
 true
 VehicleControl

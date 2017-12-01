@@ -125,13 +125,15 @@ void VCluster::run(){
                 break;
             }
         }
+#ifdef PIPELINE
+        if (CPU_download.joinable()) CPU_download.join();
+#endif
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
         if (!RX) cout << endl << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
 
 #ifdef PIPELINE
-        if (CPU_download.joinable()) CPU_download.join();
         CPU_download = thread(&VCluster::PreProcess, this);
 #else
         if (!PreProcess()) break;
