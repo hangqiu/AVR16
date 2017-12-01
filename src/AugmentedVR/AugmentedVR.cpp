@@ -99,7 +99,6 @@ void AugmentedVR::initSLAMStereo(string VocFile, string CalibrationFile, bool bR
 bool AugmentedVR::grabNextZEDFrameOffline() {
 
     if  (mZEDCam->grab(runtimeParameters) != SUCCESS){
-        cerr << "AugmentedVR::grabNextZEDFrameOffline: can't grab image" << endl;
         return false;
     }
 
