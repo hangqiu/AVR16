@@ -96,10 +96,15 @@ void ObjReceiver::ReceivePointCloudStream_TCW(){
     if (V2VDEBUG)cout << "tcwbufsize:" << tcwbufsize<< endl;
     char buf[tcwbufsize+1];
     mSock.Receive(buf,tcwbufsize);
-    cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
-    if (V2VDEBUG)cout << "tcw\n"  << tcw << endl;
+    if (tcwbufsize!=0){
+        cv::Mat tcw = cv::Mat(4,4,CV_32FC1, (void*)buf);
+        if (V2VDEBUG)cout << "tcw\n"  << tcw << endl;
 //    tcw.copyTo(myAVR->RxTCW);
-    myAVR->RxBuffer.put_TCW(tcw);
+        myAVR->RxBuffer.put_TCW(tcw);
+    }else{
+        cv::Mat tmp;
+        myAVR->RxBuffer.put_TCW(tmp);
+    }
 }
 void ObjReceiver::ReceivePointCloudStream_PC(){
 #ifdef EVAL
@@ -142,7 +147,7 @@ void ObjReceiver::ReceivePointCloudStream_Frame(){
 //        img.copyTo(myAVR->RxFrame);
         myAVR->RxBuffer.put_FrameLeft(img);
     }
-    if (V2VDEBUG)cv::imshow("received frame", img);
+    if (V2VDEBUG && VISUAL)cv::imshow("received frame", img);
     free(imgbuf);
 }
 void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
@@ -152,10 +157,15 @@ void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
     if (V2VDEBUG)cout << "mvbufsize:" << mvbufsize<< endl;
     char buf[mvbufsize+1];
     mSock.Receive(buf,mvbufsize);
-    cv::Mat mv = cv::Mat(1,1,CV_32FC3, (void*)buf);
-    mv.copyTo(myAVR->RxMotionVec);
-    myAVR->RxBuffer.put_MotionVec(mv);
-    if (V2VDEBUG)cout << "mv\n"  << mv << endl;
+    if (mvbufsize!=0){
+        cv::Mat mv = cv::Mat(1,1,CV_32FC3, (void*)buf);
+        mv.copyTo(myAVR->RxMotionVec);
+        myAVR->RxBuffer.put_MotionVec(mv);
+        if (V2VDEBUG)cout << "mv\n"  << mv << endl;
+    }else{
+        cv::Mat tmp;
+        myAVR->RxBuffer.put_MotionVec(tmp);
+    }
 }
 
 void ObjReceiver::ReceivePointCloudStream(){

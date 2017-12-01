@@ -291,6 +291,8 @@ void VCluster::TXRX(){
 
 
     if (TX && SEND) {
+        /// get the frame now before it gets sinked, and then fork off
+        VNode[0]->getCurrentAVRFrame(mSender->FrameToSend);
         /// sending objects
         if (!Parallel_TXRX){
             mSender->StreamPointCloud();
