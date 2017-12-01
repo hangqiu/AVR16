@@ -191,7 +191,7 @@ void AugmentedVR::calcOpticalFlow(){
         frameCache.updateLastFrameFeature();
         frameCache.cacheExistingFeatureOfAllCacheFrame();
     }
-    frameCache.opticalFlowTrack_Curr2Last();
+    frameCache.opticalFlowTrack();
 }
 
 
