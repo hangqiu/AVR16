@@ -290,7 +290,7 @@ public:
     void TransPCvsPC();
     void TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, int rxTS);
 
-    void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, int TSdiff);
+    void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, unsigned long long TSdiff);
 };
 
 

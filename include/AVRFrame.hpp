@@ -90,7 +90,7 @@ public:
 
     void getPointCloud(cv::Mat & ret);
 
-    int getFrameTS();
+    unsigned long long getFrameTS();
 
     void updateMotionData();
 

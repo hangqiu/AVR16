@@ -208,108 +208,108 @@ void ObjSender::writeFrameInSeparateFile(){
 }
 
 
-void ObjSender::PrepFileStorageBuffer(cv::FileStorage & buf){
-    AVRFrame Frame;
-    myAVR->getLastAVRFrame(Frame);
-    cv::Mat tcw;
-    int frameseq = Frame.frameSeq;
-    int ts = int(Frame.frameTS);
-    Frame.CamMotionMat.copyTo(tcw);
-    char tmpstr[100];
-    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), Frame.frameSeq);
-    buf.open(commPath+tmpstr, cv::FileStorage::WRITE | cv::FileStorage::MEMORY | cv::FileStorage::FORMAT_YAML);/// when memory is specified, filename is just the format
-    buf << SEQNO.c_str() << frameseq;
+//void ObjSender::PrepFileStorageBuffer(cv::FileStorage & buf){
+//    AVRFrame Frame;
+//    myAVR->getLastAVRFrame(Frame);
+//    cv::Mat tcw;
+//    int frameseq = Frame.frameSeq;
+//    int ts = int(Frame.frameTS);
+//    Frame.CamMotionMat.copyTo(tcw);
+//    char tmpstr[100];
+//    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+//            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), Frame.frameSeq);
+//    buf.open(commPath+tmpstr, cv::FileStorage::WRITE | cv::FileStorage::MEMORY | cv::FileStorage::FORMAT_YAML);/// when memory is specified, filename is just the format
+//    buf << SEQNO.c_str() << frameseq;
+////    SenderBuffer << FRAME << currFrame.FrameLeft;
+//    buf << TCW.c_str() << tcw;
+//    buf << TIMESTAMP.c_str() << ts;
+////    SenderBuffer << PC << currFrame.pointcloud;
+//}
+
+//void ObjSender::PrepSenderBuffer(){
+//    AVRFrame currFrame;
+//    myAVR->getCurrentAVRFrame(currFrame);
+//    char tmpstr[100];
+//    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+//            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+//    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
+//    SenderBuffer << SEQNO << currFrame.frameSeq;
+////    SenderBuffer << FRAME << currFrame.FrameLeft;
+//    SenderBuffer << TCW << currFrame.CamMotionMat;
+//    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
+////    SenderBuffer << PC << currFrame.pointcloud;
+//}
+
+//char* ObjSender::writeFullFrame_PC_TCW_Time_Memory(){
+//    char tmpstr[100];
+//    AVRFrame currFrame;
+//    myAVR->getCurrentAVRFrame(currFrame);
+//    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+//            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+//    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
 //    SenderBuffer << FRAME << currFrame.FrameLeft;
-    buf << TCW.c_str() << tcw;
-    buf << TIMESTAMP.c_str() << ts;
+//    SenderBuffer << TCW << currFrame.CamMotionMat;
+//    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
 //    SenderBuffer << PC << currFrame.pointcloud;
-}
+////    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+////    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+////    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+////    WholeFrame.release();
+//    return tmpstr;
+//}
 
-void ObjSender::PrepSenderBuffer(){
-    AVRFrame currFrame;
-    myAVR->getCurrentAVRFrame(currFrame);
-    char tmpstr[100];
-    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
-    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
-    SenderBuffer << SEQNO << currFrame.frameSeq;
-//    SenderBuffer << FRAME << currFrame.FrameLeft;
-    SenderBuffer << TCW << currFrame.CamMotionMat;
-    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
-//    SenderBuffer << PC << currFrame.pointcloud;
-}
-
-char* ObjSender::writeFullFrame_PC_TCW_Time_Memory(){
-    char tmpstr[100];
-    AVRFrame currFrame;
-    myAVR->getCurrentAVRFrame(currFrame);
-    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
-    SenderBuffer.open(commPath+tmpstr, cv::FileStorage::WRITE + cv::FileStorage::MEMORY);/// when memory is specified, filename is just the format
-    SenderBuffer << FRAME << currFrame.FrameLeft;
-    SenderBuffer << TCW << currFrame.CamMotionMat;
-    SenderBuffer << TIMESTAMP << (int)currFrame.frameTS;
-    SenderBuffer << PC << currFrame.pointcloud;
-//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
-//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
-//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
-//    WholeFrame.release();
-    return tmpstr;
-}
-
-char* ObjSender::writeFullFrame_PC_TCW_Time(){
-    char tmpstr[100];
-    AVRFrame currFrame;
-    myAVR->getCurrentAVRFrame(currFrame);
-    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
-            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
-    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
-    WholeFrame << FRAME << currFrame.FrameLeft;
-    WholeFrame << TCW << currFrame.CamMotionMat;
-    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
-    WholeFrame << PC << currFrame.pointcloud;
-//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
-//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
-//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
-    WholeFrame.release();
-    return tmpstr;
-}
-
-char* ObjSender::writePC_TCW_Time(){
-    char tmpstr[100];
-    AVRFrame currFrame ;
-    myAVR->getCurrentAVRFrame(currFrame);
-    sprintf(tmpstr, "/cam%d/%s_%s_%d.yml", myAVR->CamId,
-            TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
-    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
+//char* ObjSender::writeFullFrame_PC_TCW_Time(){
+//    char tmpstr[100];
+//    AVRFrame currFrame;
+//    myAVR->getCurrentAVRFrame(currFrame);
+//    sprintf(tmpstr, "/cam%d/%s_%s_%s_%d.yml", myAVR->CamId,
+//            FRAME.c_str(), TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+//    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
 //    WholeFrame << FRAME << currFrame.FrameLeft;
-    WholeFrame << TCW << currFrame.CamMotionMat;
-    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
-    WholeFrame << PC << currFrame.pointcloud;
-//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
-//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
-//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
-    WholeFrame.release();
-    return tmpstr;
-}
-
-char* ObjSender::writeWholeFrameWithFullMetaData(){
-    char tmpstr[100];
-    AVRFrame currFrame;
-    myAVR->getCurrentAVRFrame(currFrame);
-    sprintf(tmpstr, "/cam%d/Frame%d.yml", myAVR->CamId, currFrame.frameSeq);
-    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
-//    WholeFrame << FRAME << currFrame.FrameLeft;
-    WholeFrame << TCW << currFrame.CamMotionMat;
+//    WholeFrame << TCW << currFrame.CamMotionMat;
 //    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
-    WholeFrame << PC << currFrame.pointcloud;
-//    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
-//    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
-//    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
-    WholeFrame.release();
-    return tmpstr;
-}
+//    WholeFrame << PC << currFrame.pointcloud;
+////    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+////    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+////    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+//    WholeFrame.release();
+//    return tmpstr;
+//}
+
+//char* ObjSender::writePC_TCW_Time(){
+//    char tmpstr[100];
+//    AVRFrame currFrame ;
+//    myAVR->getCurrentAVRFrame(currFrame);
+//    sprintf(tmpstr, "/cam%d/%s_%s_%d.yml", myAVR->CamId,
+//            TCW.c_str(), TIMESTAMP.c_str(), currFrame.frameSeq);
+//    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
+////    WholeFrame << FRAME << currFrame.FrameLeft;
+//    WholeFrame << TCW << currFrame.CamMotionMat;
+//    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
+//    WholeFrame << PC << currFrame.pointcloud;
+////    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+////    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+////    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+//    WholeFrame.release();
+//    return tmpstr;
+//}
+
+//char* ObjSender::writeWholeFrameWithFullMetaData(){
+//    char tmpstr[100];
+//    AVRFrame currFrame;
+//    myAVR->getCurrentAVRFrame(currFrame);
+//    sprintf(tmpstr, "/cam%d/Frame%d.yml", myAVR->CamId, currFrame.frameSeq);
+//    WholeFrame.open(commPath+tmpstr, cv::FileStorage::WRITE);
+////    WholeFrame << FRAME << currFrame.FrameLeft;
+//    WholeFrame << TCW << currFrame.CamMotionMat;
+////    WholeFrame << TIMESTAMP << (int)currFrame.frameTS;
+//    WholeFrame << PC << currFrame.pointcloud;
+////    WholeFrame << DYNAMICPC << currFrame.DynamicPC;
+////    WholeFrame << MOTIONVEC <<  currFrame.ObjectMotionVec;
+////    WholeFrame << LOWPASSMOTIONVEC <<  currFrame.LowPass_ObjectMotionVec;
+//    WholeFrame.release();
+//    return tmpstr;
+//}
 
 void ObjSender::writeCurrentFrame(){
     char tmpstr[100];

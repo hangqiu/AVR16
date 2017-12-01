@@ -83,8 +83,8 @@ public:
     void ReceiveLoop();
     void ReceivePointCloudStream();
     int  ReceivePointCloudStream_FrameSeq();
-    int  ReceivePointCloudStream_TimeStamp_FrameTS();
-    unsigned long long int  ReceivePointCloudStream_TimeStamp_ZEDTS();
+    unsigned long long  ReceivePointCloudStream_TimeStamp_FrameTS();
+    unsigned long long  ReceivePointCloudStream_TimeStamp_ZEDTS();
     void ReceivePointCloudStream_TCW();
     void ReceivePointCloudStream_PC();
     void ReceivePointCloudStream_Frame();

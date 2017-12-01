@@ -668,10 +668,10 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, i
 
         cout << "Current TS: " << cur.frameTS << endl;
         cout << "Rx TS:" << rxTS << endl;
-        cout << "TS diff: " << int(cur.frameTS)-rxTS << endl;
+        cout << "TS diff: " << cur.frameTS-rxTS << endl;
 //        debugPC(transRxPC);
     }
-    LatencyCompensation(rxMV, transRxPC, int(cur.frameTS)-rxTS);
+    LatencyCompensation(rxMV, transRxPC, cur.frameTS-rxTS);
 //    if (DEBUG)debugPC(transRxPC);
 }
 
@@ -722,7 +722,7 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, i
 //}
 
 
-void AugmentedVR::LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, int TSdiff){
+void AugmentedVR::LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, unsigned long long TSdiff){
 
     cv::Mat tmp;
 //    cout << RxMotionVec << endl;
