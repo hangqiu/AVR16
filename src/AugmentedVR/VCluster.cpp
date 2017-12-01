@@ -35,6 +35,7 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         cout << "Live Mode" << endl;
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
+        init_parameters.camera_fps = 15; /// lowest possible
         SHOW_CAMMOTION = false;
     }
 
@@ -115,7 +116,8 @@ void VCluster::run(){
         gettimeofday(&tFetchStart, NULL);
         gettimeofday(&tTotalStart, NULL);
 #endif
-        if (!VNode[0]->grabNextZEDFrameOffline()) break;
+        /// break when footage runs out, not break for live mode
+        if (!live && !VNode[0]->grabNextZEDFrameOffline() ) break;
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
