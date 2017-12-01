@@ -100,7 +100,6 @@ void VCluster::run(){
     while (key != 'q' && !quit && (VNode[0]->TotalFrameSeq < lengthInFrame || live )) {
 //        key = waitKey(20);
         FRAME_ID = VNode[0]->TotalFrameSeq;
-        count++;
 #ifdef SIMPLEEVAL
         /// calc frame rate
         gettimeofday(&FrameStartT, NULL);
@@ -118,9 +117,11 @@ void VCluster::run(){
 #endif
         /// break when footage runs out, not break for live mode
         if (!VNode[0]->grabNextZEDFrameOffline() ) {
-            if(live){
+            if (live){
                 continue;
-            }else{
+            }
+            else{
+                cerr << "AugmentedVR::grabNextZEDFrameOffline: can't grab image" << endl;
                 break;
             }
         }

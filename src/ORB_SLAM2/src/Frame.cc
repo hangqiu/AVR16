@@ -92,11 +92,12 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "Prepare Next>>>>>> SLAM Feature detect: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
-
-    if(mvKeys.empty())
-        return;
-
     N = mvKeys.size();
+
+    if(mvKeys.empty()) {
+        return;
+    }
+
 
     UndistortKeyPoints();
 #ifdef EVAL
@@ -489,6 +490,8 @@ void Frame::ComputeStereoMatches()
     mvuRight = vector<float>(N,-1.0f);
     mvDepth = vector<float>(N,-1.0f);
 
+    const int thOrbDist = (ORBmatcher::TH_HIGH+ORBmatcher::TH_LOW)/2;
+
     const int nRows = mpORBextractorLeft->mvImagePyramid[0].rows;
 
     //Assign keypoints to row table
@@ -513,7 +516,7 @@ void Frame::ComputeStereoMatches()
 
     // Set limits for search
     const float minZ = mb;
-    const float minD = -3;
+    const float minD = 0;
     const float maxD = mbf/minZ;
 
     // For each left keypoint search a match in the right image
@@ -568,7 +571,7 @@ void Frame::ComputeStereoMatches()
         }
 
         // Subpixel match by correlation
-        if(bestDist<ORBmatcher::TH_HIGH)
+        if(bestDist<thOrbDist)
         {
             // coordinates in image pyramid at keypoint scale
             const float uR0 = mvKeysRight[bestIdxR].pt.x;
@@ -628,7 +631,7 @@ void Frame::ComputeStereoMatches()
 
             float disparity = (uL-bestuR);
 
-            if(disparity>=0 && disparity<maxD)
+            if(disparity>=minD && disparity<maxD)
             {
                 if(disparity<=0)
                 {
