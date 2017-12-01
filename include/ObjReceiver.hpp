@@ -49,7 +49,7 @@ class ObjReceiver {
     mySocket mSock;
     int sockfd;
 
-    bool V2VDEBUG = false;
+//    bool V2VDEBUG = false;
     int bufSize = 15;
 
     thread *rxstream;

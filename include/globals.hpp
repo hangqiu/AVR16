@@ -46,6 +46,7 @@ extern bool ADAPTIVE_STREAMING;
 extern bool OfflineTXRX;
 extern bool VehicleControl;
 extern int DEBUG;
+extern bool V2VDEBUG;
 extern bool LOCKDEBUG;
 extern bool VISUAL;
 extern bool DEBUGVISUAL;
