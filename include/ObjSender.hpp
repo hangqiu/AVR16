@@ -37,7 +37,7 @@ private:
 
     bool sendFlag;
 
-    bool V2VDEBUG = false;
+//    bool V2VDEBUG = false;
 
     int bufsize =15;
     size_t txSize;
