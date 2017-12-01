@@ -13,7 +13,7 @@ class RxFrame {
 private:
 public:
     int RxSeq;
-    int RxTimeStamp;
+    unsigned long long RxTimeStamp;
     unsigned long long RxTimeStamp_ZEDTS;
     cv::Mat RxFrameLeft;
     cv::Mat RxTCW;

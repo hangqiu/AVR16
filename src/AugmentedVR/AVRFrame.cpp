@@ -149,9 +149,9 @@ void AVRFrame::getPointCloud(cv::Mat & ret){
     unlockFrame();
 }
 
-int AVRFrame::getFrameTS(){
+unsigned long long AVRFrame::getFrameTS(){
     lockFrame();
-    int ret = frameTS;
+    unsigned long long ret = frameTS;
     unlockFrame();
     return ret;
 }

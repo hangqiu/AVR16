@@ -62,14 +62,14 @@ int ObjReceiver::ReceivePointCloudStream_FrameSeq(){
     return seq;
 }
 
-int ObjReceiver::ReceivePointCloudStream_TimeStamp_FrameTS(){
+unsigned long long ObjReceiver::ReceivePointCloudStream_TimeStamp_FrameTS(){
     char tssizebuf[bufSize+1];
     mSock.Receive(tssizebuf,bufSize);
     int tsbufsize = stoi(tssizebuf);
     if (V2VDEBUG)cout << "tsbufsize:" << tsbufsize<< endl;
     char tsbuf[tsbufsize+1];
     mSock.Receive(tsbuf,tsbufsize);
-    int ts = stoi(tsbuf);
+    unsigned long long ts = stoull(tsbuf);
     if (V2VDEBUG)cout << "ts:" << ts << endl;
     myAVR->RxBuffer.put_TimeStamp(ts);
     return ts;
