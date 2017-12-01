@@ -15,6 +15,7 @@ bool COOP = false;
 
 bool ReuseMap = false;
 //bool ReuseMap = true;
+bool PIPELINE = false;
 
 bool OfflineTXRX = false;
 bool Parallel_TXRX = true;

@@ -36,7 +36,7 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
         init_parameters.camera_fps = 30;
-        SHOW_CAMMOTION = false;
+//        SHOW_CAMMOTION = false;
     }
 
     RuntimeParameters runtime_parameters;
@@ -74,9 +74,9 @@ VCluster::VCluster(const string mapFile, string VPath="") {
 }
 
 void VCluster::run(){
-#ifdef PIPELINE
+
     thread CPU_download;
-#endif
+
 
     char key = ' ';
     int count = 0;
@@ -125,19 +125,23 @@ void VCluster::run(){
                 break;
             }
         }
-#ifdef PIPELINE
-        if (CPU_download.joinable()) CPU_download.join();
-#endif
+        if (PIPELINE){
+            if (CPU_download.joinable()) CPU_download.join();
+        }
+
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
         if (!RX) cout << endl << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
 
-#ifdef PIPELINE
-        CPU_download = thread(&VCluster::PreProcess, this);
-#else
-        if (!PreProcess()) break;
-#endif
+        if (PIPELINE){
+
+            CPU_download = thread(&VCluster::PreProcess, this);
+        }else{
+            if (!PreProcess()) break;
+
+        }
+
 #ifdef EVAL
         gettimeofday(&tFetchEnd, NULL);
         cout << "TimeStamp: " << timeDifference_msec(tInit,tFetchEnd) << "ms: ";

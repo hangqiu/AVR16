@@ -21,7 +21,7 @@
 
 //#define EVAL
 //#define SIMPLEEVAL
-#define PIPELINE
+//#define PIPELINE
 
 #define PI 3.14159265
 
@@ -35,6 +35,7 @@ extern int ZEDCACHESIZE;
 //extern const sl::zed::SENSING_MODE senseMode;
 
 // Toggles;
+extern bool PIPELINE;
 extern bool COOP;
 extern bool SHOW_IMG;
 extern bool SHOW_CAMMOTION;
