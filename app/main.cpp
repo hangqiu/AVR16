@@ -59,6 +59,9 @@
 #include <include/ObjReceiver.hpp>
 #include <include/VCluster.hpp>
 
+#include <sstream>
+#include <string>
+#include <fstream>
 
 //our point cloud generator and viewer.
 //#include "Viewer.hpp"
@@ -99,6 +102,28 @@ void close() {
 enum ROLE{
     SOLO, SENDER, RECEIVER, TRANSCEIVER
 };
+
+
+void loadParams(){
+
+    ifstream config("config.txt");
+    string toggleName;
+    string toggleValue;
+    while(std::getline( config,toggleName)){
+        std::getline(config,toggleValue);
+        if (toggleName.compare("DEBUG")==0) DEBUG = stoi(toggleValue);
+        if (toggleName.compare("VISUAL")==0) VISUAL = toggleValue.compare("true")==0;
+        if (toggleName.compare("COOP")==0) COOP = toggleValue.compare("true")==0;
+        if (toggleName.compare("Parallel_TXRX")==0) Parallel_TXRX = toggleValue.compare("true")==0;
+        if (toggleName.compare("ADAPTIVE_STREAMING")==0) ADAPTIVE_STREAMING = toggleValue.compare("true")==0;
+        if (toggleName.compare("VehicleControl")==0) VehicleControl = toggleValue.compare("true")==0;
+        if (toggleName.compare("DYNAMICS")==0) DYNAMICS = toggleValue.compare("true")==0;
+        if (toggleName.compare("PAUSE_FLAG")==0) PAUSE_FLAG = toggleValue.compare("true")==0;
+        if (toggleName.compare("ZEDCACHESIZE")==0) ZEDCACHESIZE = stoi(toggleValue);
+        if (toggleName.compare("MAX_COUNT")==0) MAX_COUNT = stoi(toggleValue);
+    }
+
+}
 ///////////////////////////////////////////////////////////main  function////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
@@ -153,6 +178,8 @@ int main(int argc, char **argv) {
         mapFile = argv[argidx++];
         cout << "Map File: " << mapFile << endl;
     }
+
+    loadParams();
 
     mV = new VCluster(mapFile, VPath[0]);
 
