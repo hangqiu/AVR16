@@ -1415,6 +1415,9 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, 
                             continue;
                     }
 
+                    /// added by Hang
+                    if (i2 >= CurrentFrame.mDescriptors.rows || i2<0) continue;
+
                     const cv::Mat &d = CurrentFrame.mDescriptors.row(i2);
 
                     const int dist = DescriptorDistance(dMP,d);
