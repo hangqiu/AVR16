@@ -22,3 +22,5 @@ V2VDEBUG
 false
 PIPELINE
 true
+SHOW_CAMMOTION
+false
