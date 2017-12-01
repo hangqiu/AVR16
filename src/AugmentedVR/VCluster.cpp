@@ -324,6 +324,7 @@ void VCluster::TXRX(){
              << ", " << rx->RxTimeStamp /1000
              << ", " << rx->RxTimeStamp_ZEDTS /1000000
              << endl;
+        VNode[0]->mIo->logTXRX();
     }
 }
 

@@ -24,6 +24,7 @@ private:
     ofstream TimeFile;
 
     ofstream logFile;
+    ofstream TXRXFile;
 //    fstream traceLogFile;
     AugmentedVR* myAVR;
 
@@ -31,6 +32,7 @@ private:
 public:
     void writeCurrentStereoFrame();
     void logCurrentFrame();
+    void logTXRX();
 };
 
 
