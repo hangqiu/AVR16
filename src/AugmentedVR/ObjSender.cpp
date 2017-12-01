@@ -135,12 +135,31 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
 void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
-        if (Sending) return;
+        if (IsSending()) return;
         if (txstream!=NULL && txstream->joinable()) {
             txstream->join();
         }
     }
     txstream = new thread(&ObjSender::StreamPointCloud, this);
+}
+
+void ObjSender::SetSendingFlagTrue(){
+    SendingFlag_Lock.lock();
+    Sending = true;
+    SendingFlag_Lock.unlock();
+}
+
+void ObjSender::SetSendingFlagFalse(){
+    SendingFlag_Lock.lock();
+    Sending = false;
+    SendingFlag_Lock.unlock();
+}
+
+bool ObjSender::IsSending(){
+    SendingFlag_Lock.lock();
+    bool ret = Sending;
+    SendingFlag_Lock.unlock();
+    return ret;
 }
 
 
@@ -149,7 +168,7 @@ void ObjSender::StreamPointCloud(){
     AVRFrame Frame;
     myAVR->getCurrentAVRFrame(Frame);
     if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
-    Sending = true;
+    SetSendingFlagTrue();
     StreamPointCloud_FrameSeq(Frame);
     StreamPointCloud_TimeStamp_FrameTS(Frame);
     StreamPointCloud_TimeStamp_ZEDTS(Frame);
@@ -157,7 +176,7 @@ void ObjSender::StreamPointCloud(){
     StreamPointCloud_PC(Frame);
     StreamPointCloud_Frame(Frame);
     StreamPointCloud_ObjectMotionVec(Frame);
-    Sending = false;
+    SetSendingFlagFalse();
 }
 
 void ObjSender::initCPPREST(){

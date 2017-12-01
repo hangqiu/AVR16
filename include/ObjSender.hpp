@@ -44,7 +44,10 @@ private:
 
 
     thread *txstream;
+
+    mutex SendingFlag_Lock;
     bool Sending = false;
+
 public:
 
 
@@ -87,6 +90,10 @@ public:
     void StreamPointCloud_PC(AVRFrame & Frame);
     void StreamPointCloud_Frame(AVRFrame & Frame);
     void StreamPointCloud_ObjectMotionVec(AVRFrame & Frame);
+
+    void SetSendingFlagTrue();
+    void SetSendingFlagFalse();
+    bool IsSending();
 };
 
 
