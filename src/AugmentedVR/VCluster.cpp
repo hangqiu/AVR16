@@ -35,7 +35,7 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         cout << "Live Mode" << endl;
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
-        init_parameters.camera_fps = 15; /// lowest possible
+        init_parameters.camera_fps = 30;
         SHOW_CAMMOTION = false;
     }
 
