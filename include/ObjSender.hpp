@@ -50,6 +50,7 @@ private:
 
 public:
 
+    AVRFrame FrameToSend;
 
 
     ObjSender(AugmentedVR *myAVR, string commPath);

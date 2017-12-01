@@ -164,18 +164,18 @@ bool ObjSender::IsSending(){
 
 
 void ObjSender::StreamPointCloud(){
-    cv::FileStorage fs;
-    AVRFrame Frame;
-    myAVR->getCurrentAVRFrame(Frame);
-    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+//    cv::FileStorage fs;
+//    AVRFrame Frame;
+//    myAVR->getCurrentAVRFrame(Frame);
+    if (FrameToSend.CamMotionMat.empty() || FrameToSend.pointcloud.empty() || FrameToSend.FrameLeft.empty()) return;
     SetSendingFlagTrue();
-    StreamPointCloud_FrameSeq(Frame);
-    StreamPointCloud_TimeStamp_FrameTS(Frame);
-    StreamPointCloud_TimeStamp_ZEDTS(Frame);
-    StreamPointCloud_TCW(Frame);
-    StreamPointCloud_PC(Frame);
-    StreamPointCloud_Frame(Frame);
-    StreamPointCloud_ObjectMotionVec(Frame);
+    StreamPointCloud_FrameSeq(FrameToSend);
+    StreamPointCloud_TimeStamp_FrameTS(FrameToSend);
+    StreamPointCloud_TimeStamp_ZEDTS(FrameToSend);
+    StreamPointCloud_TCW(FrameToSend);
+    StreamPointCloud_PC(FrameToSend);
+    StreamPointCloud_Frame(FrameToSend);
+    StreamPointCloud_ObjectMotionVec(FrameToSend);
     SetSendingFlagFalse();
 }
 

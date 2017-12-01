@@ -3,6 +3,8 @@
 //
 
 #include "mySocket.hpp"
+#include <iostream>
+using namespace std;
 
 mySocket::mySocket(){
 
@@ -25,6 +27,7 @@ int mySocket::Receive(char* buf, int size){
     }
     if (numbytes != size){
         perror("received less than speced\n");
+        std::cout << numbytes << endl;
     }
     buf[numbytes]='\0';
     return numbytes;

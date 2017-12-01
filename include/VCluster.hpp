@@ -28,6 +28,8 @@ private:
     bool live = false;
 
 public://public variables
+
+
     AugmentedVR** VNode;
 
 public:
