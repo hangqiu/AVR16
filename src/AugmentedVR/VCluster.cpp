@@ -295,6 +295,16 @@ void VCluster::TXRX(){
         /// receiving objects
         if (!Parallel_TXRX){
             mReceiver->ReceivePointCloudStream();
+        }else{
+            /// parallel background RX
+            RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
+            cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
+                 << ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
+                 <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+            cout << ", Received Frame, " << rx->RxSeq
+                 << ", " << rx->RxTimeStamp /1000
+                 << ", " << rx->RxTimeStamp_ZEDTS /1000000
+                 << endl;
         }
     }
 }

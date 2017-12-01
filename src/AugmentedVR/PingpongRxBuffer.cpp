@@ -25,7 +25,7 @@ void PingpongRxBuffer::put_TimeStamp(int ts){
     NextFrameBufferPtr->RxTimeStamp = ts;
 }
 void PingpongRxBuffer::put_TimeStamp_ZEDTS(unsigned long long ts){
-    NextFrameBufferPtr->RxTimeStamp = ts;
+    NextFrameBufferPtr->RxTimeStamp_ZEDTS = ts;
 }
 void PingpongRxBuffer::put_FrameLeft(cv::Mat & FrameLeft){
     FrameLeft.copyTo(NextFrameBufferPtr->RxFrameLeft);
@@ -44,10 +44,12 @@ void PingpongRxBuffer::put_dynamicPC(cv::Mat & dPC){
 }
 
 void PingpongRxBuffer::finishReceivingFrame(){
-    NextFrameBufferPtr->mLock.unlock();
+    CurrFrameBufferPtr->mLock.lock();
+//    NextFrameBufferPtr->mLock.unlock();
     RxFrame* tmp = NextFrameBufferPtr;
     NextFrameBufferPtr = CurrFrameBufferPtr;
     CurrFrameBufferPtr = tmp;
-    NextFrameBufferPtr->mLock.lock();
+//    NextFrameBufferPtr->mLock.lock();
+    CurrFrameBufferPtr->mLock.unlock();
 }
 

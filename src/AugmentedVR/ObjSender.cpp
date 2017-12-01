@@ -20,7 +20,7 @@ ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPa
         initMySocket();
     }
     sendFlag = false;
-
+    txstream = NULL;
 }
 
 ObjSender::~ObjSender() {

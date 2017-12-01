@@ -71,7 +71,6 @@ int ObjReceiver::ReceivePointCloudStream_TimeStamp_FrameTS(){
     mSock.Receive(tsbuf,tsbufsize);
     int ts = stoi(tsbuf);
     if (V2VDEBUG)cout << "ts:" << ts << endl;
-//    myAVR->RxTimeStamp = ts;
     myAVR->RxBuffer.put_TimeStamp(ts);
     return ts;
 }
@@ -85,8 +84,7 @@ unsigned long long ObjReceiver::ReceivePointCloudStream_TimeStamp_ZEDTS(){
     mSock.Receive(tsbuf,tsbufsize);
     unsigned long long ts = stoull(tsbuf);
     if (V2VDEBUG)cout << "ts:" << ts << endl;
-//    myAVR->RxTimeStamp = ts;
-    myAVR->RxBuffer.put_TimeStamp(ts);
+    myAVR->RxBuffer.put_TimeStamp_ZEDTS(ts);
     return ts;
 }
 
@@ -168,13 +166,13 @@ void ObjReceiver::ReceivePointCloudStream(){
     ReceivePointCloudStream_PC();
     ReceivePointCloudStream_Frame();
     ReceivePointCloudStream_ObjectMotionVec();
-    cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
-         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
-         <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000 ;
-    cout << ", Received Frame, " << seq
-         << ", " << ts /1000
-         << ", " << tsZED /1000
-         << endl;
+//    cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
+//         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
+//         <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+//    cout << ", Received Frame, " << seq
+//         << ", " << ts /1000
+//         << ", " << tsZED /1000000
+//         << endl;
     myAVR->RxBuffer.finishReceivingFrame();
 }
 
