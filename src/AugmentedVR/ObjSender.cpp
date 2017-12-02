@@ -39,12 +39,32 @@ void ObjSender::CheckSendingQueue(){
     while(!ObjSenderEnd){
         if (mThreadQ!=NULL){
             mThreadQ->mThread_ptr->join();
+
+            QLock.lock();
             delete mThreadQ->mThread_ptr;
             SendingThreadQueue* tmp = mThreadQ;
-            mThreadQ = mThreadQ->mNextThead;
+            mThreadQ = mThreadQ->mNextThread;
             delete tmp;
+            QLock.unlock();
         }
     }
+}
+
+void ObjSender::addMotionVecToSenderQueue(){
+    /// add the new mv to sending queue
+    QLock.lock();
+    SendingThreadQueue* tmp = mThreadQ;
+    if (tmp==NULL){
+        thread* tmpNewThread = new thread(&ObjSender::StreamMotionVec, this);
+        tmp = new SendingThreadQueue(tmpNewThread);
+    }else{
+        while (tmp!=NULL && tmp->mNextThread!=NULL){
+            tmp = tmp->mNextThread;
+        }
+        thread* tmpNewThread = new thread(&ObjSender::StreamMotionVec, this);
+        tmp->mNextThread = new SendingThreadQueue(tmpNewThread);
+    }
+    QLock.unlock();
 }
 
 void sigchld_handler(int s) {
@@ -137,7 +157,7 @@ void ObjSender::StreamPointCloud_LowPass_ObjectMotionVec(AVRFrame &Frame){
     cv::Mat MotionVecMat;
     Frame.LowPass_FilteredObjectMotionVec.copyTo(MotionVecMat);
     txSize = MotionVecMat.total()*MotionVecMat.elemSize();
-    if (V2VDEBUG)cout << "MotionVecMatSize:" << txSize << endl;
+    if (V2VDEBUG)cout << "LowPass_MotionVecMatSize:" << txSize << endl;
     string txsizestr = std::to_string(txSize);
     mSock.Send(txsizestr.c_str(), bufsize);
     mSock.Send((const char*)MotionVecMat.data, txSize);
@@ -164,15 +184,7 @@ void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
         if (IsSending() || mThreadQ!=NULL) {
-            cout << "Sending Motion Vec Only for Frame " << FrameToSend.frameSeq << endl;
-            /// add the new mv to sending queue
-            SendingThreadQueue* tmp = mThreadQ;
-            while (tmp!=NULL && tmp->mNextThead!=NULL){
-                tmp = tmp->mNextThead;
-            }
-            thread* tmpNewThread = new thread(&ObjSender::StreamMotionVec, this);
-            SendingThreadQueue* tmpNewQelem = new SendingThreadQueue(tmpNewThread);
-            tmp->mNextThead = tmpNewQelem;
+            addMotionVecToSenderQueue();
             return;
         }
         /// last sending finished, join and shoot next
@@ -203,6 +215,7 @@ bool ObjSender::IsSending(){
 }
 
 void ObjSender::StreamStreamType(string StreamType){
+    if (V2VDEBUG) cout << "Frame Type: " << StreamType << endl;
     mSock.Send(StreamType.c_str(), bufsize);
 }
 
@@ -211,6 +224,7 @@ void ObjSender::StreamMotionVec(){
     AVRFrame Frame;
     Frame.setFrom(FrameToSend);
     if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+    SocketLock.lock();
     SetSendingFlagTrue();
     StreamStreamType(MOTIONVEC);
     StreamPointCloud_FrameSeq(Frame);
@@ -218,6 +232,7 @@ void ObjSender::StreamMotionVec(){
     StreamPointCloud_TimeStamp_ZEDTS(Frame);
     StreamPointCloud_ObjectMotionVec(Frame);
     SetSendingFlagFalse();
+    SocketLock.unlock();
 }
 
 void ObjSender::StreamPointCloud(){
@@ -225,6 +240,8 @@ void ObjSender::StreamPointCloud(){
     AVRFrame Frame;
     Frame.setFrom(FrameToSend);
     if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+    /// atomic transmission
+    SocketLock.lock();
     SetSendingFlagTrue();
     StreamStreamType(PC);
     StreamPointCloud_FrameSeq(Frame);
@@ -235,6 +252,7 @@ void ObjSender::StreamPointCloud(){
     if (TXFRAME_FOREVAL) StreamPointCloud_Frame(Frame);
     StreamPointCloud_LowPass_ObjectMotionVec(Frame);
     SetSendingFlagFalse();
+    SocketLock.unlock();
 }
 
 void ObjSender::initCPPREST(){
