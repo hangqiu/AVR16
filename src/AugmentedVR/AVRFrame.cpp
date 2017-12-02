@@ -191,7 +191,7 @@ bool AVRFrame::ExistsMotion(){
     int nonZeroNum = cv::countNonZero(MotionMask);
     cout << "Motion pixel number: " << nonZeroNum << endl;
     int totalNum = MotionMask.rows*MotionMask.cols;
-    return nonZeroNum > totalNum * motionRatio;
+    return nonZeroNum > double(totalNum) * motionRatio;
 }
 
 void AVRFrame::updatePCDisplacementFromMotionVec(){
