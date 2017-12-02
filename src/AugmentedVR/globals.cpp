@@ -55,6 +55,8 @@ int TRACK_FREQ = 30;
 
 int MAX_COUNT = 2000;
 
+double motionRatio = 0.1;
+
 
 //int DUTYCYCLE = 1; // x frames per processing
 
