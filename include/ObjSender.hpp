@@ -111,6 +111,7 @@ public:
     void StreamPointCloud_TimeStamp_ZEDTS(AVRFrame &Frame);
     void StreamPointCloud_TCW(AVRFrame & Frame);
     void StreamPointCloud_PC(AVRFrame & Frame);
+    void StreamPointCloud_DynamicPC(AVRFrame & Frame);
     void StreamPointCloud_Frame(AVRFrame & Frame);
     void StreamPointCloud_ObjectMotionVec(AVRFrame &Frame);
     void StreamPointCloud_LowPass_ObjectMotionVec(AVRFrame &Frame);

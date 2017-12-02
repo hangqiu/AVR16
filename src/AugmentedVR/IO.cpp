@@ -58,6 +58,10 @@ void IO::logCurrentFrame(){
 
 }
 
+void IO::logTXRX(char* output){
+    TXRXFile << output;
+}
+
 void IO::logTXRX(){
     RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
     TXRXFile << "Current FrameID, " << myAVR->TotalFrameSeq-2

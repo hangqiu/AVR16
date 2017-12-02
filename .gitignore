@@ -10,3 +10,17 @@ src/ORB_SLAM2/Vocabulary/ORBvoc.bin
 src/ORB_SLAM2/Vocabulary/ORBvoc.txt
 CameraTrajectory.txt
 FrameInfo.txt
+LeaderFollowerMap0_300.bin
+LeaderFollowerMap200_300.bin
+LeaderFollowerMap_Full.bin
+out_full.bin
+PSARoofMap2.bin
+PSARoofMap.bin
+RoofNight1_1.bin
+RoofNight2_1.bin
+RoofNight2_2.bin
+testA.bin
+TransPCvsPC_EEB.bin
+TransPCvsPC_full.bin
+TransPCvsPCMap2.bin
+TransPCvsPCMap.bin
