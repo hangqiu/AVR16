@@ -18,8 +18,9 @@
 
 class SendingThreadQueue{
 public:
+
     thread * mThread_ptr=NULL;
-    SendingThreadQueue * mNextThead = NULL;
+    SendingThreadQueue * mNextThread = NULL;
 
     SendingThreadQueue(thread* T){
         mThread_ptr = T;
@@ -58,8 +59,11 @@ private:
     mutex SendingFlag_Lock;
     bool Sending = false;
 
+    mutex SocketLock;
+
     SendingThreadQueue* mThreadQ =NULL;
     thread *clearSendingQueue;
+    mutex QLock;
 
     bool ObjSenderEnd = false;
 
@@ -116,6 +120,7 @@ public:
     bool IsSending();
 
     void CheckSendingQueue();
+    void addMotionVecToSenderQueue();
 };
 
 
