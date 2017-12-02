@@ -16,12 +16,14 @@ IO::IO(AugmentedVR *myAVR) : myAVR(myAVR) {
     depthFile.open(commPath + "/depth.txt");
     TimeFile.open(commPath + "/times.txt");
     logFile.open(commPath + "/FrameInfo.txt");
+    TXRXFile.open("TXRX.txt");
 }
 
 IO::~IO() {
     depthFile.close();
     logFile.close();
     TimeFile.close();
+    TXRXFile.close();
 }
 
 
@@ -54,4 +56,15 @@ void IO::logCurrentFrame(){
             << ": dist: " << norm(currFrame.LowPass_FilteredObjectMotionVec)
             << endl;
 
+}
+
+void IO::logTXRX(){
+    RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
+    TXRXFile << "Current FrameID, " << myAVR->TotalFrameSeq-2
+//         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
+         <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+    TXRXFile << ", Received Frame, " << rx->RxSeq
+//         << ", " << rx->RxTimeStamp /1000
+         << ", " << rx->RxTimeStamp_ZEDTS /1000000
+         << endl;
 }

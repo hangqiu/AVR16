@@ -81,14 +81,17 @@ public:
 
     /// in use
     void ReceiveLoop();
+    void ReceiveStream();
     void ReceivePointCloudStream();
+    void ReceiveMotionVecStream();
     int  ReceivePointCloudStream_FrameSeq();
     unsigned long long  ReceivePointCloudStream_TimeStamp_FrameTS();
     unsigned long long  ReceivePointCloudStream_TimeStamp_ZEDTS();
     void ReceivePointCloudStream_TCW();
     void ReceivePointCloudStream_PC();
     void ReceivePointCloudStream_Frame();
-    void ReceivePointCloudStream_ObjectMotionVec();
+    void ReceivePointCloudStream_ObjectMotionVec(cv::Mat& delta);
+    void ReceivePointCloudStream_LowPass_ObjectMotionVec();
 
 };
 

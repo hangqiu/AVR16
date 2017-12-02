@@ -18,11 +18,16 @@ public:
     cv::Mat RxFrameLeft;
     cv::Mat RxTCW;
     cv::Mat RxPC;
-    cv::Mat RxMotionVec; // motion vector of object received
+    cv::Mat RxLowPassMotionVec; // Low pass filterd motion vector of object received
     cv::Mat transRxPC;
     cv::Mat RxDynamicPC; // transfromed txceived PC
     cv::Mat transRxDynamicPC; // transfromed txceived PC
     std::mutex mLock;
+
+    /// keep only the last received delta seq, ts, and integrated total delta.
+    std::vector<int> RxMotionVecSeq;
+    std::vector<unsigned long long> RxMotionVec_ZEDTS;
+    cv::Mat RxMotionVec = cv::Mat(1,1,CV_32FC3, cv::Scalar(0.,0.,0.)); // integrated delta of object received
 
 public:
     RxFrame();

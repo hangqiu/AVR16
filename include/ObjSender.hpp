@@ -16,6 +16,16 @@
 //typedef http::server<hello_world> server;
 
 
+class SendingThreadQueue{
+public:
+    thread * mThread_ptr=NULL;
+    SendingThreadQueue * mNextThead = NULL;
+
+    SendingThreadQueue(thread* T){
+        mThread_ptr = T;
+    }
+};
+
 class ObjSender {
 
 private:
@@ -47,6 +57,11 @@ private:
 
     mutex SendingFlag_Lock;
     bool Sending = false;
+
+    SendingThreadQueue* mThreadQ =NULL;
+    thread *clearSendingQueue;
+
+    bool ObjSenderEnd = false;
 
 public:
 
@@ -82,19 +97,25 @@ public:
     void writeFrameInSeparateFile();
 
     /// in use
+    void Stream();
+    void StreamMotionVec();
     void StreamPointCloud();
     void StreamPointCloud_Async();
+    void StreamStreamType(string StreamType);
     void StreamPointCloud_FrameSeq(AVRFrame & Frame);
     void StreamPointCloud_TimeStamp_FrameTS(AVRFrame &Frame);
     void StreamPointCloud_TimeStamp_ZEDTS(AVRFrame &Frame);
     void StreamPointCloud_TCW(AVRFrame & Frame);
     void StreamPointCloud_PC(AVRFrame & Frame);
     void StreamPointCloud_Frame(AVRFrame & Frame);
-    void StreamPointCloud_ObjectMotionVec(AVRFrame & Frame);
+    void StreamPointCloud_ObjectMotionVec(AVRFrame &Frame);
+    void StreamPointCloud_LowPass_ObjectMotionVec(AVRFrame &Frame);
 
     void SetSendingFlagTrue();
     void SetSendingFlagFalse();
     bool IsSending();
+
+    void CheckSendingQueue();
 };
 
 

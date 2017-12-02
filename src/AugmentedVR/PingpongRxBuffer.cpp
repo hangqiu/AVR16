@@ -36,8 +36,8 @@ void PingpongRxBuffer::put_TCW(cv::Mat & TCW){
 void PingpongRxBuffer::put_PC(cv::Mat & PC){
     PC.copyTo(NextFrameBufferPtr->RxPC);
 }
-void PingpongRxBuffer::put_MotionVec(cv::Mat & MV){
-    MV.copyTo(NextFrameBufferPtr->RxMotionVec);
+void PingpongRxBuffer::put_LowPassMotionVec(cv::Mat & MV){
+    MV.copyTo(NextFrameBufferPtr->RxLowPassMotionVec);
 }
 void PingpongRxBuffer::put_dynamicPC(cv::Mat & dPC){
     dPC.copyTo(NextFrameBufferPtr->RxDynamicPC);
@@ -53,3 +53,11 @@ void PingpongRxBuffer::finishReceivingFrame(){
     CurrFrameBufferPtr->mLock.unlock();
 }
 
+void PingpongRxBuffer::integrateCurrentFrameRxMotionVec(int RXMV_seq, unsigned long long RXMV_ZEDTS, cv::Mat &MV){
+    /// need to reacquire curr lock to update the deltas
+    CurrFrameBufferPtr->mLock.lock();
+    CurrFrameBufferPtr->RxMotionVecSeq.push_back(RXMV_seq);
+    CurrFrameBufferPtr->RxMotionVec_ZEDTS.push_back(RXMV_ZEDTS);
+    CurrFrameBufferPtr->RxMotionVec = cv::Mat(CurrFrameBufferPtr->RxMotionVec + MV) ;
+    CurrFrameBufferPtr->mLock.unlock();
+}

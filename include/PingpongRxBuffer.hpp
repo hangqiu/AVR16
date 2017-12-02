@@ -28,9 +28,11 @@ public:
     void put_FrameLeft(cv::Mat & FrameLeft);
     void put_TCW(cv::Mat & TCW);
     void put_PC(cv::Mat & PC);
-    void put_MotionVec(cv::Mat & MV);
+    void put_LowPassMotionVec(cv::Mat & MV);
     void put_dynamicPC(cv::Mat & dPC);
     void finishReceivingFrame();
+
+    void integrateCurrentFrameRxMotionVec(int seq, unsigned long long ZEDTS,cv::Mat &MV);
 };
 
 

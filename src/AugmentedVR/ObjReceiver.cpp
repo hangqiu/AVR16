@@ -150,7 +150,7 @@ void ObjReceiver::ReceivePointCloudStream_Frame(){
     if (V2VDEBUG && VISUAL)cv::imshow("received frame", img);
     free(imgbuf);
 }
-void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
+void ObjReceiver::ReceivePointCloudStream_LowPass_ObjectMotionVec(){
     char mvsizebuf[bufSize+1];
     mSock.ReceiveAll(mvsizebuf,bufSize);
     int mvbufsize = stoi(mvsizebuf);
@@ -159,36 +159,64 @@ void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(){
     mSock.ReceiveAll(buf,mvbufsize);
     if (mvbufsize!=0){
         cv::Mat mv = cv::Mat(1,1,CV_32FC3, (void*)buf);
-        mv.copyTo(myAVR->RxMotionVec);
-        myAVR->RxBuffer.put_MotionVec(mv);
+        mv.copyTo(myAVR->RxLowPassMotionVec);
+        myAVR->RxBuffer.put_LowPassMotionVec(mv);
         if (V2VDEBUG)cout << "mv\n"  << mv << endl;
     }else{
         cv::Mat tmp;
-        myAVR->RxBuffer.put_MotionVec(tmp);
+        myAVR->RxBuffer.put_LowPassMotionVec(tmp);
+    }
+}
+
+void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(cv::Mat & mv){
+    char mvsizebuf[bufSize+1];
+    mSock.ReceiveAll(mvsizebuf,bufSize);
+    int mvbufsize = stoi(mvsizebuf);
+    if (V2VDEBUG)cout << "mvbufsize:" << mvbufsize<< endl;
+    char buf[mvbufsize+1];
+    mSock.ReceiveAll(buf,mvbufsize);
+    if (mvbufsize!=0){
+        mv = cv::Mat(1,1,CV_32FC3, (void*)buf);
+        if (V2VDEBUG)cout << "delta\n"  << mv << endl;
+    }else{
+    }
+}
+
+void ObjReceiver::ReceiveStream(){
+    char streamType[bufSize+1];
+    mSock.ReceiveAll(streamType,bufSize);
+    if (streamType == PC){
+        ReceivePointCloudStream();
+    }
+    if (streamType == MOTIONVEC){
+        ReceiveMotionVecStream();
     }
 }
 
 void ObjReceiver::ReceivePointCloudStream(){
     int seq = ReceivePointCloudStream_FrameSeq();
-    int ts = ReceivePointCloudStream_TimeStamp_FrameTS();
+//    unsigned long long ts = ReceivePointCloudStream_TimeStamp_FrameTS();
     unsigned long long tsZED = ReceivePointCloudStream_TimeStamp_ZEDTS();
     ReceivePointCloudStream_TCW();
     ReceivePointCloudStream_PC();
-    ReceivePointCloudStream_Frame();
-    ReceivePointCloudStream_ObjectMotionVec();
-//    cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
-//         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
-//         <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-//    cout << ", Received Frame, " << seq
-//         << ", " << ts /1000
-//         << ", " << tsZED /1000000
-//         << endl;
+    if(TXFRAME_FOREVAL) ReceivePointCloudStream_Frame();
+    ReceivePointCloudStream_LowPass_ObjectMotionVec();
     myAVR->RxBuffer.finishReceivingFrame();
+}
+
+void ObjReceiver::ReceiveMotionVecStream(){
+    int seq = ReceivePointCloudStream_FrameSeq();
+//    unsigned long long ts = ReceivePointCloudStream_TimeStamp_FrameTS();
+    unsigned long long tsZED = ReceivePointCloudStream_TimeStamp_ZEDTS();
+    cv::Mat delta;
+    ReceivePointCloudStream_ObjectMotionVec(delta);
+    myAVR->RxBuffer.integrateCurrentFrameRxMotionVec(seq, tsZED,delta);
+
 }
 
 void ObjReceiver::ReceiveLoop(){
     while(!end){
-        ReceivePointCloudStream();
+        ReceiveStream();
     }
 }
 
@@ -442,7 +470,7 @@ void ObjReceiver::ReadFromDisk(int frameSeqRx){
 //            return;
         }
         myAVR->RxBuffer.put_dynamicPC(RxDynamicPC);
-        myAVR->RxBuffer.put_MotionVec(RxMotionVec);
+        myAVR->RxBuffer.put_LowPassMotionVec(RxMotionVec);
     }
 
 

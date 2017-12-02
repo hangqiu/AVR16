@@ -12,6 +12,7 @@ using namespace std;
 
 
 bool COOP = false;
+bool TXFRAME_FOREVAL = false;
 
 bool ReuseMap = false;
 //bool ReuseMap = true;

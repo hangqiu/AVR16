@@ -37,6 +37,7 @@ extern int ZEDCACHESIZE;
 // Toggles;
 extern bool PIPELINE;
 extern bool COOP;
+extern bool TXFRAME_FOREVAL;
 extern bool SHOW_IMG;
 extern bool SHOW_CAMMOTION;
 extern bool DECOUPLE2IMG;
