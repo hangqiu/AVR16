@@ -21,15 +21,32 @@ ObjSender::ObjSender(AugmentedVR *myAVR, string commPath) : myAVR(myAVR), commPa
     }
     sendFlag = false;
     txstream = NULL;
+    clearSendingQueue = new thread(&ObjSender::CheckSendingQueue,this);
 }
 
 ObjSender::~ObjSender() {
 //    TcwFile.release();
 //
 //    PCFile.release();
+    ObjSenderEnd = true;
+    clearSendingQueue->join();
+    delete clearSendingQueue;
     g_httpHandler->close().wait();
     delete &mSock;
 }
+
+void ObjSender::CheckSendingQueue(){
+    while(!ObjSenderEnd){
+        if (mThreadQ!=NULL){
+            mThreadQ->mThread_ptr->join();
+            delete mThreadQ->mThread_ptr;
+            SendingThreadQueue* tmp = mThreadQ;
+            mThreadQ = mThreadQ->mNextThead;
+            delete tmp;
+        }
+    }
+}
+
 void sigchld_handler(int s) {
     while (waitpid(-1, NULL, WNOHANG) > 0)
         ;
@@ -85,7 +102,6 @@ void ObjSender::StreamPointCloud_TCW(AVRFrame & Frame){
     txSize = Frame.CamMotionMat.total()*Frame.CamMotionMat.elemSize();
     if (V2VDEBUG)cout << "cammotionmatSize:" << txSize << endl;
     string txsizestr = std::to_string(txSize);
-//    if (V2VDEBUG)cout << Frame.CamMotionMat.type() << endl;
     mSock.Send(txsizestr.c_str(), bufsize);
     mSock.Send((const char*)Frame.CamMotionMat.data, txSize);
 
@@ -100,7 +116,6 @@ void ObjSender::StreamPointCloud_PC(AVRFrame & Frame){
 //        cout << "TimeStamp Start: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
 #endif
     txSize = Frame.pointcloud.total()*Frame.pointcloud.elemSize();
-//    if (V2VDEBUG)cout << Frame.pointcloud.type()<< endl;
     if (V2VDEBUG)cout << "PCSize:" << txSize << endl;
     mSock.Send(std::to_string(txSize).c_str(), bufsize);
     mSock.Send((const char*)Frame.pointcloud.data, txSize);
@@ -114,31 +129,53 @@ void ObjSender::StreamPointCloud_PC(AVRFrame & Frame){
 }
 void ObjSender::StreamPointCloud_Frame(AVRFrame & Frame){
     txSize = Frame.FrameLeft.total()*Frame.FrameLeft.elemSize();
-//    if (V2VDEBUG)cout << Frame.FrameLeft.type()<< endl;
     if (V2VDEBUG)cout << "FrameSize:" << txSize << endl;
     mSock.Send(std::to_string(txSize).c_str(), bufsize);
     mSock.Send((const char*)Frame.FrameLeft.data, txSize);
 }
-void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame & Frame){
+void ObjSender::StreamPointCloud_LowPass_ObjectMotionVec(AVRFrame &Frame){
     cv::Mat MotionVecMat;
     Frame.LowPass_FilteredObjectMotionVec.copyTo(MotionVecMat);
     txSize = MotionVecMat.total()*MotionVecMat.elemSize();
     if (V2VDEBUG)cout << "MotionVecMatSize:" << txSize << endl;
     string txsizestr = std::to_string(txSize);
-//    if (V2VDEBUG)cout << Frame.CamMotionMat.type() << endl;
+    mSock.Send(txsizestr.c_str(), bufsize);
+    mSock.Send((const char*)MotionVecMat.data, txSize);
+
+    if (V2VDEBUG)cout << "LowPass_MotionVecMat\n" << MotionVecMat << endl;
+}
+
+void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame &Frame){
+    cv::Mat MotionVecMat;
+    Frame.FilteredObjectMotionVec.copyTo(MotionVecMat);
+    txSize = MotionVecMat.total()*MotionVecMat.elemSize();
+    if (V2VDEBUG)cout << "MotionVecMatSize:" << txSize << endl;
+    string txsizestr = std::to_string(txSize);
     mSock.Send(txsizestr.c_str(), bufsize);
     mSock.Send((const char*)MotionVecMat.data, txSize);
 
     if (V2VDEBUG)cout << "MotionVecMat\n" << MotionVecMat << endl;
 }
 
+
+
+
 void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
-        if (IsSending()) {
+        if (IsSending() && mThreadQ!=NULL) {
             cout << "Sending Motion Vec Only for Frame " << FrameToSend.frameSeq << endl;
+            /// add the new mv to sending queue
+            SendingThreadQueue* tmp = mThreadQ;
+            while (tmp!=NULL && tmp->mNextThead!=NULL){
+                tmp = tmp->mNextThead;
+            }
+            thread* tmpNewThread = new thread(&ObjSender::StreamMotionVec, this);
+            SendingThreadQueue* tmpNewQelem = new SendingThreadQueue(tmpNewThread);
+            tmp->mNextThead = tmpNewQelem;
             return;
         }
+        /// last sending finished, join and shoot next
         if (txstream!=NULL && txstream->joinable()) {
             txstream->join();
         }
@@ -165,20 +202,38 @@ bool ObjSender::IsSending(){
     return ret;
 }
 
+void ObjSender::StreamStreamType(string StreamType){
+    mSock.Send(StreamType.c_str(), bufsize);
+}
+
+void ObjSender::StreamMotionVec(){
+/// get the frame now before it gets sinked and updated
+    AVRFrame Frame;
+    Frame.setFrom(FrameToSend);
+    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
+    SetSendingFlagTrue();
+    StreamStreamType(MOTIONVEC);
+    StreamPointCloud_FrameSeq(Frame);
+//    StreamPointCloud_TimeStamp_FrameTS(FrameToSend);
+    StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    StreamPointCloud_ObjectMotionVec(Frame);
+    SetSendingFlagFalse();
+}
 
 void ObjSender::StreamPointCloud(){
-//    cv::FileStorage fs;
-//    AVRFrame Frame;
-//    myAVR->getCurrentAVRFrame(Frame);
-    if (FrameToSend.CamMotionMat.empty() || FrameToSend.pointcloud.empty() || FrameToSend.FrameLeft.empty()) return;
+    /// get the frame now before it gets sinked and updated
+    AVRFrame Frame;
+    Frame.setFrom(FrameToSend);
+    if (Frame.CamMotionMat.empty() || Frame.pointcloud.empty() || Frame.FrameLeft.empty()) return;
     SetSendingFlagTrue();
-    StreamPointCloud_FrameSeq(FrameToSend);
-    StreamPointCloud_TimeStamp_FrameTS(FrameToSend);
-    StreamPointCloud_TimeStamp_ZEDTS(FrameToSend);
-    StreamPointCloud_TCW(FrameToSend);
-    StreamPointCloud_PC(FrameToSend);
-    StreamPointCloud_Frame(FrameToSend);
-    StreamPointCloud_ObjectMotionVec(FrameToSend);
+    StreamStreamType(PC);
+    StreamPointCloud_FrameSeq(Frame);
+//    StreamPointCloud_TimeStamp_FrameTS(Frame);
+    StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    StreamPointCloud_TCW(Frame);
+    StreamPointCloud_PC(Frame);
+    if (TXFRAME_FOREVAL) StreamPointCloud_Frame(Frame);
+    StreamPointCloud_LowPass_ObjectMotionVec(Frame);
     SetSendingFlagFalse();
 }
 

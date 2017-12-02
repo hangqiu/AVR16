@@ -389,11 +389,11 @@ void AugmentedVR::dead_reckoning_onRxDynamicPC(){
     cv::Mat tmp;
 //    cout << RxMotionVec << endl;
     double x,y,z;
-    extractChannel(RxMotionVec,tmp,0);
+    extractChannel(RxLowPassMotionVec,tmp,0);
     x=tmp.at<float>(0,0) / (ZEDCACHESIZE-1);
-    extractChannel(RxMotionVec,tmp,1);
+    extractChannel(RxLowPassMotionVec,tmp,1);
     y=tmp.at<float>(0,0) / (ZEDCACHESIZE-1);
-    extractChannel(RxMotionVec,tmp,2);
+    extractChannel(RxLowPassMotionVec,tmp,2);
     z=tmp.at<float>(0,0) / (ZEDCACHESIZE-1);
     cout << "dead-reckoning: " << x <<"," << y<<"," <<z << endl;
     cv::Scalar mv(x,y,z);
@@ -613,16 +613,16 @@ void AugmentedVR::ObjectMotionAnalysis(){
         cout << "Total Filter Motion Vec: " << avg_filterMotionVec << " >> " << norm(avg_filterMotionVec)<< endl;
     }
 
-    total_motionVec.copyTo(ObjectMotionVec);
+    total_motionVec.copyTo(frameCache.CurrentFrame.ObjectMotionVec);
     // TODO: find a safe way to do it
-    ObjectMotionVec.copyTo(frameCache.CurrentFrame.ObjectMotionVec);
+//    ObjectMotionVec.copyTo(frameCache.CurrentFrame.ObjectMotionVec);
     avg_filterMotionVec.copyTo(frameCache.CurrentFrame.FilteredObjectMotionVec);
     /// low pass filtering (sliding window average)
     frameCache.getLowPassMotionVectorForCurrFrame();
     frameCache.getLowPassFilteredMotionVectorForCurrFrame();
 }
 
-void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, int rxTS){
+void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, unsigned long long rxZEDTS){
     static AVRFrame cur;
     frameCache.getCurrentFrame(cur);
     if (rxTcw.empty() || rxFrame.empty() || transRxPC.empty() || cur.MotionMask.empty()) return;
@@ -666,12 +666,12 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, i
     /// time diff
     if (DEBUG){
 
-        cout << "Current TS: " << cur.frameTS << endl;
-        cout << "Rx TS:" << rxTS << endl;
-        cout << "TS diff: " << cur.frameTS-rxTS << endl;
+        cout << "Current TS: " << cur.ZEDTS << endl;
+        cout << "Rx TS:" << rxZEDTS << endl;
+        cout << "TS diff: " << cur.ZEDTS-rxZEDTS << endl;
 //        debugPC(transRxPC);
     }
-    LatencyCompensation(rxMV, transRxPC, cur.frameTS-rxTS);
+    LatencyCompensation(rxMV, transRxPC, (cur.ZEDTS-rxZEDTS)/1000);
 //    if (DEBUG)debugPC(transRxPC);
 }
 

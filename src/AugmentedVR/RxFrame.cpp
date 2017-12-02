@@ -20,10 +20,14 @@ void RxFrame::setFrom(RxFrame& Frame){
     Frame.RxFrameLeft.copyTo(RxFrameLeft);
     Frame.RxTCW.copyTo(RxTCW);
     Frame.RxPC.copyTo(RxPC);
-    Frame.RxMotionVec.copyTo(RxMotionVec);
+    Frame.RxLowPassMotionVec.copyTo(RxLowPassMotionVec);
     Frame.transRxPC.copyTo(transRxPC);
     Frame.RxDynamicPC.copyTo(RxDynamicPC);
     Frame.transRxDynamicPC.copyTo(transRxDynamicPC);
+
+    RxMotionVecSeq = Frame.RxMotionVecSeq;
+    RxMotionVec_ZEDTS = Frame.RxMotionVec_ZEDTS;
+    Frame.RxMotionVec.copyTo(RxMotionVec);
 
     mLock.unlock();
     Frame.mLock.unlock();

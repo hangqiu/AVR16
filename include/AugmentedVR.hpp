@@ -152,11 +152,14 @@ public: //TODO change to private and add agetter seter
 //    cv::Mat transformedPointcloud; // transforming to the coordinate frame of last frame
 
 //    cv::Mat PCDisplacement;
-    cv::Mat ObjectMotionVec; // matrix of average object motion vec
-
-    cv::Mat Log_LowPassMotionVec; // after low pass filter TODO: make a log
+//    cv::Mat ObjectMotionVec; // matrix of average object motion vec
+//
+//    cv::Mat Log_LowPassMotionVec; // after low pass filter TODO: make a log
 
     cv::Mat RxMotionVec; // motion vector of object received
+
+    cv::Mat RxLowPassMotionVec;
+
 
 //    int RxTimeStamp;
 //    int RxSeq;
@@ -288,7 +291,7 @@ public:
     bool trackGood();
 
     void TransPCvsPC();
-    void TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, int rxTS);
+    void TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, unsigned long long rxTS);
 
     void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, unsigned long long TSdiff);
 };

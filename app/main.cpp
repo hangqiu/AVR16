@@ -124,6 +124,7 @@ void loadParams(){
         if (toggleName.compare("V2VDEBUG")==0) V2VDEBUG = toggleValue.compare("true")==0;
         if (toggleName.compare("PIPELINE")==0) PIPELINE = toggleValue.compare("true")==0;
         if (toggleName.compare("SHOW_CAMMOTION")==0) SHOW_CAMMOTION = toggleValue.compare("true")==0;
+        if (toggleName.compare("TXFRAME_FOREVAL")==0) TXFRAME_FOREVAL = toggleValue.compare("true")==0;
 
     }
 

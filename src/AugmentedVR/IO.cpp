@@ -61,10 +61,10 @@ void IO::logCurrentFrame(){
 void IO::logTXRX(){
     RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
     TXRXFile << "Current FrameID, " << myAVR->TotalFrameSeq-2
-         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
+//         << ", "<< myAVR->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
          <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
     TXRXFile << ", Received Frame, " << rx->RxSeq
-         << ", " << rx->RxTimeStamp /1000
+//         << ", " << rx->RxTimeStamp /1000
          << ", " << rx->RxTimeStamp_ZEDTS /1000000
          << endl;
 }

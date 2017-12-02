@@ -311,17 +311,17 @@ void VCluster::TXRX(){
     if (RX){
         /// receiving objects
         if (!Parallel_TXRX){
-            mReceiver->ReceivePointCloudStream();
+            mReceiver->ReceiveStream();
         }else{
             /// parallel background RX
 
         }
         RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
         cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
-             << ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
+//             << ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS() / 1000
              <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
         cout << ", Received Frame, " << rx->RxSeq
-             << ", " << rx->RxTimeStamp /1000
+//             << ", " << rx->RxTimeStamp /1000
              << ", " << rx->RxTimeStamp_ZEDTS /1000000
              << endl;
         VNode[0]->mIo->logTXRX();
@@ -393,7 +393,7 @@ void VCluster::visualize(){
 
                 /// received frame feature matching with curr frame, eval only
 //                VNode[0]->TransPCvsPC();
-                VNode[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxMotionVec, rx->RxTimeStamp);
+                VNode[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp_ZEDTS);
             }
             /// Dead-Reckoning
 //            else{
