@@ -26,7 +26,7 @@ private:
 
     std::thread* displayThread;
     bool live = false;
-
+    int silentCount = 0;
 public://public variables
 
 

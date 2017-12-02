@@ -47,6 +47,7 @@ extern bool Parallel_TXRX;
 extern bool ADAPTIVE_STREAMING;
 extern bool OfflineTXRX;
 extern bool VehicleControl;
+extern bool SILENCENOMOTION;
 extern int DEBUG;
 extern bool V2VDEBUG;
 extern bool LOCKDEBUG;

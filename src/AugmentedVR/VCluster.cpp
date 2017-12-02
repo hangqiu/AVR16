@@ -299,13 +299,16 @@ void VCluster::TXRX(){
     if (TX && SEND) {
         /// get the frame now before it gets sinked, and then fork off
         VNode[0]->getCurrentAVRFrame(mSender->FrameToSend);
-        if (mSender->FrameToSend.ExistsMotion()){
+        if (!SILENCENOMOTION || mSender->FrameToSend.ExistsMotion() || silentCount > 3 ){
+            silentCount = 0;
             /// sending objects
             if (!Parallel_TXRX){
                 mSender->StreamPointCloud();
             }else{
                 mSender->StreamPointCloud_Async();
             }
+        }else{
+            silentCount ++;
         }
     }
 

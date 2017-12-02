@@ -22,6 +22,7 @@ bool OfflineTXRX = false;
 bool Parallel_TXRX = true;
 bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
 bool VehicleControl = false;
+bool SILENCENOMOTION = false;
 
 int DEBUG = 0;
 bool V2VDEBUG = false;
@@ -55,7 +56,7 @@ int TRACK_FREQ = 30;
 
 int MAX_COUNT = 2000;
 
-double motionRatio = 0.1;
+double motionRatio = 0.05;
 
 
 //int DUTYCYCLE = 1; // x frames per processing
