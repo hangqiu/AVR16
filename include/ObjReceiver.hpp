@@ -92,6 +92,7 @@ public:
     unsigned long long  ReceivePointCloudStream_TimeStamp_ZEDTS();
     void ReceivePointCloudStream_TCW();
     void ReceivePointCloudStream_PC();
+    void ReceivePointCloudStream_DynamicPC();
     void ReceivePointCloudStream_Frame();
     void ReceivePointCloudStream_ObjectMotionVec(cv::Mat& delta);
     void ReceivePointCloudStream_LowPass_ObjectMotionVec();

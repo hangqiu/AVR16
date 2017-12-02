@@ -147,6 +147,31 @@ void ObjSender::StreamPointCloud_PC(AVRFrame & Frame){
         cout << "PC TX: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
 #endif
 }
+
+///TODO: segment objects point cloud
+void ObjSender::StreamPointCloud_DynamicPC(AVRFrame & Frame){
+#ifdef EVAL
+    timeval tFetchEnd,tFetchStart;
+    gettimeofday(&tFetchStart,NULL);
+
+    cout << "TimeStamp Start: " << tFetchStart.tv_sec << "sec" << tFetchStart.tv_usec << "usec";
+//        cout << "TimeStamp Start: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
+#endif
+    int total = cv::countNonZero(Frame.MotionMask);
+    txSize = total*Frame.pointcloud.elemSize();
+    if (V2VDEBUG)cout << "DynamicPCSize:" << txSize << endl;
+    mSock.Send(std::to_string(txSize).c_str(), bufsize);
+    mSock.Send((const char*)Frame.pointcloud.data, txSize);
+
+#ifdef EVAL
+    gettimeofday(&tFetchEnd,NULL);
+        cout << "TimeStamp End: " << tFetchEnd.tv_sec << "sec" << tFetchEnd.tv_usec << "usec";
+//        cout << "TimeStamp End: " << double(tFetchEnd.tv_sec)*1000 + double(tFetchEnd.tv_usec) / 1000 << "ms: ";
+        cout << "PC TX: " << double(tFetchEnd.tv_sec-tFetchStart.tv_sec)*1000 + double(tFetchEnd.tv_usec-tFetchStart.tv_usec) / 1000 << "ms" << endl;
+#endif
+}
+
+
 void ObjSender::StreamPointCloud_Frame(AVRFrame & Frame){
     txSize = Frame.FrameLeft.total()*Frame.FrameLeft.elemSize();
     if (V2VDEBUG)cout << "FrameSize:" << txSize << endl;
@@ -248,12 +273,17 @@ void ObjSender::StreamPointCloud(){
 //    StreamPointCloud_TimeStamp_FrameTS(Frame);
     StreamPointCloud_TimeStamp_ZEDTS(Frame);
     StreamPointCloud_TCW(Frame);
-    StreamPointCloud_PC(Frame);
+    if (TXRXDYNAMICPC){
+        StreamPointCloud_DynamicPC(Frame);
+    }else{
+        StreamPointCloud_PC(Frame);
+    }
     if (TXFRAME_FOREVAL) StreamPointCloud_Frame(Frame);
     StreamPointCloud_LowPass_ObjectMotionVec(Frame);
     SetSendingFlagFalse();
     SocketLock.unlock();
 }
+
 
 void ObjSender::initCPPREST(){
     //init http server, need to be run in separate thread

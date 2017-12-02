@@ -20,6 +20,7 @@ bool PIPELINE = false;
 
 bool OfflineTXRX = false;
 bool Parallel_TXRX = true;
+bool TXRXDYNAMICPC = false;
 bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
 bool VehicleControl = false;
 bool SILENCENOMOTION = false;
