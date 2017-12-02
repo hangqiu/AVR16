@@ -57,6 +57,7 @@ class ObjReceiver {
 
     int lastRxSeq=-1;
     int lastRxMVSize = 0;
+    long rxPCBufSize = 0;
 
 public:
 

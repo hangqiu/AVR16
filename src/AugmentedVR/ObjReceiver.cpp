@@ -114,7 +114,8 @@ void ObjReceiver::ReceivePointCloudStream_PC(){
 #endif
     char pcsizebuf[bufSize+1];
     mSock.ReceiveAll(pcsizebuf,bufSize);
-    int pcbufsize = stol(pcsizebuf);
+    long pcbufsize = stol(pcsizebuf);
+    rxPCBufSize = pcbufsize;
     if (V2VDEBUG)cout << "pcbufsize:" << pcbufsize<< endl;
     char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
@@ -142,7 +143,8 @@ void ObjReceiver::ReceivePointCloudStream_DynamicPC(){
 #endif
     char pcsizebuf[bufSize+1];
     mSock.ReceiveAll(pcsizebuf,bufSize);
-    int pcbufsize = stol(pcsizebuf);
+    long pcbufsize = stol(pcsizebuf);
+    rxPCBufSize = pcbufsize;
     if (V2VDEBUG)cout << "pcbufsize:" << pcbufsize<< endl;
     char* pcbuf = (char*)malloc(pcbufsize+1);
 //    char pcbuf[pcbufsize+1];
@@ -267,8 +269,8 @@ void ObjReceiver::ReceiveLoop(){
             }
         }else{
             ///new frame
-            sprintf(tmpout,"Current FrameID, %d, %llu, %llu, FRAME, %d, %llu\n",myAVR->TotalFrameSeq-2, myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
-                    curTime, rx->RxSeq, rx->RxTimeStamp_ZEDTS /1000000);
+            sprintf(tmpout,"Current FrameID, %d, %llu, %llu, FRAME, %d, %llu, %ld\n",myAVR->TotalFrameSeq-2, myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+                    curTime, rx->RxSeq, rx->RxTimeStamp_ZEDTS /1000000, rxPCBufSize);
             cout << tmpout;
             myAVR->mIo->logTXRX(tmpout);
 
