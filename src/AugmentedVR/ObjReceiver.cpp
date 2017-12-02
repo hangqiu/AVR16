@@ -220,6 +220,14 @@ void ObjReceiver::ReceiveLoop(){
         ReceiveStream();
 
         RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
+
+        if (rx->RxSeq == lastRxSeq && rx->RxMotionVecSeq.size()==lastRxMVSize){
+            continue;
+        }
+
+        lastRxSeq = rx->RxSeq;
+        lastRxMVSize = rx->RxMotionVecSeq.size();
+
         cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
              <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
         cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;

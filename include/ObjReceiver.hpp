@@ -55,6 +55,9 @@ class ObjReceiver {
     thread *rxstream;
     bool end = false;
 
+    int lastRxSeq=-1;
+    int lastRxMVSize = -1;
+
 public:
 
     ObjReceiver(AugmentedVR *myAVR, const int CamId, string commPath);
