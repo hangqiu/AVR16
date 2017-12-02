@@ -25,6 +25,7 @@ public:
     std::mutex mLock;
 
     /// keep only the last received delta seq, ts, and integrated total delta.
+    /// TODO vector has memory leak...
     std::vector<int> RxMotionVecSeq;
     std::vector<unsigned long long> RxMotionVec_ZEDTS;
     cv::Mat RxMotionVec = cv::Mat(1,1,CV_32FC3, cv::Scalar(0.,0.,0.)); // integrated delta of object received

@@ -163,7 +163,7 @@ void ObjSender::StreamPointCloud_ObjectMotionVec(AVRFrame &Frame){
 void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
-        if (IsSending() && mThreadQ!=NULL) {
+        if (IsSending() || mThreadQ!=NULL) {
             cout << "Sending Motion Vec Only for Frame " << FrameToSend.frameSeq << endl;
             /// add the new mv to sending queue
             SendingThreadQueue* tmp = mThreadQ;

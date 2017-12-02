@@ -185,6 +185,7 @@ void ObjReceiver::ReceivePointCloudStream_ObjectMotionVec(cv::Mat & mv){
 void ObjReceiver::ReceiveStream(){
     char streamType[bufSize+1];
     mSock.ReceiveAll(streamType,bufSize);
+    if (V2VDEBUG) cout << streamType << endl;
     if (streamType == PC){
         ReceivePointCloudStream();
     }
@@ -217,6 +218,26 @@ void ObjReceiver::ReceiveMotionVecStream(){
 void ObjReceiver::ReceiveLoop(){
     while(!end){
         ReceiveStream();
+
+        RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
+        cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
+             <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+        cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
+        cout << ", Received Frame, " << rx->RxSeq
+             << ", " << rx->RxTimeStamp_ZEDTS /1000000
+             << endl;
+        if (!(rx->RxMotionVecSeq.empty())){
+            for (int i=0;i<rx->RxMotionVecSeq.size();i++){
+                cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
+                     <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+                cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
+                cout << ", Received MV, " << rx->RxMotionVecSeq[i]
+                     << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
+                     << endl;
+            }
+        }
+
+        myAVR->mIo->logTXRX();
     }
 }
 

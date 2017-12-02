@@ -43,13 +43,18 @@ void PingpongRxBuffer::put_dynamicPC(cv::Mat & dPC){
     dPC.copyTo(NextFrameBufferPtr->RxDynamicPC);
 }
 
+
 void PingpongRxBuffer::finishReceivingFrame(){
+
     CurrFrameBufferPtr->mLock.lock();
-//    NextFrameBufferPtr->mLock.unlock();
+    ///clear the motionvectors of current frame
+    CurrFrameBufferPtr->RxMotionVecSeq.clear();
+    CurrFrameBufferPtr->RxMotionVec_ZEDTS.clear();
+    ///swap buffer
     RxFrame* tmp = NextFrameBufferPtr;
     NextFrameBufferPtr = CurrFrameBufferPtr;
     CurrFrameBufferPtr = tmp;
-//    NextFrameBufferPtr->mLock.lock();
+
     CurrFrameBufferPtr->mLock.unlock();
 }
 
