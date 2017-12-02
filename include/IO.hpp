@@ -33,6 +33,7 @@ public:
     void writeCurrentStereoFrame();
     void logCurrentFrame();
     void logTXRX();
+    void logTXRX(char* output);
 };
 
 

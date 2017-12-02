@@ -56,7 +56,7 @@ class ObjReceiver {
     bool end = false;
 
     int lastRxSeq=-1;
-    int lastRxMVSize = -1;
+    int lastRxMVSize = 0;
 
 public:
 

@@ -221,31 +221,52 @@ void ObjReceiver::ReceiveLoop(){
 
         RxFrame* rx = myAVR->RxBuffer.getCurrentRxFrame();
 
-        if (rx->RxSeq == lastRxSeq && rx->RxMotionVecSeq.size()==lastRxMVSize){
-            continue;
-        }
+        char tmpout[200];
+        if (rx->RxSeq == lastRxSeq){
+            if(rx->RxMotionVecSeq.size()==lastRxMVSize){
+                /// nothing rx-ed
+                continue;
+            }else{
 
-        lastRxSeq = rx->RxSeq;
-        lastRxMVSize = rx->RxMotionVecSeq.size();
-
-        cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
-             <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-        cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
-        cout << ", Received Frame, " << rx->RxSeq
-             << ", " << rx->RxTimeStamp_ZEDTS /1000000
-             << endl;
-        if (!(rx->RxMotionVecSeq.empty())){
-            for (int i=0;i<rx->RxMotionVecSeq.size();i++){
-                cout << "Current FrameID, " << myAVR->TotalFrameSeq-2
-                     <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-                cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
-                cout << ", Received MV, " << rx->RxMotionVecSeq[i]
-                     << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
-                     << endl;
+                /// new mv
+                if (!(rx->RxMotionVecSeq.empty())){
+                    for (int i=lastRxMVSize;i<rx->RxMotionVecSeq.size();i++){
+                        sprintf(tmpout,"Current FrameID, %d, %llu, %llu, MV, %d, %llu\n",myAVR->TotalFrameSeq-2, myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+                                getCurrentComputerTimeStamp_usec() / 1000, rx->RxMotionVecSeq[i], rx->RxMotionVec_ZEDTS[i] /1000000);
+                        cout << tmpout;
+                        myAVR->mIo->logTXRX(tmpout);
+                    }
+                }
+                lastRxMVSize = rx->RxMotionVecSeq.size();
             }
+        }else{
+            ///new frame
+            sprintf(tmpout,"Current FrameID, %d, %llu, %llu, FRAME, %d, %llu\n",myAVR->TotalFrameSeq-2, myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+                    getCurrentComputerTimeStamp_usec() / 1000, rx->RxSeq, rx->RxTimeStamp_ZEDTS /1000000);
+            cout << tmpout;
+            myAVR->mIo->logTXRX(tmpout);
+
+            if (!(rx->RxMotionVecSeq.empty())){
+                for (int i=0;i<rx->RxMotionVecSeq.size();i++){
+                    sprintf(tmpout,"Current FrameID, %d, %llu, %llu, MV, %d, %llu\n",myAVR->TotalFrameSeq-2, myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+                            getCurrentComputerTimeStamp_usec() / 1000, rx->RxMotionVecSeq[i], rx->RxMotionVec_ZEDTS[i] /1000000);
+                    cout << tmpout;
+                    myAVR->mIo->logTXRX(tmpout);
+                }
+            }
+
+            lastRxSeq = rx->RxSeq;
+            lastRxMVSize = rx->RxMotionVecSeq.size();
         }
 
-        myAVR->mIo->logTXRX();
+
+
+
+
+
+
+
+//        myAVR->mIo->logTXRX();
     }
 }
 
