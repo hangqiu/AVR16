@@ -67,4 +67,13 @@ void IO::logTXRX(){
 //         << ", " << rx->RxTimeStamp /1000
          << ", " << rx->RxTimeStamp_ZEDTS /1000000
          << endl;
+    if (rx->RxMotionVecSeq.size()!=0){
+        for (int i=0;i<rx->RxMotionVecSeq.size();i++){
+            TXRXFile << "Current FrameID, " << myAVR->TotalFrameSeq-2
+                 <<","<< myAVR->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+            TXRXFile << ", Received MV, " << rx->RxMotionVecSeq[i]
+                 << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
+                 << endl;
+        }
+    }
 }
