@@ -107,6 +107,8 @@ public:
     void updateDynamicsFromMotionMask();
 
     void MotionAnalysis();
+
+    bool ExistsMotion();
 };
 
 

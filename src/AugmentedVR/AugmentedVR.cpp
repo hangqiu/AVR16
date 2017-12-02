@@ -385,6 +385,9 @@ cv::Mat AugmentedVR::removeOverlap(cv::Mat transPC){
     return ret;
 }
 
+
+
+
 void AugmentedVR::dead_reckoning_onRxDynamicPC(){
     cv::Mat tmp;
 //    cout << RxMotionVec << endl;

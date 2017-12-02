@@ -299,11 +299,13 @@ void VCluster::TXRX(){
     if (TX && SEND) {
         /// get the frame now before it gets sinked, and then fork off
         VNode[0]->getCurrentAVRFrame(mSender->FrameToSend);
-        /// sending objects
-        if (!Parallel_TXRX){
-            mSender->StreamPointCloud();
-        }else{
-            mSender->StreamPointCloud_Async();
+        if (mSender->FrameToSend.ExistsMotion()){
+            /// sending objects
+            if (!Parallel_TXRX){
+                mSender->StreamPointCloud();
+            }else{
+                mSender->StreamPointCloud_Async();
+            }
         }
     }
 
@@ -316,23 +318,26 @@ void VCluster::TXRX(){
             /// parallel background RX
 
         }
-        RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
-        cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
-             <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-        cout << ", Received Frame, " << rx->RxSeq
-             << ", " << rx->RxTimeStamp_ZEDTS /1000000
-             << endl;
-        if (!(rx->RxMotionVecSeq.empty())){
-            for (int i=0;i<rx->RxMotionVecSeq.size();i++){
-                cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
-                     <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-                cout << ", Received MV, " << rx->RxMotionVecSeq[i]
-                     << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
-                     << endl;
-            }
-        }
+//        RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
+//        cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
+//             <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+//        cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
+//        cout << ", Received Frame, " << rx->RxSeq
+//             << ", " << rx->RxTimeStamp_ZEDTS /1000000
+//             << endl;
+//        if (!(rx->RxMotionVecSeq.empty())){
+//            for (int i=0;i<rx->RxMotionVecSeq.size();i++){
+//                cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
+//                     <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
+//                cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
+//                cout << ", Received MV, " << rx->RxMotionVecSeq[i]
+//                     << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
+//                     << endl;
+//            }
+//        }
+//
+//        VNode[0]->mIo->logTXRX();
 
-        VNode[0]->mIo->logTXRX();
     }
 }
 

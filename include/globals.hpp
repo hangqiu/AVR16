@@ -69,6 +69,7 @@ extern bool PAUSE_FLAG;
 
 extern cv::Size DisplaySize;
 extern int MAX_COUNT;
+extern double motionRatio;
 
 // debug
 // TODO: remove
