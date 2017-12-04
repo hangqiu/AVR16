@@ -54,7 +54,7 @@ class ObjReceiver {
 
     thread *rxstream;
     bool end = false;
-
+public:
     int lastRxSeq=-1;
     int lastRxMVSize = 0;
     long rxPCBufSize = 0;

@@ -321,25 +321,48 @@ void VCluster::TXRX(){
             /// parallel background RX
 
         }
+//        unsigned long long curTime = getCurrentComputerTimeStamp_usec() / 1000;
 //        RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
-//        cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
-//             <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-//        cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
-//        cout << ", Received Frame, " << rx->RxSeq
-//             << ", " << rx->RxTimeStamp_ZEDTS /1000000
-//             << endl;
-//        if (!(rx->RxMotionVecSeq.empty())){
-//            for (int i=0;i<rx->RxMotionVecSeq.size();i++){
-//                cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2
-//                     <<","<< VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000 ;
-//                cout << ", " << getCurrentComputerTimeStamp_usec() / 1000;
-//                cout << ", Received MV, " << rx->RxMotionVecSeq[i]
-//                     << ", " << rx->RxMotionVec_ZEDTS[i] /1000000
-//                     << endl;
-//            }
-//        }
+//        char tmpout[200];
+//        if (rx->RxSeq == mReceiver->lastRxSeq){
+//            if(rx->RxMotionVecSeq.size()==mReceiver->lastRxMVSize){
+//                /// nothing rx-ed
+//                return;
+//            }else{
 //
-//        VNode[0]->mIo->logTXRX();
+//                /// new mv
+//                if (!(rx->RxMotionVecSeq.empty())){
+//                    for (int i=mReceiver->lastRxMVSize;i<rx->RxMotionVecSeq.size();i++){
+//                        sprintf(tmpout,"Current FrameID, %d, %llu, %llu, MV, %d, %llu, %llu, %llu\n",VNode[0]->TotalFrameSeq-2, VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+//                                curTime, rx->RxMotionVecSeq[i], rx->RxMotionVec_ZEDTS[i] /1000000, (VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() - rx->RxMotionVec_ZEDTS[i]) /1000000,
+//                                curTime-rx->RxMotionVec_ZEDTS[i] /1000000);
+//                        cout << tmpout;
+//                        VNode[0]->mIo->logTXRX(tmpout);
+//                    }
+//                }
+//                mReceiver->lastRxMVSize = rx->RxMotionVecSeq.size();
+//            }
+//        }else{
+//            ///new frame
+//            sprintf(tmpout,"Current FrameID, %d, %llu, %llu, FRAME, %d, %llu, %llu,%llu, %ld\n",VNode[0]->TotalFrameSeq-2, VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+//                    curTime, rx->RxSeq, rx->RxTimeStamp_ZEDTS /1000000, (VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() - rx->RxTimeStamp_ZEDTS) /1000000,
+//                    curTime-rx->RxTimeStamp_ZEDTS /1000000, mReceiver->rxPCBufSize);
+//            cout << tmpout;
+//            VNode[0]->mIo->logTXRX(tmpout);
+//
+//            if (!(rx->RxMotionVecSeq.empty())){
+//                for (int i=0;i<rx->RxMotionVecSeq.size();i++){
+//                    sprintf(tmpout,"Current FrameID, %d, %llu, %llu, MV, %d, %llu, %llu, %llu\n",VNode[0]->TotalFrameSeq-2, VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() / 1000000,
+//                            curTime, rx->RxMotionVecSeq[i], rx->RxMotionVec_ZEDTS[i] /1000000, (VNode[0]->getCurrentAVRFrame_AbsoluteTimeStamp() - rx->RxMotionVec_ZEDTS[i]) /1000000,
+//                            curTime-rx->RxMotionVec_ZEDTS[i] /1000000);
+//                    cout << tmpout;
+//                    VNode[0]->mIo->logTXRX(tmpout);
+//                }
+//            }
+//
+//            mReceiver->lastRxSeq = rx->RxSeq;
+//            mReceiver->lastRxMVSize = rx->RxMotionVecSeq.size();
+//        }
 
     }
 }

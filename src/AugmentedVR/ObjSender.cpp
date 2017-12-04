@@ -209,7 +209,11 @@ void ObjSender::StreamPointCloud_Async(){
     if (ADAPTIVE_STREAMING){
         /// if the channel is in use, skip this frame
         if (IsSending() || mThreadQ!=NULL) {
-            addMotionVecToSenderQueue();
+            SilentCount++;
+            if (SilentCount > SilentMax){
+                SilentCount = 0;
+                addMotionVecToSenderQueue();
+            }
             return;
         }
         /// last sending finished, join and shoot next
