@@ -128,10 +128,10 @@ void loadParams(){
         if (toggleName.compare("LOCKDEBUG")==0) LOCKDEBUG = toggleValue.compare("true")==0;
         if (toggleName.compare("SILENCENOMOTION")==0) SILENCENOMOTION= toggleValue.compare("true")==0;
         if (toggleName.compare("TXRXDYNAMICPC")==0) TXRXDYNAMICPC= toggleValue.compare("true")==0;
-        if (toggleName.compare("AddressA")==0) AddressA= toggleValue;
-        if (toggleName.compare("AddressB")==0) AddressB= toggleValue;
-
-
+        if (toggleName.compare("MyAddress")==0) MyAddress= toggleValue;
+        if (toggleName.compare("MyPort")==0) MyPort= toggleValue;
+        if (toggleName.compare("ServerAddress")==0) ServerAddress= toggleValue;
+        if (toggleName.compare("ServerPort")==0) ServerPort= toggleValue;
     }
 
 }
