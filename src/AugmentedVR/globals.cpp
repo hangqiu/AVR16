@@ -14,6 +14,7 @@ using namespace std;
 bool COOP = false;
 bool TXFRAME_FOREVAL = false;
 bool RXACK = false;
+bool ManualPC = false;
 
 bool ReuseMap = false;
 //bool ReuseMap = true;

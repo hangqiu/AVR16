@@ -132,7 +132,7 @@ void VCluster::run(){
         /// sync all thread, must run before any thread fork out
         VNode[0]->SinkFrames();
 
-        if (!RX) cout << endl << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
+        if (!RX && !ManualPC) cout << endl << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
 
         if (PIPELINE){
 
