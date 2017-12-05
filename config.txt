@@ -33,10 +33,10 @@ false
 TXRXDYNAMICPC
 false
 MyAddress
-192.168.0.166
-MyPort
-34568
-ServerAddress
 192.168.0.187
-ServerPort
+MyPort
 34569
+ServerAddress
+192.168.0.166
+ServerPort
+34568
