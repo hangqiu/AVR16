@@ -132,6 +132,7 @@ void loadParams(){
         if (toggleName.compare("MyPort")==0) MyPort= toggleValue;
         if (toggleName.compare("ServerAddress")==0) ServerAddress= toggleValue;
         if (toggleName.compare("ServerPort")==0) ServerPort= toggleValue;
+        if (toggleName.compare("RXACK")==0) RXACK= toggleValue.compare("true")==0;
     }
 
 }
