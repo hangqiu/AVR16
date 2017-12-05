@@ -98,6 +98,7 @@ public:
     void ReceivePointCloudStream_ObjectMotionVec(cv::Mat& delta);
     void ReceivePointCloudStream_LowPass_ObjectMotionVec();
 
+    void ACKPCFrame();
 };
 
 
