@@ -67,7 +67,7 @@ private:
 
     bool ObjSenderEnd = false;
     int SilentCount = 0;
-    int SilentMax = 3;
+    int SilentMax = 0;
 
 public:
 
