@@ -67,7 +67,7 @@ double PCConnectionThresh = 0.02;
 double MOTIONTHRESH_PERPIXEL = 0.08; //meters
 int PATCHSIZE = 10; // expand step x pixels
 
-double HEIGHT_THRESH = -2;
+double HEIGHT_THRESH = 100;
 
 bool INIT_FLAG = false;
 //bool EVAL = false;
