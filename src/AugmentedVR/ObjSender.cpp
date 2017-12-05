@@ -289,7 +289,7 @@ void ObjSender::StreamPointCloud(){
     }
     if (TXFRAME_FOREVAL) StreamPointCloud_Frame(Frame);
     StreamPointCloud_LowPass_ObjectMotionVec(Frame);
-    WaitACK_PCFrame();
+    if (RXACK) WaitACK_PCFrame();
     SetSendingFlagFalse();
     SocketLock.unlock();
 }

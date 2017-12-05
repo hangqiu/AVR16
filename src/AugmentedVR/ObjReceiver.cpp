@@ -235,7 +235,7 @@ void ObjReceiver::ReceivePointCloudStream(){
     if(TXFRAME_FOREVAL) ReceivePointCloudStream_Frame();
     ReceivePointCloudStream_LowPass_ObjectMotionVec();
     myAVR->RxBuffer.finishReceivingFrame();
-    ACKPCFrame();
+    if (RXACK) ACKPCFrame();
 }
 
 void ObjReceiver::ReceiveMotionVecStream(){
