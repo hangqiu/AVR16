@@ -81,6 +81,14 @@ int mySocket::Bind(const char * port){
 
         if (setsockopt(bindSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))
             == -1) {
+            perror("setsockopt buffer size");
+            exit(1);
+        }
+
+        int size = 6000000;
+
+        if (setsockopt(bindSock, SOL_SOCKET, SO_SNDBUF, &size, sizeof(int))
+            == -1) {
             perror("setsockopt");
             exit(1);
         }
