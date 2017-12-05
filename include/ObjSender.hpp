@@ -124,6 +124,8 @@ public:
 
     void CheckSendingQueue();
     void addMotionVecToSenderQueue();
+
+    void WaitACK_PCFrame();
 };
 
 

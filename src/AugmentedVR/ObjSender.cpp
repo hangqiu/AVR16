@@ -264,6 +264,11 @@ void ObjSender::StreamMotionVec(){
     SocketLock.unlock();
 }
 
+void ObjSender::WaitACK_PCFrame(){
+    char ack[2];
+    mSock.ReceiveAll(ack,1);
+}
+
 void ObjSender::StreamPointCloud(){
     /// get the frame now before it gets sinked and updated
     AVRFrame Frame;
@@ -284,6 +289,7 @@ void ObjSender::StreamPointCloud(){
     }
     if (TXFRAME_FOREVAL) StreamPointCloud_Frame(Frame);
     StreamPointCloud_LowPass_ObjectMotionVec(Frame);
+    WaitACK_PCFrame();
     SetSendingFlagFalse();
     SocketLock.unlock();
 }

@@ -217,6 +217,11 @@ void ObjReceiver::ReceiveStream(){
     }
 }
 
+void ObjReceiver::ACKPCFrame(){
+    char ack = '0';
+    mSock.Send(&ack,1);
+}
+
 void ObjReceiver::ReceivePointCloudStream(){
     int seq = ReceivePointCloudStream_FrameSeq();
 //    unsigned long long ts = ReceivePointCloudStream_TimeStamp_FrameTS();
@@ -230,6 +235,7 @@ void ObjReceiver::ReceivePointCloudStream(){
     if(TXFRAME_FOREVAL) ReceivePointCloudStream_Frame();
     ReceivePointCloudStream_LowPass_ObjectMotionVec();
     myAVR->RxBuffer.finishReceivingFrame();
+    ACKPCFrame();
 }
 
 void ObjReceiver::ReceiveMotionVecStream(){

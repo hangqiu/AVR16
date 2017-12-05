@@ -94,6 +94,9 @@ extern string CalibrationFile;
 
 extern const int NUM_CAMERAS;
 
+
+extern string AddressA;
+extern string AddressB;
 extern string commPath;
 extern string MyAddress;
 extern string MyPort;
