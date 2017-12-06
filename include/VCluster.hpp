@@ -27,8 +27,8 @@ private:
     std::thread* displayThread;
 
     int silentCount = 0;
+    bool live = false;
 public://public variables
-
 
     AugmentedVR** mAVR;
 
