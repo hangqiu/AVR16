@@ -311,10 +311,10 @@ void AugmentedVR::calcRelaCamPos(cv::Mat TcwReceived, cv::Mat& Tcr){
 
 void AugmentedVR::transformRxPCtoMyFrameCoord(cv::Mat Trc, cv::Mat PCReceived, cv::Mat & ret){
 //    cout << Trc << endl;
-//    debugPC(PCReceived);
+    debugPC(PCReceived);
 //    shiftPC(PCReceived,cv::Scalar(5.,0.,0.));
     transformPC_Via_TransformationMatrix(Trc, PCReceived, ret);
-//    debugPC(ret);
+    debugPC(ret);
 }
 cv::Mat AugmentedVR::translateRxPCtoMyFrameCoord(cv::Mat trc, cv::Mat PCReceived){
 
@@ -654,20 +654,30 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
         if (status[i] && status_oppo[i] && cur.MotionMask.at<uchar>(cur.keypoints[i])==255 ){ /// dynamics
             drawMatchedKeypoints(img, cur.keypoints[i], kpReceived[i], to_string(i));
             drawMatchedKeypoints(rxFrame, cur.keypoints[i], kpReceived[i], to_string(i));
-            cv::Scalar diff = cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) - transRxPC.at<cv::Vec4f>(kpReceived[i]);
-            cv::Scalar dff3 = cv::Scalar(diff[0],diff[1],diff[2]);
-            if (DEBUG){
-                cout << "Point " << i << ": "
-//                     << cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) << " - "
-//                     << transRxPC.at<cv::Vec4f>(kpReceived[i]) << " = "
-//                     << endl
-                     << dff3 << " >>> " << norm(dff3) << endl;
-                imshow("TranPCvsPC_Curr", img);
-                cv::setMouseCallback("TranPCvsPC_Curr", onMouseCallback_DisplayVoxel, &(cur.pointcloud));
-                imshow("TranPCvsPC_Rx", rxFrame);
-                cv::setMouseCallback("TranPCvsPC_Rx", onMouseCallback_DisplayVoxel, &(transRxPC));
-            }
+
+//            cout << cur.keypoints[i] << endl;
+//            cout << kpReceived[i] << endl;
+//            cout << cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) << endl;
+//            cout << transRxPC.at<cv::Vec4f>(kpReceived[i])<< endl;
+//
+//            cv::Scalar diff = cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) - transRxPC.at<cv::Vec4f>(kpReceived[i]);
+//            cv::Scalar dff3 = cv::Scalar(diff[0],diff[1],diff[2]);
+//            if (DEBUG){
+//                cout << "Point " << i << ": "
+////                     << cur.pointcloud.at<cv::Vec4f>(cur.keypoints[i]) << " - "
+////                     << transRxPC.at<cv::Vec4f>(kpReceived[i]) << " = "
+////                     << endl
+//                     << dff3 << " >>> " << norm(dff3) << endl;
+//            }
         }
+    }
+
+    if (ManualPC){
+
+        imshow("TranPCvsPC_Curr", img);
+        cv::setMouseCallback("TranPCvsPC_Curr", onMouseCallback_DisplayVoxel, &(cur.pointcloud));
+        imshow("TranPCvsPC_Rx", rxFrame);
+        cv::setMouseCallback("TranPCvsPC_Rx", onMouseCallback_DisplayVoxel, &(transRxPC));
     }
 
 

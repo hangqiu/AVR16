@@ -424,6 +424,7 @@ void VCluster::visualize(){
                 cv::Mat Trc;
                 mAVR[0]->calcRelaCamPos(rx->RxTCW, Trc);
 
+                cout << "Trc" << endl << Trc << endl;
                 /// PC manipulation
                 mAVR[0]->transformRxPCtoMyFrameCoord(Trc, rx->RxPC, mAVR[0]->transRxPC);
                 if (DYNAMICS){
