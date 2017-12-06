@@ -18,6 +18,8 @@ void mySocket::Send(const char* content, unsigned long size){
     if (send(connSock, content, size, 0) == -1) {
         perror("send");
     }
+    //TODO: check if send returns bytes less than specified, re-tran manually
+    //TODO: check when send returns? finish sending buffer.
 }
 
 int mySocket::Receive(char* buf, int size){
@@ -85,7 +87,7 @@ int mySocket::Bind(const char * port){
             exit(1);
         }
 
-        int size = 6000000;
+        int size = 4000000;
 
         if (setsockopt(bindSock, SOL_SOCKET, SO_SNDBUF, &size, sizeof(int))
             == -1) {
