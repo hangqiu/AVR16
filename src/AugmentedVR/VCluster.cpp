@@ -31,7 +31,7 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY[
     }else{
         /// live mode
-        live = true;
+        mAVR[0]->live = true;
         cout << "Live Mode" << endl;
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
@@ -44,22 +44,22 @@ VCluster::VCluster(const string mapFile, string VPath="") {
     runtime_parameters.sensing_mode = SENSING_MODE_STANDARD;
 
     int ZEDConfidence = 85;
-    VNode = new AugmentedVR* [NUM_CAMERAS];
+    mAVR = new AugmentedVR* [NUM_CAMERAS];
 
     int i=0;
     // Initialization
-    VNode[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
-    VNode[i]->initZEDCam(startFrameId);
+    mAVR[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
+    mAVR[i]->initZEDCam(startFrameId);
 
     if (ReuseMap){
         cout << "Reusing Map\n";
-        VNode[i]->initSLAMStereo(VocFile, CalibrationFile,true, mapFile);
+        mAVR[i]->initSLAMStereo(VocFile, CalibrationFile,true, mapFile);
     }
     else{
-        VNode[i]->initSLAMStereo(VocFile, CalibrationFile,false);
+        mAVR[i]->initSLAMStereo(VocFile, CalibrationFile,false);
     }
 
-    if (VISUAL) mDisplayer = new Displayer(VNode);
+    if (VISUAL) mDisplayer = new Displayer(mAVR);
 
     if (VehicleControl) {
         mPathPlanner = new PathPlanner(0.5,0.5,-7,2,-5,40);
@@ -67,10 +67,10 @@ VCluster::VCluster(const string mapFile, string VPath="") {
 
 
 
-    if (TX) mSender = new ObjSender(VNode[0], commPath);
-    if (RX) mReceiver = new ObjReceiver(VNode[0], RxCamId, commPath);
+    if (TX) mSender = new ObjSender(mAVR[0], commPath);
+    if (RX) mReceiver = new ObjReceiver(mAVR[0], RxCamId, commPath);
 
-    mCodec = new pcCodec(VNode[0]->width,VNode[0]->height);
+    mCodec = new pcCodec(mAVR[0]->width,mAVR[0]->height);
 }
 
 void VCluster::run(){
@@ -97,9 +97,9 @@ void VCluster::run(){
     gettimeofday(&LastFrameStartT, NULL);
     cout << "Total: " <<timeDifference_msec(LastFrameStartT, FrameStartT) << "ms"<< endl;
 #endif
-    while (key != 'q' && !quit && (VNode[0]->TotalFrameSeq < lengthInFrame || live )) {
+    while (key != 'q' && !quit && (mAVR[0]->TotalFrameSeq < lengthInFrame || mAVR[0]->live )) {
 //        key = waitKey(20);
-        FRAME_ID = VNode[0]->TotalFrameSeq;
+        FRAME_ID = mAVR[0]->TotalFrameSeq;
 #ifdef SIMPLEEVAL
         /// calc frame rate
         gettimeofday(&FrameStartT, NULL);
@@ -116,8 +116,8 @@ void VCluster::run(){
         gettimeofday(&tTotalStart, NULL);
 #endif
         /// break when footage runs out, not break for live mode
-        if (!VNode[0]->grabNextZEDFrameOffline() ) {
-            if (live){
+        if (!mAVR[0]->grabNextZEDFrameOffline() ) {
+            if (mAVR[0]->live){
                 continue;
             }
             else{
@@ -130,9 +130,9 @@ void VCluster::run(){
         }
 
         /// sync all thread, must run before any thread fork out
-        VNode[0]->SinkFrames();
+        mAVR[0]->SinkFrames();
 
-        if (!RX && !ManualPC) cout << "Current FrameID, " << VNode[0]->TotalFrameSeq-2<< ", "<< VNode[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
+        if (!RX && !ManualPC) cout << "Current FrameID, " << mAVR[0]->TotalFrameSeq-2<< ", "<< mAVR[0]->getCurrentAVRFrame_TimeStamp_FrameTS()<<  endl;
 
         if (PIPELINE){
 
@@ -149,7 +149,7 @@ void VCluster::run(){
         gettimeofday(&tSlamStart, NULL);
         prepFrameTime += timeDifference_msec(tFetchStart,tFetchEnd);
 #endif
-        VNode[0]->trackCam();
+        mAVR[0]->trackCam();
 
 #ifdef EVAL
         gettimeofday(&tSlamEnd, NULL);
@@ -170,14 +170,14 @@ void VCluster::run(){
 
     if (!quit){
 
-        VNode[0]->mSLAM->SaveMap("Slam_latest_Map.bin");
+        mAVR[0]->mSLAM->SaveMap("Slam_latest_Map.bin");
     }
 }
 
 
 VCluster::~VCluster(){
     for (int i=0;i<NUM_CAMERAS;i++){
-        delete VNode[i];
+        delete mAVR[i];
     }
     if (VISUAL) delete mDisplayer;
     if (TX)    delete mSender;
@@ -187,7 +187,7 @@ VCluster::~VCluster(){
 void VCluster::exit(){
     if (VISUAL)  mDisplayer->exit();
     for (int i=0;i<NUM_CAMERAS;i++){
-        VNode[i]->exit();
+        mAVR[i]->exit();
     }
 }
 
@@ -201,7 +201,7 @@ bool VCluster::PreProcess(){
 #endif
 
 
-    VNode[0]->FeedSlamTheSlamFrame();
+    mAVR[0]->FeedSlamTheSlamFrame();
 
 
 #ifdef EVAL
@@ -216,7 +216,7 @@ void VCluster::compressDynamic(){
 //    cout << "compressing \n ";
     cv::Mat tmp;
     AVRFrame currFrame;
-    VNode[0]->getCurrentAVRFrame(currFrame);
+    mAVR[0]->getCurrentAVRFrame(currFrame);
     currFrame.DynamicPC.copyTo(tmp);
     mCodec->encode(tmp);
 }
@@ -226,9 +226,9 @@ void VCluster::RoadDetection(){
     /// merge PC
     cv::Mat totalPC;
     AVRFrame currFrame;
-    VNode[0]->getCurrentAVRFrame(currFrame);
+    mAVR[0]->getCurrentAVRFrame(currFrame);
     if (RX){
-        hconcat(currFrame.pointcloud, VNode[0]->transRxPC,totalPC);
+        hconcat(currFrame.pointcloud, mAVR[0]->transRxPC,totalPC);
     }else{
         currFrame.pointcloud.copyTo(totalPC);
     }
@@ -269,8 +269,8 @@ void VCluster::postProcess(){
     cout << "postProcess starts" << endl;
 #endif
 
-    VNode[0]->calcOpticalFlow();
-    VNode[0]->analyze();
+    mAVR[0]->calcOpticalFlow();
+    mAVR[0]->analyze();
 //    compressDynamic();
 
     if (OfflineTXRX){
@@ -287,8 +287,8 @@ void VCluster::postProcess(){
     cout << "TimeStamp: " << double(end.tv_sec-tInit.tv_sec)*1000 + double(end.tv_usec-tInit.tv_usec) / 1000 << "ms: ";
     cout << "postProcess ends: " << double(end.tv_sec-start.tv_sec)*1000 + double(end.tv_usec-start.tv_usec) / 1000<< "ms" << endl;
 #endif
-    if (DECOUPLE2IMG) VNode[0]->mIo->writeCurrentStereoFrame();
-    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+    if (DECOUPLE2IMG) mAVR[0]->mIo->writeCurrentStereoFrame();
+    if (DEBUG) mAVR[0]->mIo->logCurrentFrame();
 }
 
 
@@ -298,7 +298,7 @@ void VCluster::TXRX(){
 
     if (TX && SEND) {
         /// get the frame now before it gets sinked, and then fork off
-        VNode[0]->getCurrentAVRFrame(mSender->FrameToSend);
+        mAVR[0]->getCurrentAVRFrame(mSender->FrameToSend);
         if (!SILENCENOMOTION || mSender->FrameToSend.ExistsMotion() || silentCount > 3 ){
             silentCount = 0;
             /// sending objects
@@ -375,7 +375,7 @@ void VCluster::TXRX_viaDisk(){
     timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
     timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
 #endif
-    if (DEBUG) VNode[0]->mIo->logCurrentFrame();
+    if (DEBUG) mAVR[0]->mIo->logCurrentFrame();
 
     // sending objects
     if (TX && SEND) {
@@ -408,7 +408,7 @@ void VCluster::visualize(){
     if (VISUAL && PCVISUAL ) {
 //        mDisplayer->showCurFrame();
         AVRFrame currFrame;
-        VNode[0]->getCurrentAVRFrame(currFrame);
+        mAVR[0]->getCurrentAVRFrame(currFrame);
         if (TX) {
 //                mDisplayer->showPC(VNode[0]->lastStereoData[ZEDCACHESIZE-1].DynamicPC);
 
@@ -416,23 +416,23 @@ void VCluster::visualize(){
 //            saveOpenGL(1000, 1000);
         }
         else if (RX) {
-            RxFrame* rx = VNode[0]->RxBuffer.getCurrentRxFrame();
-            if (VNode[0]->trackGood() && !(rx->RxTCW.empty())){
+            RxFrame* rx = mAVR[0]->RxBuffer.getCurrentRxFrame();
+            if (mAVR[0]->trackGood() && !(rx->RxTCW.empty())){
 
 
                 /// calculating rela position
                 cv::Mat Trc;
-                VNode[0]->calcRelaCamPos(rx->RxTCW, Trc);
+                mAVR[0]->calcRelaCamPos(rx->RxTCW, Trc);
 
                 /// PC manipulation
-                VNode[0]->transformRxPCtoMyFrameCoord(Trc, rx->RxPC, VNode[0]->transRxPC);
+                mAVR[0]->transformRxPCtoMyFrameCoord(Trc, rx->RxPC, mAVR[0]->transRxPC);
                 if (DYNAMICS){
-                    VNode[0]->transformRxPCtoMyFrameCoord(Trc, rx->RxDynamicPC, VNode[0]->transRxDynamicPC);
+                    mAVR[0]->transformRxPCtoMyFrameCoord(Trc, rx->RxDynamicPC, mAVR[0]->transRxDynamicPC);
                 }
 
                 /// received frame feature matching with curr frame, eval only
 //                VNode[0]->TransPCvsPC();
-                VNode[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp_ZEDTS);
+                mAVR[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp_ZEDTS);
             }
             /// Dead-Reckoning
 //            else{
@@ -452,19 +452,19 @@ void VCluster::visualize(){
 //            }
 
             /// visualize
-            if (!(VNode[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
+            if (!(mAVR[0]->transRxPC.empty()) ) { //&&  !(VNode[0]->transRxDynamicPC.empty())
 
                 if (VehicleControl) {
                     RoadDetection();
                 }else{
-                    mDisplayer->showMergedPC(VNode[0]->transRxPC);
+                    mDisplayer->showMergedPC(mAVR[0]->transRxPC);
                 }
             }
 
 
             if(COOP){
                 cv::Mat nonOverlapingPC;
-                VNode[0]->removeOverlap(VNode[0]->transRxDynamicPC).copyTo(nonOverlapingPC);
+                mAVR[0]->removeOverlap(mAVR[0]->transRxDynamicPC).copyTo(nonOverlapingPC);
 //                    mDisplayer->showSplitScreen(VNode[0]->transRxPC,nonOverlapingPC);
                 mDisplayer->showPC(nonOverlapingPC);
 //                    mDisplayer->showPC(VNode[0]->transRxPC);

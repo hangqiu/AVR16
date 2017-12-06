@@ -94,6 +94,8 @@ class IO;
 class AugmentedVR {
 
 public: //TODO change to private and add agetter seter
+    bool live = false;
+
     int CamId;
     unsigned long long startTS;
     unsigned long long ZEDStartTSOffset;
