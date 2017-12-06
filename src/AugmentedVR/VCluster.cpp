@@ -31,7 +31,7 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY[
     }else{
         /// live mode
-        mAVR[0]->live = true;
+        live = true;
         cout << "Live Mode" << endl;
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
@@ -51,6 +51,9 @@ VCluster::VCluster(const string mapFile, string VPath="") {
     mAVR[i] = new AugmentedVR(CamId, init_parameters, runtime_parameters, ZEDConfidence);
     mAVR[i]->initZEDCam(startFrameId);
 
+    if (live){
+        mAVR[i]->live = true;
+    }
     if (ReuseMap){
         cout << "Reusing Map\n";
         mAVR[i]->initSLAMStereo(VocFile, CalibrationFile,true, mapFile);
