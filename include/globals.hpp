@@ -66,6 +66,7 @@ extern double MOTIONTHRESH_PERPIXEL;
 extern int PATCHSIZE;// expand step x pixels
 extern double HEIGHT_THRESH;
 extern double DEPTH_THRESH;
+extern bool ManualPC;
 extern bool INIT_FLAG;
 extern bool ReuseMap;
 //extern bool EVAL;

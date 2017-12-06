@@ -133,6 +133,11 @@ void loadParams(){
         if (toggleName.compare("ServerAddress")==0) ServerAddress= toggleValue;
         if (toggleName.compare("ServerPort")==0) ServerPort= toggleValue;
         if (toggleName.compare("RXACK")==0) RXACK= toggleValue.compare("true")==0;
+        if (toggleName.compare("ManualPC")==0) {
+            ManualPC= toggleValue.compare("true")==0;
+            DEBUG = false;
+            PAUSE_FLAG = true;
+        }
     }
 
 }
