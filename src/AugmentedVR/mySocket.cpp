@@ -87,13 +87,13 @@ int mySocket::Bind(const char * port){
             exit(1);
         }
 
-        int size = 4000000;
+        int size = 6000000;
 
-        if (setsockopt(bindSock, SOL_SOCKET, SO_SNDBUF, &size, sizeof(int))
-            == -1) {
-            perror("setsockopt");
-            exit(1);
-        }
+//        if (setsockopt(bindSock, SOL_SOCKET, SO_SNDBUF, &size, sizeof(int))
+//            == -1) {
+//            perror("setsockopt");
+//            exit(1);
+//        }
 
         if (bind(bindSock, p->ai_addr, p->ai_addrlen) == -1) {
             close(bindSock);

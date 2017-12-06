@@ -679,7 +679,9 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
         cout << "TS diff: " << cur.ZEDTS-rxZEDTS << endl;
 //        debugPC(transRxPC);
     }
-    LatencyCompensation(rxMV, transRxPC, (cur.ZEDTS-rxZEDTS)/1000);
+    if (!rxMV.empty()){
+        LatencyCompensation(rxMV, transRxPC, (cur.ZEDTS-rxZEDTS)/1000);
+    }
 //    if (DEBUG)debugPC(transRxPC);
 }
 
