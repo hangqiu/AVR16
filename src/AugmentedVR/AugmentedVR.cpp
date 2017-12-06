@@ -617,7 +617,8 @@ void AugmentedVR::ObjectMotionAnalysis(){
         cout << "Count: " << count << endl;
         cout << "Total Motion Vec: " << total_motionVec << " >> " << norm(total_motionVec)<< endl;
         cout << "FilterCount: " << filterCount << endl;
-        cout << "Total Filter Motion Vec: " << avg_filterMotionVec << " >> " << norm(avg_filterMotionVec)<< endl;
+        cout << "Total Filter Motion Vec: " << avg_filterMotionVec << " >> " << norm(avg_filterMotionVec)
+                <<  "m/us=" << norm(avg_filterMotionVec)*2236940<<"mph" << endl;
     }
 
     total_motionVec.copyTo(frameCache.CurrentFrame.ObjectMotionVec);

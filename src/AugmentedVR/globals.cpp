@@ -11,42 +11,71 @@
 using namespace std;
 
 
-bool COOP = false;
-bool TXFRAME_FOREVAL = false;
-bool RXACK = false;
-bool ManualPC = false;
+//bool ManualPC = false;
+//bool COOP = false;
+//bool TXFRAME_FOREVAL = false;
+//bool RXACK = false;
+//bool PIPELINE = false;
+//bool Parallel_TXRX = true;
+//bool TXRXDYNAMICPC = false;
+//bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
+//bool VehicleControl = false;
+//bool SILENCENOMOTION = false;
+//int DEBUG = 0;
+//bool V2VDEBUG = false;
+//bool LOCKDEBUG = false;
+//bool VISUAL = false;
+//bool VISUAL = true;
+//bool SHOW_CAMMOTION = true;
+//bool SHOW_CAMMOTION = false;
+//bool DYNAMICS = false;
+//bool PAUSE_FLAG = false;
+//bool PAUSE_FLAG = true;
+//int MAX_COUNT = 2000;
+//int ZEDCACHESIZE = 4;
+//string MyAddress = AddressB;
+//string MyPort = PortB;
+//string ServerAddress = AddressA;
+//string ServerPort = PortA;
 
-bool ReuseMap = false;
-//bool ReuseMap = true;
-bool PIPELINE = false;
+bool ManualPC;
+bool COOP;
+bool TXFRAME_FOREVAL;
+bool RXACK;
+bool PIPELINE;
+bool Parallel_TXRX;
+bool TXRXDYNAMICPC;
+bool ADAPTIVE_STREAMING; ///adapt to the bandwidth
+bool VehicleControl;
+bool SILENCENOMOTION;
+int DEBUG = 0;
+bool V2VDEBUG;
+bool LOCKDEBUG;
+bool VISUAL;
+bool SHOW_CAMMOTION;
+bool DYNAMICS;
+bool PAUSE_FLAG;
+int MAX_COUNT;
+string MyAddress;
+string MyPort;
+string ServerAddress;
+string ServerPort;
+int ZEDCACHESIZE;
 
 bool OfflineTXRX = false;
-bool Parallel_TXRX = true;
-bool TXRXDYNAMICPC = false;
-bool ADAPTIVE_STREAMING = true; ///adapt to the bandwidth
-bool VehicleControl = false;
-bool SILENCENOMOTION = false;
-
-int DEBUG = 0;
-bool V2VDEBUG = false;
-bool LOCKDEBUG = false;
-bool VISUAL = false;
-//bool VISUAL = true;
 bool DEBUGVISUAL = true;
+bool ReuseMap = false;
+//bool ReuseMap = true;
 bool SLAMVISUAL = true;
 bool PCVISUAL = true;
 
-bool SHOW_CAMMOTION = true;
-//bool SHOW_CAMMOTION = false;
 
-bool DYNAMICS = false;
 
-bool PAUSE_FLAG = false;
-//bool PAUSE_FLAG = true;
+
 
 //const int NUM_CAMERAS = 2;
 const int FPS = 15;
-int ZEDCACHESIZE = 4;
+
 
 /// Toggles;
 bool SHOW_IMG = true;
@@ -57,7 +86,7 @@ bool DECOUPLE2IMG = false;
 int FRAME_ID = 0;
 int TRACK_FREQ = 30;
 
-int MAX_COUNT = 2000;
+
 
 double motionRatio = 0.05;
 
@@ -110,10 +139,10 @@ string AddressB = "192.168.0.187";
 string PortB = "34569";
 
 /// laptop 187
-string MyAddress = AddressB;
-string MyPort = PortB;
-string ServerAddress = AddressA;
-string ServerPort = PortA;
+//string MyAddress = AddressB;
+//string MyPort = PortB;
+//string ServerAddress = AddressA;
+//string ServerPort = PortA;
 /// desktop 166
 //string MyAddress = AddressA;
 //string MyPort = PortA;
