@@ -102,7 +102,7 @@ public:
 
     void updateMotionMask_via_ThresholdingPCDisplacement();
 
-    void removeMotionMaskHighLow();
+    void removeMotionMaskHighFar();
 
     void updateDynamicsFromMotionMask();
 

@@ -68,6 +68,7 @@ double MOTIONTHRESH_PERPIXEL = 0.08; //meters
 int PATCHSIZE = 10; // expand step x pixels
 
 double HEIGHT_THRESH = -2;
+double DEPTH_THRESH = 8;
 
 bool INIT_FLAG = false;
 //bool EVAL = false;

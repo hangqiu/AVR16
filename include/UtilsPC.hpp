@@ -8,6 +8,7 @@
 struct xyzNorm{
     float x,y,z;
     double norm;
+    int id;
 };
 
 void shiftPC(cv::Mat &pc1, cv::Scalar vec);
@@ -16,6 +17,8 @@ cv::Mat MatPerElementNorm(cv::Mat MotionVecMat);
 void transformPC_Via_TransformationMatrix(cv::Mat& T, cv::Mat& PCReceived, cv::Mat &ret);
 void transformPC_Via_TransformationMatrix(cv::Mat& tlc, cv::Mat& Rlc, cv::Mat& PCReceived, cv::Mat &ret);
 void debugPC(cv::Mat DebugPC);
-void removePointCloud_HighLow(cv::Mat &inputPC, cv::Mat& outputPC,cv::Mat & FilteringMask);
+void removePointCloud_High(cv::Mat &inputPC, cv::Mat &outputPC, cv::Mat &FilteringMask);
+void removePointCloud_Far(cv::Mat &inputPC, cv::Mat &outputPC, cv::Mat &FilteringMask);
+
 
 #endif //PROJECT_PCMANIPULATOR_H

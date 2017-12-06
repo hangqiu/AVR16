@@ -181,7 +181,7 @@ void AVRFrame::MotionAnalysis(){
 //    FrameLock.lock();
     updatePCDisplacementFromMotionVec();
     updateMotionMask_via_ThresholdingPCDisplacement();
-    removeMotionMaskHighLow();
+    removeMotionMaskHighFar();
     updateDynamicsFromMotionMask();
 //    FrameLock.unlock();
 }
@@ -221,10 +221,12 @@ void AVRFrame::updateMotionMask_via_ThresholdingPCDisplacement(){
 
 }
 
-void AVRFrame::removeMotionMaskHighLow(){
+void AVRFrame::removeMotionMaskHighFar(){
     assert(!MotionMask.empty());
     cv::Mat tmpMask,tmpPC;
-    removePointCloud_HighLow(pointcloud,tmpPC,tmpMask);
+    removePointCloud_High(pointcloud, tmpPC, tmpMask);
+    MotionMask &= tmpMask;
+    removePointCloud_Far(pointcloud, tmpPC, tmpMask);
     MotionMask &= tmpMask;
 }
 

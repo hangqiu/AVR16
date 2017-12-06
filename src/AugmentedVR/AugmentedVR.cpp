@@ -561,7 +561,10 @@ void AugmentedVR::ObjectMotionAnalysis(){
 //                    }
                     cv::Mat motionVec = cur.PC_noColor(cv::Rect(int(cur.tracked_keypoints[i].x), int(cur.tracked_keypoints[i].y), 1, 1))
                                         -cacheHead.PC_noColor(cv::Rect(int(cacheHead.tracked_keypoints[i].x),int(cacheHead.tracked_keypoints[i].y), 1, 1));
-
+                    if (DEBUG) cout << int(cur.tracked_keypoints[i].x) << ","<<int(cur.tracked_keypoints[i].y) << endl;
+                    if (DEBUG) cout << (cur.tracked_keypoints[i].x) << ","<<(cur.tracked_keypoints[i].y) << endl;
+                    if (DEBUG) cout << cur.PC_noColor(cv::Rect(int(cur.tracked_keypoints[i].x), int(cur.tracked_keypoints[i].y), 1, 1)) << endl;
+                    if (DEBUG) cout << cur.pointcloud(cv::Rect(int(cur.tracked_keypoints[i].x), int(cur.tracked_keypoints[i].y), 1, 1)) << endl;
                     //// get speed motionvec
                     motionVec /= double(cur.frameTS-cacheHead.frameTS);
 
@@ -573,7 +576,7 @@ void AugmentedVR::ObjectMotionAnalysis(){
                     count++;
 
                     /// record the motion vector
-                    xyzNorm xyzd = {motionVec.at<float>(0,0), motionVec.at<float>(0,1),motionVec.at<float>(0,2),dist};
+                    xyzNorm xyzd = {motionVec.at<float>(0,0), motionVec.at<float>(0,1),motionVec.at<float>(0,2),dist,i};
                     mv.push_back(xyzd);
                 }
             }
@@ -591,7 +594,7 @@ void AugmentedVR::ObjectMotionAnalysis(){
     for (int i=0;i<mv.size();i++){
         if (mv[i].norm < avgDist * 1.6 && mv[i].norm > avgDist*0.4){
             if (DEBUG) {
-                drawMatchedKeypoints(img,cacheHead.tracked_keypoints[i],cur.tracked_keypoints[i], to_string(i));
+                drawMatchedKeypoints(img,cacheHead.tracked_keypoints[mv[i].id],cur.tracked_keypoints[mv[i].id], to_string(mv[i].id));
             }
             filteredMotionVec[0]+= mv[i].x;
             filteredMotionVec[1]+= mv[i].y;
@@ -606,6 +609,7 @@ void AugmentedVR::ObjectMotionAnalysis(){
 
     if (DEBUG && VISUAL){
         cv::Mat masked_img;
+//        img.copyTo(masked_img, cur.MotionMask);
         img.copyTo(masked_img);
         imshow("masked KLT matches", masked_img);
     }
