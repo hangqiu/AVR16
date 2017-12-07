@@ -672,25 +672,25 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
         }
     }
 
-    if (ManualPC){
+    if (ManualPC || DEBUG){
 
         imshow("TranPCvsPC_Curr", img);
         cv::setMouseCallback("TranPCvsPC_Curr", onMouseCallback_DisplayVoxel, &(cur.pointcloud));
         imshow("TranPCvsPC_Rx", rxFrame);
         cv::setMouseCallback("TranPCvsPC_Rx", onMouseCallback_DisplayVoxel, &(transRxPC));
     }
-
+    debugPC(transRxPC);
 
     /// time diff
     if (DEBUG){
 
         cout << "Current TS: " << cur.ZEDTS << endl;
         cout << "Rx TS:" << rxZEDTS << endl;
-        cout << "TS diff: " << cur.ZEDTS-rxZEDTS << endl;
+        cout << "TS diff: " << (long long)(cur.ZEDTS-rxZEDTS) << endl;
 //        debugPC(transRxPC);
     }
     if (!rxMV.empty()){
-        LatencyCompensation(rxMV, transRxPC, (cur.ZEDTS-rxZEDTS)/1000);
+        LatencyCompensation(rxMV, transRxPC, (long long)(cur.ZEDTS-rxZEDTS)/1000);
     }
 //    if (DEBUG)debugPC(transRxPC);
 }
@@ -742,7 +742,7 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
 //}
 
 
-void AugmentedVR::LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, unsigned long long TSdiff){
+void AugmentedVR::LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, long long TSdiff){
 
     cv::Mat tmp;
 //    cout << RxMotionVec << endl;

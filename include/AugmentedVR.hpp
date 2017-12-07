@@ -295,7 +295,7 @@ public:
     void TransPCvsPC();
     void TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, unsigned long long rxTS);
 
-    void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, unsigned long long TSdiff);
+    void LatencyCompensation(cv::Mat& MotionVec, cv::Mat& PC, long long TSdiff);
 };
 
 
