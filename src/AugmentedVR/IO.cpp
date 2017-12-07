@@ -17,6 +17,7 @@ IO::IO(AugmentedVR *myAVR) : myAVR(myAVR) {
     TimeFile.open(commPath + "/times.txt");
     logFile.open(commPath + "/FrameInfo.txt");
     TXRXFile.open("TXRX.txt");
+//    PCFile.open("PC.txt");
 }
 
 IO::~IO() {
@@ -24,6 +25,7 @@ IO::~IO() {
     logFile.close();
     TimeFile.close();
     TXRXFile.close();
+//    PCFile.close();
 }
 
 

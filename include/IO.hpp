@@ -25,10 +25,12 @@ private:
 
     ofstream logFile;
     ofstream TXRXFile;
+
+
 //    fstream traceLogFile;
     AugmentedVR* myAVR;
-
-
+public:
+//    ofstream PCFile;
 public:
     void writeCurrentStereoFrame();
     void logCurrentFrame();

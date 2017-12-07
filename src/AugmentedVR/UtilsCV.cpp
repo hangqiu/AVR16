@@ -110,13 +110,16 @@ void drawMatchedKeypoints(cv::Mat & img, cv::Point2f& kp1, cv::Point2f& kp2, str
 }
 
 void onMouseCallback_DisplayVoxel(int32_t event, int32_t x, int32_t y, int32_t flag, void* param) {
-
+    ofstream PCFile("PC.txt",std::ofstream::app);
     cv::Mat* PC =(cv::Mat*)param;
     if (event == cv::EVENT_LBUTTONDOWN) {
         if (!(*PC).empty()){
             cout << "Point: (" << x << "," << y << "), PC: " << (*PC)(cv::Rect(x,y,1,1)) << endl;
+            PCFile << "Point: (" << x << "," << y << "), PC: " << (*PC)(cv::Rect(x,y,1,1)) << endl;
         }else{
             cout << "Invalid PC\n";
+            PCFile << "Invalid PC\n";
         }
     }
+    PCFile.close();
 }
