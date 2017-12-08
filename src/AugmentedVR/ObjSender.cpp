@@ -262,8 +262,11 @@ void ObjSender::StreamMotionVec(){
     SetSendingFlagTrue();
     StreamStreamType(MOTIONVEC);
     StreamPointCloud_FrameSeq(Frame);
-//    StreamPointCloud_TimeStamp_FrameTS(FrameToSend);
-    StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    if (!ABSOLUTETIMESTAMP){
+        StreamPointCloud_TimeStamp_FrameTS(Frame);
+    }else{
+        StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    }
     StreamPointCloud_ObjectMotionVec(Frame);
     SetSendingFlagFalse();
     SocketLock.unlock();
@@ -284,8 +287,11 @@ void ObjSender::StreamPointCloud(){
     SetSendingFlagTrue();
     StreamStreamType(PC);
     StreamPointCloud_FrameSeq(Frame);
-//    StreamPointCloud_TimeStamp_FrameTS(Frame);
-    StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    if (!ABSOLUTETIMESTAMP){
+        StreamPointCloud_TimeStamp_FrameTS(Frame);
+    }else{
+        StreamPointCloud_TimeStamp_ZEDTS(Frame);
+    }
     StreamPointCloud_TCW(Frame);
     if (TXRXDYNAMICPC){
         StreamPointCloud_DynamicPC(Frame);

@@ -224,8 +224,11 @@ void ObjReceiver::ACKPCFrame(){
 
 void ObjReceiver::ReceivePointCloudStream(){
     int seq = ReceivePointCloudStream_FrameSeq();
-//    unsigned long long ts = ReceivePointCloudStream_TimeStamp_FrameTS();
-    unsigned long long tsZED = ReceivePointCloudStream_TimeStamp_ZEDTS();
+    if (!ABSOLUTETIMESTAMP){
+        ReceivePointCloudStream_TimeStamp_FrameTS();
+    }else{
+        ReceivePointCloudStream_TimeStamp_ZEDTS();
+    }
     ReceivePointCloudStream_TCW();
     if(TXRXDYNAMICPC){
         ReceivePointCloudStream_DynamicPC();
@@ -240,11 +243,15 @@ void ObjReceiver::ReceivePointCloudStream(){
 
 void ObjReceiver::ReceiveMotionVecStream(){
     int seq = ReceivePointCloudStream_FrameSeq();
-//    unsigned long long ts = ReceivePointCloudStream_TimeStamp_FrameTS();
-    unsigned long long tsZED = ReceivePointCloudStream_TimeStamp_ZEDTS();
+    unsigned long long ts;
+    if (!ABSOLUTETIMESTAMP){
+        ts = ReceivePointCloudStream_TimeStamp_FrameTS();
+    }else{
+        ts = ReceivePointCloudStream_TimeStamp_ZEDTS();
+    }
     cv::Mat delta;
     ReceivePointCloudStream_ObjectMotionVec(delta);
-    myAVR->RxBuffer.integrateCurrentFrameRxMotionVec(seq, tsZED,delta);
+    myAVR->RxBuffer.integrateCurrentFrameRxMotionVec(seq, ts,delta);
 
 }
 

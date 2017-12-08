@@ -31,8 +31,9 @@ VCluster::VCluster(const string mapFile, string VPath="") {
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_QUALITY; //need quite a powerful graphic card in QUALITY[
     }else{
         /// live mode
-        live = true;
         cout << "Live Mode" << endl;
+        live = true;
+        ABSOLUTETIMESTAMP = true;
         init_parameters.depth_mode = DEPTH_MODE::DEPTH_MODE_PERFORMANCE;
         init_parameters.camera_resolution = RESOLUTION::RESOLUTION_VGA;
         init_parameters.camera_fps = 30;
@@ -435,8 +436,11 @@ void VCluster::visualize(){
                 }
 
                 /// received frame feature matching with curr frame, eval only
-//                VNode[0]->TransPCvsPC();
-                mAVR[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp_ZEDTS);
+                if (ABSOLUTETIMESTAMP){
+                    mAVR[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp_ZEDTS);
+                }else{
+                    mAVR[0]->TransPCvsPC(rx->RxTCW, rx->RxFrameLeft, rx->RxLowPassMotionVec, rx->RxTimeStamp);
+                }
             }
             /// Dead-Reckoning
 //            else{

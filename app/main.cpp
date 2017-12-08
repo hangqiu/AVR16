@@ -140,6 +140,8 @@ void loadParams(){
                 PAUSE_FLAG = true;
             }
         }
+        if (toggleName.compare("ABSOLUTETIMESTAMP")==0) ABSOLUTETIMESTAMP= toggleValue.compare("true")==0;
+
     }
 
 }

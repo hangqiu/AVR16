@@ -39,6 +39,7 @@ using namespace std;
 //string ServerPort = PortA;
 
 bool ManualPC;
+bool ABSOLUTETIMESTAMP;
 bool COOP;
 bool TXFRAME_FOREVAL;
 bool RXACK;

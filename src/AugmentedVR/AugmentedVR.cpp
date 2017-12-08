@@ -693,7 +693,12 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
 //        debugPC(transRxPC);
     }
     if (!rxMV.empty()){
-        LatencyCompensation(rxMV, transRxPC, (long long)(cur.ZEDTS-rxZEDTS)/1000);
+        if (ABSOLUTETIMESTAMP){
+
+            LatencyCompensation(rxMV, transRxPC, (long long)(cur.ZEDTS-rxZEDTS)/1000);
+        }else{
+            LatencyCompensation(rxMV, transRxPC, (long long)(cur.frameTS-rxZEDTS)/1000);
+        }
     }
 //    if (DEBUG)debugPC(transRxPC);
 }
