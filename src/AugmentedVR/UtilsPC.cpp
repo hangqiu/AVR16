@@ -128,6 +128,11 @@ void debugPC(cv::Mat DebugPC){
 //                cout << cv::countNonZero(mask);
     cout << "Value in the middle, " << DebugPCChan.at<float>(DebugPC.cols/2,DebugPC.rows/2) << endl;
     cout << "Value in the middle, " << DebugPC.at<cv::Vec4f>(DebugPC.cols/2,DebugPC.rows/2) << endl;
+
+    ofstream PCFile("PC.txt",std::ofstream::app);
+    PCFile << DebugPC.at<cv::Vec4f>(DebugPC.cols/2,DebugPC.rows/2) << endl;
+    PCFile.close();
+
 }
 
 

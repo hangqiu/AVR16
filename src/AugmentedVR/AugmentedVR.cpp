@@ -209,7 +209,10 @@ void AugmentedVR::trackCam() {
 //    if(COOP){
 //        CamMotionMat.at<float>(0,3) +=7;
 //    }
-    if (SHOW_CAMMOTION) cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat << endl;
+    if (SHOW_CAMMOTION && !frameCache.CurrentFrame.CamMotionMat.empty()) {
+        cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat << endl;
+//        cout << "CamMotionMat: \n" << frameCache.CurrentFrame.CamMotionMat.rowRange(0,3).col(3) << endl;
+    }
 }
 
 bool AugmentedVR::trackGood(){
@@ -679,7 +682,7 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
         imshow("TranPCvsPC_Rx", rxFrame);
         cv::setMouseCallback("TranPCvsPC_Rx", onMouseCallback_DisplayVoxel, &(transRxPC));
     }
-    debugPC(transRxPC);
+//    debugPC(transRxPC);
 
     /// time diff
     if (DEBUG){

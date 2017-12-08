@@ -545,7 +545,12 @@ void FrameCache::getLowPassFilteredMotionVectorForCurrFrame(){
     if (count!=0){
         lp_total /= count;
         lp_total.copyTo(CurrentFrame.LowPass_FilteredObjectMotionVec);
-        if (DEBUG) cout << "Filtered Low Pass Total Motion Vec: " << lp_total<< " >> "
-                        << norm(lp_total)<<  "m/us=" << norm(lp_total)*2236940<<"mph" << endl;
+        if (DEBUG) {
+            cout << "Filtered Low Pass Total Motion Vec: " << lp_total<< " >> "
+                 << norm(lp_total)<<  "m/us=" << norm(lp_total)*2236940<<"mph" << endl;
+            ofstream speedFile("Spd.txt", ofstream::app);
+            speedFile << norm(lp_total)*2236940 << endl;
+            speedFile.close();
+        }
     }
 }
