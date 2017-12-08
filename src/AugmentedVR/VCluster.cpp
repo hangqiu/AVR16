@@ -83,8 +83,8 @@ void VCluster::run(){
 
 
     char key = ' ';
-    int count = 0;
 #ifdef EVAL
+    int count = 0;
     timeval tTotalStart, tFetchStart, tCacheStart, tSlamStart, tPCMotionStart, tPCMotionFilterStart, tObjectFilterStart, tTXStart, tRXStart, tPCmergeStart,tDeadReckonStart;
     timeval tTotalEnd, tFetchEnd, tCacheEnd, tSlamEnd, tPCMotionEnd, tPCMotionFilterEnd, tObjectFilterEnd, tTXEnd, tRXEnd, tPCmergeEnd, tDeadReckonEnd;
     timeval tInit;
@@ -116,6 +116,7 @@ void VCluster::run(){
         if (VISUAL) key = mDisplayer->showCurFrame();
 
 #ifdef EVAL
+        count ++;
         gettimeofday(&tFetchStart, NULL);
         gettimeofday(&tTotalStart, NULL);
 #endif
