@@ -684,20 +684,28 @@ void AugmentedVR::TransPCvsPC(cv::Mat& rxTcw, cv::Mat& rxFrame, cv::Mat& rxMV, u
     }
 //    debugPC(transRxPC);
 
-    /// time diff
-    if (DEBUG){
 
-        cout << "Current TS: " << cur.ZEDTS << endl;
-        cout << "Rx TS:" << rxZEDTS << endl;
-        cout << "TS diff: " << (long long)(cur.ZEDTS-rxZEDTS) << endl;
-//        debugPC(transRxPC);
-    }
     if (!rxMV.empty()){
         if (ABSOLUTETIMESTAMP){
-
             LatencyCompensation(rxMV, transRxPC, (long long)(cur.ZEDTS-rxZEDTS)/1000);
+            /// time diff
+            if (DEBUG){
+
+                cout << "Current TS: " << cur.ZEDTS << endl;
+                cout << "Rx TS:" << rxZEDTS << endl;
+                cout << "TS diff: " << (long long)(cur.ZEDTS-rxZEDTS) << endl;
+//        debugPC(transRxPC);
+            }
         }else{
             LatencyCompensation(rxMV, transRxPC, (long long)(cur.frameTS-rxZEDTS)/1000);
+            /// time diff
+            if (DEBUG){
+
+                cout << "Current TS: " << cur.frameTS << endl;
+                cout << "Rx TS:" << rxZEDTS << endl;
+                cout << "TS diff: " << (long long)(cur.frameTS-rxZEDTS) << endl;
+//        debugPC(transRxPC);
+            }
         }
     }
 //    if (DEBUG)debugPC(transRxPC);
