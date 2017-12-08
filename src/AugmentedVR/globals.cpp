@@ -40,6 +40,7 @@ using namespace std;
 
 bool ManualPC;
 bool ABSOLUTETIMESTAMP;
+bool DELAYCOMPENSATION;
 bool COOP;
 bool TXFRAME_FOREVAL;
 bool RXACK;

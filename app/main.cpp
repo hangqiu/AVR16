@@ -141,6 +141,7 @@ void loadParams(){
             }
         }
         if (toggleName.compare("ABSOLUTETIMESTAMP")==0) ABSOLUTETIMESTAMP= toggleValue.compare("true")==0;
+        if (toggleName.compare("DELAYCOMPENSATION")==0) DELAYCOMPENSATION= toggleValue.compare("true")==0;
 
     }
 
