@@ -2,6 +2,9 @@
 
 AVR extends vehicular vision to see beyond obstruction by sharing views through V2V communications.
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/9rOtH3hDcw8/0.jpg)](https://www.youtube.com/watch?v=9rOtH3hDcw8)
+
+
 Note: 
 - We are actively working and updating this repo to incorporate more features and datasets.
 - For those who want to play with the code, We will release a mini-dataset and release a stable version soon.
