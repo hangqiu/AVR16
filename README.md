@@ -35,18 +35,18 @@ Note:
     make
     
 ## Citation
-```
+```bibtex
 @inproceedings{avr,
-author = {Qiu, Hang and Ahmad, Fawad and Bai, Fan and Gruteser, Marco and Govindan, Ramesh},
-title = {AVR: Augmented Vehicular Reality},
-year = {2018},
-url = {https://doi.org/10.1145/3210240.3210319},
-doi = {10.1145/3210240.3210319},
-booktitle = {Proceedings of the 16th Annual International Conference on Mobile Systems, Applications, and Services},
-pages = {81–95},
-numpages = {15},
-keywords = {Autonomous Cars, Extended Vision, Collaborative Sensing},
-location = {Munich, Germany},
-series = {MobiSys '18}
+    author = {Qiu, Hang and Ahmad, Fawad and Bai, Fan and Gruteser, Marco and Govindan, Ramesh},
+    title = {AVR: Augmented Vehicular Reality},
+    year = {2018},
+    url = {https://doi.org/10.1145/3210240.3210319},
+    doi = {10.1145/3210240.3210319},
+    booktitle = {Proceedings of the 16th Annual International Conference on Mobile Systems, Applications, and Services},
+    pages = {81–95},
+    numpages = {15},
+    keywords = {Autonomous Cars, Extended Vision, Collaborative Sensing},
+    location = {Munich, Germany},
+    series = {MobiSys '18}
 }
 ```
